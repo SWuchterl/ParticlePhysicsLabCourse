@@ -61,13 +61,20 @@ void TTBarAnalysis::CreateHistograms()
   // numbers specify the number of bins, and the lower and upper bound of the
   // histogram.
   CreateHisto("Muon_Pt", "Pt of all muons [GeV]", 50, 0, 250);
-  CreateHisto("NIsoMuon", "Number of isolated muons", 10, 0, 10);
-  CreateHisto("Muon_Eta", "Eta of all muons", 20, -2.6, 2.6);
+  CreateHisto("NIsoMuon", "Number of isolated muons", 5, 0, 5);
+  CreateHisto("Muon_Eta", "Eta of all muons", 20, -3.5, 3.5);
   CreateHisto("Muon_E", "Energy distribution [GeV]", 50, 0, 750);
   CreateHisto("MET", "Missing transverse energy [GeV]", 25,0,500);
-
-
-
+  CreateHisto("Muon_Phi", "Phi of all muons", 20, -3.5, 3.5);
+  CreateHisto("Jet_Pt", "Pt of all jets [GeV]", 50, 0, 250);
+  CreateHisto("Jet_Eta", "Eta of all jets", 20, -5.6, 5.6);
+  CreateHisto("Jet_E", "Energy distribution [GeV]", 50, 0, 750);
+  CreateHisto("Jet_Phi", "Phi of all jets", 20, -3.5, 3.5);
+  CreateHisto("NJetID", "Number of Jets(ID)", 13, 0, 13);
+  CreateHisto("NJetID_btag", "Number of b-tagged Jets(ID)", 7, 0, 7);
+  CreateHisto("NPrimaryVertices", "Number of primary Vertices", 50, 0, 50);
+  CreateHisto("DrellYan_mll", "mll [GeV]", 60, 60, 120);
+  CreateHisto("DrellYan_met", "met [GeV]", 40, 0, 80);
 }
 
 Bool_t TTBarAnalysis::Process(Long64_t entry)
@@ -115,6 +122,8 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
       Fill("Muon_Pt", Muons[i].Pt());
 			Fill("Muon_Eta", Muons[i].Eta());
 			Fill("Muon_E", Muons[i].E());
+			Fill("Muon_Phi", Muons[i].Phi());
+			
       // you can also access Muons[i].E(), .Px(), .Py(), .Pz(), .Eta(), .Phi(), ...
       // and the same with Electrons, Photons, Jets, ...
       // see Documentation of ROOT TLorentzVector
@@ -132,6 +141,52 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 
 
   // now start here applying the jet ID...
+
+	// jet id
+  vector<int> jets_ID;
+  vector<int> jets_ID_btag;
+  
+  for (unsigned int i = 0; i < Jets.size(); i++) {
+    if (Jets[i].GetJetID()) {
+      jets_ID.push_back(i);
+      Fill("Jet_Pt", Jets[i].Pt());
+	  Fill("Jet_Eta", Jets[i].Eta());
+	  Fill("Jet_E", Jets[i].E());
+      Fill("Jet_Phi", Jets[i].Phi());
+      if (Jets[i].IsBTagged()){
+		jets_ID_btag.push_back(i);
+	  }
+    }
+  }
+  
+  int NJetID = jets_ID.size();
+  Fill("NJetID", NJetID);
+  int NJetID_btag = jets_ID_btag.size();
+  Fill("NJetID_btag", NJetID_btag);
+
+	Fill("NPrimaryVertices",NPrimaryVertices);
+
+
+//Drell Yan region (signal free) -> check MC/Data
+	
+	if (Muons.size()==2){		
+			if ( (Muons[0].IsIsolated()) && (Muons[1].IsIsolated()) ){
+			
+				float mll = (Muons[0]+Muons[1]).M();
+				bool m_cut = (76. <= mll) && (mll <=106.); 
+				bool cuts = m_cut && (met.Pt() <= 50.) && (Muons[0].Pt()>=26) && (Muons[1].Pt()>=26);
+				//~ bool cuts = true;
+				if (cuts){
+					if(triggerIsoMu24){
+						Fill("DrellYan_mll",mll);
+						Fill("DrellYan_met",met.Pt());
+					}
+				}
+			}
+	}
+
+
+
 
   //////////////////////////////////////////////////////////////////////
   // after all objects have been identified, the selection can start
