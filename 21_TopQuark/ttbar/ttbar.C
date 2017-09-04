@@ -122,7 +122,7 @@ int main()
   TH1D * h_data_muonpt = A->histo["Muon_Pt"];
   double NMuonsData = h_data_muonpt->Integral();
   cout << "Found " << NMuonsData << " muons in " << lumi << "/pb data." << endl;
-  
+
   //////////////////////////////////////////////////////////////////////
   // saving results to a file
 
@@ -136,4 +136,10 @@ int main()
 
   // you can also save all histograms from one process in a file.
   B->histo.Write("ttbar.root");
+  C->histo.Write("wjets.root");
+  D->histo.Write("dy.root");
+  E->histo.Write("ww.root");
+  F->histo.Write("wz.root");
+  G->histo.Write("zz.root");
+  H->histo.Write("qcd.root");
 }
