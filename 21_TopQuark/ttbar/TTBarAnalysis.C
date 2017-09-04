@@ -62,9 +62,12 @@ void TTBarAnalysis::CreateHistograms()
   // histogram.
   CreateHisto("Muon_Pt", "Pt of all muons [GeV]", 50, 0, 250);
   CreateHisto("NIsoMuon", "Number of isolated muons", 10, 0, 10);
-	CreateHisto("Muon_Eta", "Eta of all muons", 20, -2.6, 2.6);
-	CreateHisto("Muon_E", "Energy distribution [GeV]", 50, 0, 750);
-	CreateHisto("MET", "Missing transverse energy [GeV]", 25,0,500);
+  CreateHisto("Muon_Eta", "Eta of all muons", 20, -2.6, 2.6);
+  CreateHisto("Muon_E", "Energy distribution [GeV]", 50, 0, 750);
+  CreateHisto("MET", "Missing transverse energy [GeV]", 25,0,500);
+
+
+
 }
 
 Bool_t TTBarAnalysis::Process(Long64_t entry)
@@ -121,6 +124,12 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 
   int NIsoMuon = isomu.size();
   Fill("NIsoMuon", NIsoMuon);
+
+
+	//MET
+	Fill("MET", met.Pt());
+
+
 
   // now start here applying the jet ID...
 

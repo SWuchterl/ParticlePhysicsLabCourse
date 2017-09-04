@@ -123,10 +123,16 @@ void Plotter::Plot(std::string filename, bool DrawLog, bool ratio)
     if (data.size() > 0 && data[0][i]->Integral() > 0) {
       TH1D * histo = data[0][i];
       plotname = std::string(histo->GetName());
-      histo->SetMaximum(histo->GetMaximum()+4*TMath::Sqrt(histo->GetMaximum()));
+      //~ histo->SetMaximum(histo->GetMaximum()+4*TMath::Sqrt(histo->GetMaximum()));
+      //~ histo->SetMaximum(histo->GetMaximum()*1.1);
       if (DrawLog) {
-	histo->SetMinimum(0.1);
+		histo->SetMinimum(0.1);
+		//~ histo->SetMaximum(histo->GetMaximum()*1.5);
       }
+      else{
+		histo->SetMaximum(histo->GetMaximum()*1.1);
+
+	  }
       histo->GetXaxis()->SetTitleOffset(1.3);
       histo->GetYaxis()->SetTitleOffset(1.3);
       histo->GetYaxis()->SetTitle("Events");
