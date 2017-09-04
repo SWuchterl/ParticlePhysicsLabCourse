@@ -20,6 +20,7 @@
 #include <TCanvas.h>
 #include <TLegend.h>
 #include <TROOT.h>
+#include <TRatioPlot.h>
 
 #include "HistogramManager.h"
 

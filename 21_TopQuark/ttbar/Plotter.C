@@ -17,7 +17,7 @@ Plotter::Plotter() {
 Plotter::~Plotter() {
 }
 
-void Plotter::Plot(std::string filename, bool DrawLog)
+void Plotter::Plot(std::string filename, bool DrawLog, bool ratio)
 {
   gROOT->Reset();
   //gROOT->SetStyle("Plain");

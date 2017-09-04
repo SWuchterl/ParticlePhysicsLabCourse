@@ -13,7 +13,7 @@
 
 using namespace std;
 
-TTBarAnalysis::TTBarAnalysis(float sf, float wf, 
+TTBarAnalysis::TTBarAnalysis(float sf, float wf,
 			     double jscale, double jsmear, double mscale,
 			     TTree * /*tree*/)
   : MyAnalysis()
@@ -40,8 +40,8 @@ void TTBarAnalysis::CreateHistograms()
 
   // For a cut flow histogram, it is important that we initialize all bins we
   // are using with zeroes before processing the first event. If this is
-  // forgotten, the cut flow histogram may contain garbage, so be careful! 
-  // It will also be useful to put proper names, e.g. "pT" if you cut on pT. 
+  // forgotten, the cut flow histogram may contain garbage, so be careful!
+  // It will also be useful to put proper names, e.g. "pT" if you cut on pT.
   // You need to use the same names below in your analysis code!
   Fill("cutflow", "all", 0);
   Fill("cutflow", "trigger", 0);
@@ -54,17 +54,20 @@ void TTBarAnalysis::CreateHistograms()
   Fill("cutflow", "8th", 0);
   Fill("cutflow", "9th", 0);
 
-  // Now we create all the other histograms that we use in our selection.  
-  
+  // Now we create all the other histograms that we use in our selection.
+
   // The first string is the name of the histogram, the second string is the
   // title of the histogram that is used for labelling the x-axis. The three
   // numbers specify the number of bins, and the lower and upper bound of the
   // histogram.
   CreateHisto("Muon_Pt", "Pt of all muons [GeV]", 50, 0, 250);
   CreateHisto("NIsoMuon", "Number of isolated muons", 10, 0, 10);
+	CreateHisto("Muon_Eta", "Eta of all muons", 20, -2.6, 2.6);
+	CreateHisto("Muon_E", "Energy distribution [GeV]", 50, 0, 750);
+	CreateHisto("MET", "Missing transverse energy [GeV]", 25,0,500);
 }
 
-Bool_t TTBarAnalysis::Process(Long64_t entry) 
+Bool_t TTBarAnalysis::Process(Long64_t entry)
 {
   // The Process() function is called for each event in the ROOT TTree. The
   // entry argument specifies which entry in the currently loaded tree is to
@@ -80,9 +83,9 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
   // the ROOT TTree. After this we can use e.g. Muons[0]
   BuildEvent();
 
-  // We count the number of events that we process (e.g. for efficiency calculation). 
+  // We count the number of events that we process (e.g. for efficiency calculation).
   ++TotalEvents;
-  // Inform us every 10000 events 
+  // Inform us every 10000 events
   if (TotalEvents % 10000 == 0)
     cout << "Next event -----> " << TotalEvents << endl;
 
@@ -107,11 +110,15 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
     if (Muons[i].IsIsolated()) {
       isomu.push_back(i);
       Fill("Muon_Pt", Muons[i].Pt());
-      // you can also access Muons[i].E(), .Px(), .Py(), .Pz(), .Eta(), .Phi(), ... 
+			Fill("Muon_Eta", Muons[i].Eta());
+			Fill("Muon_E", Muons[i].E());
+      // you can also access Muons[i].E(), .Px(), .Py(), .Pz(), .Eta(), .Phi(), ...
       // and the same with Electrons, Photons, Jets, ...
       // see Documentation of ROOT TLorentzVector
     }
   }
+	Fill("MET", met.Pt());
+
   int NIsoMuon = isomu.size();
   Fill("NIsoMuon", NIsoMuon);
 

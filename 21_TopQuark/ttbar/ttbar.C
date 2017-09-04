@@ -6,7 +6,7 @@
 #include <TGraphAsymmErrors.h>
 #include <TF1.h>
 
-int main() 
+int main()
 {
   //////////////////////////////////////////////////////////////////////
   // configuration
@@ -79,7 +79,7 @@ int main()
   ch8->Process(H);
 
   //////////////////////////////////////////////////////////////////////
-  // plotting 
+  // plotting
 
   // Initialize Plotter
   Plotter P;
@@ -100,12 +100,12 @@ int main()
 
   // Print logarithmic plots to PDF file "results_log.pdf"
   P.Plot(string("results_log.pdf"), true);
-  // Print linear plots to PDF file "results_lin.pdf" 
+  // Print linear plots to PDF file "results_lin.pdf"
   P.Plot(string("results_lin.pdf"), false);
 
   //////////////////////////////////////////////////////////////////////
   // computation of results
-  
+
   // here you can add the computation of the results, e.g. trigger efficiency,
   // top quark cross-section or top-quark mass. In order to do this, you need
   // to access the histograms in the individual files. This can be done easily
@@ -115,7 +115,7 @@ int main()
   TH1D * h_data_muonpt = A->histo["Muon_Pt"];
   double NMuonsData = h_data_muonpt->Integral();
   cout << "Found " << NMuonsData << " muons in " << lumi << "/pb data." << endl;
-
+  
   //////////////////////////////////////////////////////////////////////
   // saving results to a file
 
