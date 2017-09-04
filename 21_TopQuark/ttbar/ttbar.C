@@ -87,7 +87,14 @@ int main()
   // Develop your analysis blindly, i.e. without looking at the data.  Leave
   // the next line commented out when designing your analysis, and only plot
   // data after deciding on all cuts.
+  
+  //~ --------------------------DATA
+  //~ 
+  //~ 
   P.SetData(A->histo, std::string("Data"));
+  //~ 
+//~ ------------------------------------------------
+
 
   // add backgrounds to plotter
   P.AddBg(B->histo, std::string("TTbar"));

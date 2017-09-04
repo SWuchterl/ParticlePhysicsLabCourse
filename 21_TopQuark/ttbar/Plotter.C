@@ -127,10 +127,10 @@ void Plotter::Plot(std::string filename, bool DrawLog)
       //~ histo->SetMaximum(histo->GetMaximum()*1.1);
       if (DrawLog) {
 		histo->SetMinimum(0.1);
-		//~ histo->SetMaximum(histo->GetMaximum()*1.5);
+		histo->SetMaximum(histo->GetMaximum()*1.5);
       }
       else{
-		histo->SetMaximum(histo->GetMaximum()*1.1);
+		histo->SetMaximum(histo->GetMaximum()*1.15);
 
 	  }
       histo->GetXaxis()->SetTitleOffset(1.3);
@@ -150,7 +150,11 @@ void Plotter::Plot(std::string filename, bool DrawLog)
       plotname = std::string(histo->GetName());
       if (DrawLog) {
 	hs->SetMinimum(0.1);
+	histo->SetMaximum(histo->GetMaximum()*1.5);
       }
+      else{
+		  histo->SetMaximum(histo->GetMaximum()*1.15);
+	  }
       hs->Draw("hist");
       hs->GetXaxis()->SetTitleOffset(1.3);
       hs->GetXaxis()->SetNdivisions(505);
