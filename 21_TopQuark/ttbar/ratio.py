@@ -27,6 +27,8 @@ print list_of_variables
 for data in args.data:
 	for variable in list_of_variables:
 		c1=ROOT.TCanvas("canvas","",600,600)
+		ROOT.gStyle.SetOptStat(0)
+		ROOT.gStyle.SetOptTitle(0)
 		c1.SetGrid()
 		c1.SetFillStyle(3001)
 		c1.SetTitle(str(variable)+" from data")
@@ -40,6 +42,8 @@ for data in args.data:
 for mc in args.montecarlo:
 	for variable in list_of_variables:
 		c1=ROOT.TCanvas("canvas","",600,600)
+		ROOT.gStyle.SetOptStat(0)
+		ROOT.gStyle.SetOptTitle(0)
 		c1.SetGrid()
 		c1.SetFillStyle(3001)
 		c1.SetTitle(str(variable)+" from Monte Carlo")
@@ -53,24 +57,105 @@ for mc in args.montecarlo:
 for variable in list_of_variables:
 	c = ROOT.TCanvas("canvas","",600,600)
 	c.SetGrid()
-	backgrounds = ROOT.TH1D('backgrounds', 'backgrounds', 50, 0, 250)
-	datas = ROOT.TH1D('datas', 'datas', 50, 0, 250)
-	for data in args.data:
-		f_data = ROOT.TFile(data)
-		t_data = f_data.Get(variable)
-		datas.Add(t_data)
-	for bkg in args.montecarlo:
-		f_bkg = ROOT.TFile(bkg)
-		t_bkg = f_bkg.Get(variable)
-		backgrounds.Add(t_bkg)
-	datas.SetLineColor(ROOT.kRed)
-	c.SetLogy()
-	rp = ROOT.TRatioPlot(datas, backgrounds)
+	stacked = ROOT.THStack('stacked', 'stacked')
+
+	#MONTE CARLOS
+	#DY
+	dy = ROOT.TH1F('DY background', 'DY background', 50, 0, 250)
+	f_dy = ROOT.TFile('dy.root')
+	t_dy = f_dy.Get(variable)
+	dy.Add(t_dy)
+	dy.SetFillColor(ROOT.kYellow)
+	stacked.Add(dy)
+
+	#W+jets
+	wjets = ROOT.TH1F('W+jets background', 'W+jets background', 50, 0, 250)
+	f_wjets = ROOT.TFile('wjets.root')
+	t_wjets = f_wjets.Get(variable)
+	wjets.Add(t_wjets)
+	wjets.SetFillColor(ROOT.kOrange)
+	stacked.Add(wjets)
+
+	#WW
+	ww = ROOT.TH1F('WW background', 'WW background', 50, 0, 250)
+	f_ww = ROOT.TFile('ww.root')
+	t_ww = f_ww.Get(variable)
+	ww.Add(t_ww)
+	ww.SetFillColor(ROOT.kGreen)
+	stacked.Add(ww)
+
+	#WZ
+	wz = ROOT.TH1F('WZ background', 'WZ background', 50, 0, 250)
+	f_wz = ROOT.TFile('wz.root')
+	t_wz = f_wz.Get(variable)
+	wz.Add(t_wz)
+	wz.SetFillColor(ROOT.kCyan)
+	stacked.Add(wz)
+
+	#ZZ
+	zz = ROOT.TH1F('ZZ background', 'ZZ background', 50, 0, 250)
+	f_zz = ROOT.TFile('zz.root')
+	t_zz = f_zz.Get(variable)
+	zz.Add(t_zz)
+	zz.SetFillColor(ROOT.kBlue)
+	stacked.Add(zz)
+
+	#QCD
+	qcd = ROOT.TH1F('QCD background', 'QCD background', 50, 0, 250)
+	f_qcd = ROOT.TFile('qcd.root')
+	t_qcd = f_qcd.Get(variable)
+	qcd.Add(t_qcd)
+	qcd.SetFillColor(ROOT.kMagenta)
+	stacked.Add(qcd)
+
+	#TTbar
+	ttbar = ROOT.TH1F('TTbar background', 'TTbar background', 50, 0, 250)
+	f_ttbar = ROOT.TFile('ttbar.root')
+	t_ttbar = f_ttbar.Get(variable)
+	ttbar.Add(t_ttbar)
+	ttbar.SetFillColor(ROOT.kRed)
+	stacked.Add(ttbar)
+
+	#DATA
+	data = ROOT.TH1F('data', 'data', 50, 0, 250)
+	f_data = ROOT.TFile(args.data[0])
+	t_data = f_data.Get(variable)
+	data.Add(t_data)
+	#data.SetFillStyle(3001)
+	data.SetMarkerStyle(20)
+	data.SetMarkerSize(0.8)
+	data.SetFillColor(ROOT.kBlack)
+
+	#Styles
+	#c.SetLogy()
+	ROOT.gStyle.SetOptStat(0)
+	ROOT.gStyle.SetOptTitle(0)
+	ROOT.gStyle.SetLineWidth(1)
+	legend = ROOT.TLegend(0.6,0.6,0.8,0.8)
+	legend.AddEntry(data, 'Data', 'p')
+	legend.AddEntry(ttbar, 'TTbar', 'f')
+	legend.AddEntry(dy, 'DY', 'f')
+	legend.AddEntry(wjets, 'W+jets', 'f')
+	legend.AddEntry(ww, 'WW', 'f')
+	legend.AddEntry(wz, 'WZ', 'f')
+	legend.AddEntry(zz, 'ZZ', 'f')
+	legend.AddEntry(qcd, 'QCD', 'f')
+
+	#ratio plot
+	rp = ROOT.TRatioPlot(stacked, data)
 	c.SetTicks(0,1)
 	rp.GetLowYaxis().SetNdivisions(505)
 	c.Update()
-	c.Draw()
+	stacked.Draw()
+	data.Draw('same')
 	rp.Draw()
-	c.SaveAs('ratio.pdf')
+	legend.Draw('same')
+	c.SaveAs(str(variable)+'ratio.pdf')
 	f_data.Close()
-	f_bkg.Close()
+	f_dy.Close()
+	f_wjets.Close()
+	f_ww.Close()
+	f_wz.Close()
+	f_zz.Close()
+	f_qcd.Close()
+	f_ttbar.Close()
