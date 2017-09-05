@@ -67,18 +67,18 @@ void TTBarAnalysis::CreateHistograms()
   
   if (!trig){
 	  CreateHisto("Muon_Pt", "p_{T} of all muons [GeV]", 50, 0, 250);
-	  //~ CreateHisto("Muon_Pt_leading", "Pt of leading muon [GeV]", 50, 0, 250);
+	  //~ CreateHisto("Muon_Pt_leading", "P_{T}^{leading} [GeV]", 50, 0, 250);
 	  CreateHisto("NIsoMuon", "Number of isolated muons", 5, 0, 5);
-	  CreateHisto("Muon_Eta", "Eta of all muons", 20, -3.5, 3.5);
+	  CreateHisto("Muon_Eta", "#eta of all muons", 20, -3.5, 3.5);
 	  CreateHisto("Muon_E", "Energy distribution [GeV]", 50, 0, 750);
 	  CreateHisto("MET", "Missing transverse energy [GeV]", 25,0,500);
-	  CreateHisto("Muon_Phi", "Phi of all muons", 20, -3.5, 3.5);
+	  CreateHisto("Muon_Phi", "#phi of all muons", 20, -3.5, 3.5);
 	  CreateHisto("Jet_Pt", "p_{T} of all jets [GeV]", 50, 0, 250);
-	  CreateHisto("Jet_Eta", "Eta of all jets", 10, -3., 3.);
+	  CreateHisto("Jet_Eta", "#eta of all jets", 10, -3., 3.);
 	  CreateHisto("Jet_E", "Energy distribution [GeV]", 50, 0, 750);
-	  CreateHisto("Jet_Phi", "Phi of all jets", 20, -3.5, 3.5);
-	  CreateHisto("NJetID", "Number of Jets(ID)", 10, 0, 10);
-	  CreateHisto("NJetID_btag", "Number of b-tagged Jets(ID)", 4, 0, 4);
+	  CreateHisto("Jet_Phi", "#phi of all jets", 20, -3.5, 3.5);
+	  CreateHisto("NJetID", "Number of Jets (with ID)", 10, 0, 10);
+	  CreateHisto("NJetID_btag", "Number of b-tagged Jets (with ID)", 4, 0, 4);
 	  CreateHisto("NPrimaryVertices", "Number of primary Vertices", 36, 0, 36);
 	  CreateHisto("DrellYan_mll", "m_{ll} [GeV]", 30, 75, 105);
 	  CreateHisto("DrellYan_met", "E_{T}^{missing} [GeV]", 40, 0, 80);
@@ -123,10 +123,23 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
   for (unsigned int i = 0; i < Muons.size(); i++) {
     Muons[i] *= muon_scale;
   }
-
+  
+  
+  // the following 4 lines are necessary because:
+  // 	if I want to cut on muon Pt for the trigger for exmaple, i need to select events in which is at least one muon. -so uncomment the 2 lines therefore
+  // if I want to plot all events, uncomment the other 2 lines
+  //~ if (Muons.size()>0){
+  if (true){
+   //~ bool is =(Muons[0].Pt()>30.);
+   bool is =true;
+	
+	
+ //~ && (Muons[0].Pt()>30.)
+ //~ && is
   //////////////////////////////////////////////////////////////////////
   // first, we identify all objects (muons, jets) by applying quality and
   // isolation requirements.
+
 
 
 	if (!trig){
@@ -134,7 +147,7 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 		  // Muon isolation
 		  vector<int> isomu;
 		  for (unsigned int i = 0; i < Muons.size(); i++) {
-			if ((Muons[i].IsIsolated()) && (triggerIsoMu24) ){
+			if ((Muons[i].IsIsolated()) && (triggerIsoMu24)  && is ){
 			  isomu.push_back(i);
 			  Fill("Muon_Pt", Muons[i].Pt());
 			  Fill("Muon_Eta", Muons[i].Eta());
@@ -149,12 +162,12 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 
 
 		  int NIsoMuon = isomu.size();
-		  if (triggerIsoMu24){
+		  if ((triggerIsoMu24)&&  is){
 				Fill("NIsoMuon", NIsoMuon);
 			}
 
 			//MET
-			if (triggerIsoMu24){
+			if (triggerIsoMu24  && is ){
 				Fill("MET", met.Pt());
 			}
 
@@ -166,7 +179,7 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 		  vector<int> jets_ID_btag;
 		  
 		  for (unsigned int i = 0; i < Jets.size(); i++) {
-			if ((Jets[i].GetJetID())&&(triggerIsoMu24)) {
+			if ((Jets[i].GetJetID())&&(triggerIsoMu24) && is) {
 				  jets_ID.push_back(i);
 				  Fill("Jet_Pt", Jets[i].Pt());
 				  Fill("Jet_Eta", Jets[i].Eta());
@@ -179,24 +192,24 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 		  }
 		  
 		  int NJetID = jets_ID.size();
-		  if(triggerIsoMu24){
+		  if(triggerIsoMu24  && is){
 			Fill("NJetID", NJetID);
 			}
 			
 		  int NJetID_btag = jets_ID_btag.size();
-		  if (triggerIsoMu24){
+		  if (triggerIsoMu24 && is){
 				Fill("NJetID_btag", NJetID_btag);
 				Fill("NPrimaryVertices",NPrimaryVertices);
 			}
 
-		//~ //Drell Yan region (signal free) -> check MC/Data
-			//~ 
+		//Drell Yan region (signal free) -> check MC/Data
+			
 			if (Muons.size()==2){		
-					if ( (Muons[0].IsIsolated()) && (Muons[1].IsIsolated()) ){
+					if ( (Muons[0].IsIsolated()) && (Muons[1].IsIsolated())  && is){
 					
 						float mll = (Muons[0]+Muons[1]).M();
 						bool m_cut = (75. <= mll) && (mll <=105.); 
-						//~ bool cuts = m_cut && (met.Pt() <= 99999999.) && (Muons[0].Pt()>=0) && (Muons[1].Pt()>=0);
+						//~ //bool cuts = m_cut && (met.Pt() <= 99999999.) && (Muons[0].Pt()>=0) && (Muons[1].Pt()>=0);
 						 bool cuts = true;
 						if (cuts){
 							if(triggerIsoMu24){
@@ -208,11 +221,11 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 			}
 //~ 
 //~ 
-			//~ if(triggerIsoMu24){
+			//~ if(triggerIsoMu24  && is){
 				//~ Fill("Muon_Pt_leading",Muons[0].Pt());
 			//~ }
 	}
-
+}
 // histos for trigger measurement
 
 
@@ -239,6 +252,8 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 
   // the first requirement should be the trigger requirement...
   // ... add it here ...
+
+	
 
   // ... and after the trigger requirement we fill the cut flow again ...
 	if (!trig){
