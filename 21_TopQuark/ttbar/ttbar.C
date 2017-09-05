@@ -127,7 +127,7 @@ int main()
 	}
 	else{
 	  //~ --------------------------DATA~ 
-	  P.SetData(A->histo, std::string("Data")); 
+	  //~ P.SetData(A->histo, std::string("Data")); 
 
 	  // add backgrounds to plotter
 	  P.AddBg(B->histo, std::string("TTbar"));

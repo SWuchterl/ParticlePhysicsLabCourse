@@ -29,6 +29,8 @@ TTBarAnalysis::TTBarAnalysis(bool trigger, float sf, float wf,
   TotalEvents = 0;
   SelectedEvents = 0;
   trig=trigger;
+  events_total=0;
+  events_sel=0;
 }
 
 void TTBarAnalysis::CreateHistograms()
@@ -40,7 +42,7 @@ void TTBarAnalysis::CreateHistograms()
   // different stages of the analysis
   
   if (!trig){
-	  CreateHisto("cutflow", "cut flow", 10, 0, 10);
+	  CreateHisto("cutflow", "cut flow", 7, 0, 7);
 
 	  // For a cut flow histogram, it is important that we initialize all bins we
 	  // are using with zeroes before processing the first event. If this is
@@ -49,14 +51,23 @@ void TTBarAnalysis::CreateHistograms()
 	  // You need to use the same names below in your analysis code!
 	  Fill("cutflow", "all", 0);
 	  Fill("cutflow", "trigger", 0);
-	  Fill("cutflow", "2nd", 0);
-	  Fill("cutflow", "3rd", 0);
-	  Fill("cutflow", "4th", 0);
-	  Fill("cutflow", "5th", 0);
-	  Fill("cutflow", "6th", 0);
-	  Fill("cutflow", "7th", 0);
-	  Fill("cutflow", "8th", 0);
-	  Fill("cutflow", "9th", 0);
+	  Fill("cutflow", "p_{T}>26", 0);
+	  Fill("cutflow", "N{#mu,Iso} #geq 1", 0);
+	  Fill("cutflow", "N_{Jet} #geq 4", 0);
+	  Fill("cutflow", "N_{Jet,b} #geq 2", 0);
+	  Fill("cutflow", "E_{T}^{missing}>20", 0);
+	  //~ Fill("cutflow", "7th", 0);
+	  //~ Fill("cutflow", "8th", 0);
+	  //~ Fill("cutflow", "9th", 0);
+	  
+	  //N-1 Plots
+	  //~ CreateHisto("N-1 pT", "cut flow", 50, 0, 250);  
+	  CreateHisto("N-1 NIso", "Number of isolated muons", 5, 0, 5);  
+	  CreateHisto("N-1 NJet", "Number of Jets (with ID)", 10, 0, 10);  
+	  CreateHisto("N-1 NBJet", "Number of b-tagged Jets (with ID)", 5, 0, 5);  
+	  CreateHisto("N-1 MET", "E_{T}^{missing} [GeV]", 25, 0, 500);  
+	  
+	  
 	}
   // Now we create all the other histograms that we use in our selection.
 
@@ -253,13 +264,84 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
   // the first requirement should be the trigger requirement...
   // ... add it here ...
 
+	bool hasTriggered = triggerIsoMu24;
 	
-
   // ... and after the trigger requirement we fill the cut flow again ...
-	if (!trig){
-		Fill("cutflow", "trigger");
+  
+	bool muonSize = (Muons.size()>0);
+	
+	if (muonSize){
+		bool ptCut= (Muons[0].Pt()>=26.);
+		int NIsoMuons = 0;
+		for (unsigned int i=0; i< Muons.size();i++){
+			if (Muons[i].IsIsolated()){
+				NIsoMuons = NIsoMuons+1;
+			}					
+		}
+		bool NIsoMuonCut = NIsoMuons>=1;
+		int NJets=0;
+		int NBJets=0;
+		for (unsigned int i=0; i< Jets.size();i++){
+			if (Jets[i].GetJetID()){
+				NJets = NJets+1;
+				if (Jets[i].IsBTagged()){
+					NBJets = NBJets+1;
+				}
+			}					
+		}
+		bool NJetCut = NJets >= 4;
+		bool NBJetCut = NBJets >= 2;
+		bool metCut = met.Pt()>=20.;
+
+
+		if (hasTriggered){
+			Fill("cutflow", "trigger");
+			if(ptCut){
+				Fill("cutflow", "p_{T}>26");
+				if(NIsoMuonCut){
+					Fill("cutflow", "N{#mu,Iso} #geq 1");
+					if(NJetCut){
+						Fill("cutflow", "N_{Jet} #geq 4");
+						if(NBJetCut){
+							Fill("cutflow", "N_{Jet,b} #geq 2");
+							if(metCut){
+								Fill("cutflow", "E_{T}^{missing}>20");															
+							}
+						}
+					}
+				}
+				
+				if ((NJetCut)&&(NBJetCut)&&(metCut)){
+					Fill("N-1 NIso",NIsoMuons);
+				}
+				if ((NIsoMuonCut)&&(NBJetCut)&&(metCut)){
+					Fill("N-1 NJet",NJets);
+				}
+				if ((NJetCut)&&(NIsoMuonCut)&&(metCut)){
+					Fill("N-1 NBJet",NBJets);
+				}
+				if ((NJetCut)&&(NBJetCut)&&(NIsoMuonCut)){
+					Fill("N-1 MET",met.Pt());
+				}
+				
+				
+			}
+		}
+
+
 	}
+	  //~ CreateHisto("N-1 NIso", "cut flow", 5, 0, 5);  
+	  //~ CreateHisto("N-1 NJet", "cut flow", 10, 0, 10);  
+	  //~ CreateHisto("N-1 NBJet", "cut flow", 5, 0, 5);  
+	  //~ CreateHisto("N-1 MET", "cut flow", 25, 0, 500);  
+
+
+
+
   // ... and then you have to add more code for the selection here ...
+
+
+
 
   // ... end of the selection. Count selected events
   SelectedEvents++;
