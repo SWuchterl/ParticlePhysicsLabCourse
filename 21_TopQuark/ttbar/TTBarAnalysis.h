@@ -10,7 +10,7 @@
 
 class TTBarAnalysis: public MyAnalysis {
 public:
-  TTBarAnalysis(float sf = 1., float wf = 1, 
+  TTBarAnalysis(bool trigger, float sf = 1., float wf = 1, 
 		double jscale = 1., double jsmear = 0., double mscale = 1,
 		TTree * /*tree*/ = 0);
   virtual ~TTBarAnalysis() { };
@@ -29,7 +29,9 @@ public:
   double jet_smear;
   double muon_scale;
 
+
   // add your own variables here
+    bool trig;
 };
 
 #endif

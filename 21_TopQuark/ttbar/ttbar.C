@@ -5,11 +5,17 @@
 #include <TChain.h>
 #include <TGraphAsymmErrors.h>
 #include <TF1.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 int main()
 {
   //////////////////////////////////////////////////////////////////////
   // configuration
+
+	//Want trigger eff histos?
+	bool measureTrig = false;
+
 
   // luminosity of data sample
   double lumi = 50.;
@@ -32,48 +38,48 @@ int main()
   // data analysis
 
   // data sample
-  TTBarAnalysis *A = new TTBarAnalysis(1.0, 1.0, 1.0, 0.0, 1.0);
+  TTBarAnalysis *A = new TTBarAnalysis(measureTrig,1.0, 1.0, 1.0, 0.0, 1.0);
   TChain* ch = new TChain("events");
   ch->Add("files/data.root");
   ch->Process(A);
 
   // ttbar sample
-  TTBarAnalysis *B = new TTBarAnalysis(BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
+  TTBarAnalysis *B = new TTBarAnalysis(measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
   TChain* ch2 = new TChain("events");
   ch2->Add("files/ttbar.root");
   ch2->Process(B);
 
   // w+jets sample
-  TTBarAnalysis *C = new TTBarAnalysis(BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
+  TTBarAnalysis *C = new TTBarAnalysis(measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
   TChain* ch3 = new TChain("events");
   ch3->Add("files/wjets.root");
   ch3->Process(C);
 
   // Drell-Yan sample
-  TTBarAnalysis *D = new TTBarAnalysis(BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
+  TTBarAnalysis *D = new TTBarAnalysis(measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
   TChain* ch4 = new TChain("events");
   ch4->Add("files/dy.root");
   ch4->Process(D);
 
   // WW sample
-  TTBarAnalysis *E = new TTBarAnalysis(BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
+  TTBarAnalysis *E = new TTBarAnalysis(measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
   TChain* ch5 = new TChain("events");
   ch5->Add("files/ww.root");
   ch5->Process(E);
 
-  TTBarAnalysis *F = new TTBarAnalysis(BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
+  TTBarAnalysis *F = new TTBarAnalysis(measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
   TChain* ch6 = new TChain("events");
   ch6->Add("files/wz.root");
   ch6->Process(F);
 
   // ZZ sample
-  TTBarAnalysis *G = new TTBarAnalysis(BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
+  TTBarAnalysis *G = new TTBarAnalysis(measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
   TChain* ch7 = new TChain("events");
   ch7->Add("files/zz.root");
   ch7->Process(G);
 
   // QCD sample
-  TTBarAnalysis *H = new TTBarAnalysis(BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
+  TTBarAnalysis *H = new TTBarAnalysis(measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
   TChain* ch8 = new TChain("events");
   ch8->Add("files/qcd.root");
   ch8->Process(H);
@@ -88,27 +94,57 @@ int main()
   // the next line commented out when designing your analysis, and only plot
   // data after deciding on all cuts.
   
-  //~ --------------------------DATA
-  //~ 
-  //~ 
-  P.SetData(A->histo, std::string("Data"));
-  //~ 
-//~ ------------------------------------------------
+  
+  // Want histos for trigger efficiency measurement?
+	
+
+	int status;
+    int status2;
+	//~ string folderTrig;
+    //~ folderTrig = "TriggerMeasurement";
+	status = mkdir("TriggerMeasurement", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	//~ string folderElse = "Plots";
+	status2 = mkdir("Plots", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  
+  if (measureTrig) {
+  
+	  //~ --------------------------DATA~ 
+	  //~ P.SetData(A->histo, std::string("Data")); 
+
+	  // add backgrounds to plotter
+	  P.AddBg(B->histo, std::string("TTbar"));
+	  //~ P.AddBg(C->histo, std::string("Wjets"));
+	  //~ P.AddBg(D->histo, std::string("DY"));
+	  //~ P.AddBg(E->histo, std::string("WW"));
+	  //~ P.AddBg(F->histo, std::string("WZ"));
+	  //~ P.AddBg(G->histo, std::string("ZZ"));
+	  //~ P.AddBg(H->histo, std::string("QCD"));
+
+	  // Print logarithmic plots to PDF file "results_log.pdf"
+	  P.Plot(string("TriggerMeasurement/results_log.pdf"), true);
+	  // Print linear plots to PDF file "results_lin.pdf"
+	  P.Plot(string("TriggerMeasurement/results_lin.pdf"), false);
+	}
+	else{
+	  //~ --------------------------DATA~ 
+	  P.SetData(A->histo, std::string("Data")); 
+
+	  // add backgrounds to plotter
+	  P.AddBg(B->histo, std::string("TTbar"));
+	  P.AddBg(C->histo, std::string("Wjets"));
+	  P.AddBg(D->histo, std::string("DY"));
+	  P.AddBg(E->histo, std::string("WW"));
+	  P.AddBg(F->histo, std::string("WZ"));
+	  P.AddBg(G->histo, std::string("ZZ"));
+	  P.AddBg(H->histo, std::string("QCD"));
+
+	  // Print logarithmic plots to PDF file "results_log.pdf"
+	  P.Plot(string("Plots/results_log.pdf"), true);
+	  // Print linear plots to PDF file "results_lin.pdf"
+	  P.Plot(string("Plots/results_lin.pdf"), false);	
+	}
 
 
-  // add backgrounds to plotter
-  P.AddBg(B->histo, std::string("TTbar"));
-  P.AddBg(C->histo, std::string("Wjets"));
-  P.AddBg(D->histo, std::string("DY"));
-  P.AddBg(E->histo, std::string("WW"));
-  P.AddBg(F->histo, std::string("WZ"));
-  P.AddBg(G->histo, std::string("ZZ"));
-  P.AddBg(H->histo, std::string("QCD"));
-
-  // Print logarithmic plots to PDF file "results_log.pdf"
-  P.Plot(string("results_log.pdf"), true);
-  // Print linear plots to PDF file "results_lin.pdf"
-  P.Plot(string("results_lin.pdf"), false);
 
   //////////////////////////////////////////////////////////////////////
   // computation of results
@@ -119,27 +155,42 @@ int main()
   // and is shown in an example in the next lines.
 
   // as an example, extract number of events in muon pT histogram in data
-  TH1D * h_data_muonpt = A->histo["Muon_Pt"];
-  double NMuonsData = h_data_muonpt->Integral();
-  cout << "Found " << NMuonsData << " muons in " << lumi << "/pb data." << endl;
+  //~ TH1D * h_data_muonpt = A->histo["Muon_Pt"];
+  //~ double NMuonsData = h_data_muonpt->Integral();
+  //~ cout << "Found " << NMuonsData << " muons in " << lumi << "/pb data." << endl;
 
   //////////////////////////////////////////////////////////////////////
   // saving results to a file
 
   // the next lines show how you can write individual histograms to a file,
   // with which you can work later.
-  TFile f("results.root", "RECREATE");
-  h_data_muonpt->Write();
-  A->histo["NIsoMuon"]->Write();
+  
+  //~ TFile f("results.root", "RECREATE");
+  //~ h_data_muonpt->Write();
+  //~ A->histo["NIsoMuon"]->Write();
+  
   // After writing the histograms, you need to close the file.
-  f.Close();
+  //~ f.Close();
 
   // you can also save all histograms from one process in a file.
-  B->histo.Write("ttbar.root");
-  C->histo.Write("wjets.root");
-  D->histo.Write("dy.root");
-  E->histo.Write("ww.root");
-  F->histo.Write("wz.root");
-  G->histo.Write("zz.root");
-  H->histo.Write("qcd.root");
+  if (measureTrig) {
+	  //~ A->histo.Write("results.root");
+	  B->histo.Write("TriggerMeasurement/ttbar.root");
+	  //~ C->histo.Write("wjets.root");
+	  //~ D->histo.Write("dy.root");
+	  //~ E->histo.Write("ww.root");
+	  //~ F->histo.Write("wz.root");
+	  //~ G->histo.Write("zz.root");
+	  //~ H->histo.Write("qcd.root");
+  }
+  else{
+	  A->histo.Write("Plots/results.root");
+  	  B->histo.Write("Plots/ttbar.root");
+	  C->histo.Write("Plots/wjets.root");
+	  D->histo.Write("Plots/dy.root");
+	  E->histo.Write("Plots/ww.root");
+	  F->histo.Write("Plots/wz.root");
+	  G->histo.Write("Plots/zz.root");
+	  H->histo.Write("Plots/qcd.root");
+  }
 }
