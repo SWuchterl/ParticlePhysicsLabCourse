@@ -179,6 +179,8 @@ void MyAnalysis::CreateHisto(const char * name, const char * title,
 			     int nBins, double xlow, double xup)
 {
   TH1D * h = new TH1D(name, title, nBins, xlow, xup);
+  //~ TH1D * h = new TH1D(name,"Histogram title;X Axis;Y Axis;Z Axis", nBins, xlow, xup);
+  //~ h->SetXTitle(title);
   h->SetXTitle(title);
   h->SetTitle(name);
   histo.Add(name, h);

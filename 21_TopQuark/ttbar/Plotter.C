@@ -149,8 +149,8 @@ void Plotter::Plot(std::string filename, bool DrawLog)
       TH1D * histo = bg[0][i];
       plotname = std::string(histo->GetName());
       if (DrawLog) {
-	hs->SetMinimum(0.1);
-	histo->SetMaximum(histo->GetMaximum()*1.5);
+		hs->SetMinimum(0.1);
+		histo->SetMaximum(histo->GetMaximum()*1.5);
       }
       else{
 		  histo->SetMaximum(histo->GetMaximum()*1.15);
@@ -161,7 +161,10 @@ void Plotter::Plot(std::string filename, bool DrawLog)
       hs->GetYaxis()->SetTitleOffset(1.3);
       if (bg.size() > 0)
 	hs->GetXaxis()->SetTitle(histo->GetXaxis()->GetTitle());
-      hs->GetYaxis()->SetTitle("Events");
+      //~ hs->GetYaxis()->SetTitle("Events");
+      //~ hs->SetTitle(histo->GetTitle());
+      //~ hs->SetTitle(";X Axis;Y Axis;");
+      //~ hs->SetTitle(";"+histo->GetXaxis()->GetTitle()+";"+histo->GetYaxis()->GetTitle()+";");
       l->Draw("same");
     }
     gPad->RedrawAxis();

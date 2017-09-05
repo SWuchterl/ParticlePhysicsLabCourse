@@ -66,27 +66,27 @@ void TTBarAnalysis::CreateHistograms()
   // histogram.
   
   if (!trig){
-	  CreateHisto("Muon_Pt", "Pt of all muons [GeV]", 50, 0, 250);
+	  CreateHisto("Muon_Pt", "p_{T} of all muons [GeV]", 50, 0, 250);
 	  //~ CreateHisto("Muon_Pt_leading", "Pt of leading muon [GeV]", 50, 0, 250);
 	  CreateHisto("NIsoMuon", "Number of isolated muons", 5, 0, 5);
 	  CreateHisto("Muon_Eta", "Eta of all muons", 20, -3.5, 3.5);
 	  CreateHisto("Muon_E", "Energy distribution [GeV]", 50, 0, 750);
-	  //~ CreateHisto("MET", "Missing transverse energy [GeV]", 25,0,500);
+	  CreateHisto("MET", "Missing transverse energy [GeV]", 25,0,500);
 	  CreateHisto("Muon_Phi", "Phi of all muons", 20, -3.5, 3.5);
-	  //~ CreateHisto("Jet_Pt", "Pt of all jets [GeV]", 50, 0, 250);
-	  //~ CreateHisto("Jet_Eta", "Eta of all jets", 20, -5.6, 5.6);
-	  //~ CreateHisto("Jet_E", "Energy distribution [GeV]", 50, 0, 750);
-	  //~ CreateHisto("Jet_Phi", "Phi of all jets", 20, -3.5, 3.5);
-	  //~ CreateHisto("NJetID", "Number of Jets(ID)", 13, 0, 13);
-	  //~ CreateHisto("NJetID_btag", "Number of b-tagged Jets(ID)", 7, 0, 7);
-	  //~ CreateHisto("NPrimaryVertices", "Number of primary Vertices", 50, 0, 50);
-	  //~ CreateHisto("DrellYan_mll", "mll [GeV]", 30, 75, 105);
-	  //~ CreateHisto("DrellYan_met", "met [GeV]", 40, 0, 80);
+	  CreateHisto("Jet_Pt", "p_{T} of all jets [GeV]", 50, 0, 250);
+	  CreateHisto("Jet_Eta", "Eta of all jets", 10, -3., 3.);
+	  CreateHisto("Jet_E", "Energy distribution [GeV]", 50, 0, 750);
+	  CreateHisto("Jet_Phi", "Phi of all jets", 20, -3.5, 3.5);
+	  CreateHisto("NJetID", "Number of Jets(ID)", 10, 0, 10);
+	  CreateHisto("NJetID_btag", "Number of b-tagged Jets(ID)", 4, 0, 4);
+	  CreateHisto("NPrimaryVertices", "Number of primary Vertices", 36, 0, 36);
+	  CreateHisto("DrellYan_mll", "m_{ll} [GeV]", 30, 75, 105);
+	  CreateHisto("DrellYan_met", "E_{T}^{missing} [GeV]", 40, 0, 80);
   }
   
   if (trig){
 	  CreateHisto("ForTrigger_Nominator", "pt [GeV]", 250, 0, 250); // Nom = triggered Events
-	  CreateHisto("ForTrigger_Denominator", "pt [GeV]", 250, 0, 250); // Denom =O ne isolated Muon
+	  CreateHisto("ForTrigger_Denominator", "pt [GeV]", 250, 0, 250); // Denom =One isolated Muon
   }
 }
 
@@ -154,60 +154,60 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 			}
 
 			//MET
-			//~ if (triggerIsoMu24){
-				//~ Fill("MET", met.Pt());
-			//~ }
+			if (triggerIsoMu24){
+				Fill("MET", met.Pt());
+			}
 
 
 		  // now start here applying the jet ID...
 
 			// jet id
-		  //~ vector<int> jets_ID;
-		  //~ vector<int> jets_ID_btag;
+		  vector<int> jets_ID;
+		  vector<int> jets_ID_btag;
 		  
-		  //~ for (unsigned int i = 0; i < Jets.size(); i++) {
-			//~ if ((Jets[i].GetJetID())&&(triggerIsoMu24)) {
-			  //~ jets_ID.push_back(i);
-			  //~ Fill("Jet_Pt", Jets[i].Pt());
-			  //~ Fill("Jet_Eta", Jets[i].Eta());
-			  //~ Fill("Jet_E", Jets[i].E());
-			  //~ Fill("Jet_Phi", Jets[i].Phi());
-			  //~ if (Jets[i].IsBTagged()){
-				//~ jets_ID_btag.push_back(i);
-			  //~ }
-			//~ }
-		  //~ }
+		  for (unsigned int i = 0; i < Jets.size(); i++) {
+			if ((Jets[i].GetJetID())&&(triggerIsoMu24)) {
+				  jets_ID.push_back(i);
+				  Fill("Jet_Pt", Jets[i].Pt());
+				  Fill("Jet_Eta", Jets[i].Eta());
+				  Fill("Jet_E", Jets[i].E());
+				  Fill("Jet_Phi", Jets[i].Phi());
+				if (Jets[i].IsBTagged()){
+					jets_ID_btag.push_back(i);
+			  }
+			}
+		  }
 		  
-		  //~ int NJetID = jets_ID.size();
-		  //~ if(triggerIsoMu24){
-			//~ Fill("NJetID", NJetID);
-			//~ }
+		  int NJetID = jets_ID.size();
+		  if(triggerIsoMu24){
+			Fill("NJetID", NJetID);
+			}
 			
-		  //~ int NJetID_btag = jets_ID_btag.size();
-		  //~ if (triggerIsoMu24){
-			//~ Fill("NJetID_btag", NJetID_btag);
-			//~ Fill("NPrimaryVertices",NPrimaryVertices);
-			//~ }
+		  int NJetID_btag = jets_ID_btag.size();
+		  if (triggerIsoMu24){
+				Fill("NJetID_btag", NJetID_btag);
+				Fill("NPrimaryVertices",NPrimaryVertices);
+			}
 
-		//Drell Yan region (signal free) -> check MC/Data
-			
-			//~ if (Muons.size()==2){		
-					//~ if ( (Muons[0].IsIsolated()) && (Muons[1].IsIsolated()) ){
-					//~ 
-						//~ float mll = (Muons[0]+Muons[1]).M();
-						//~ bool m_cut = (75. <= mll) && (mll <=105.); 
-						//~ bool cuts = m_cut && (met.Pt() <= 99999999.) && (Muons[0].Pt()>=26) && (Muons[1].Pt()>=26);
-						//~ ////~ bool cuts = true;
-						//~ if (cuts){
-							//~ if(triggerIsoMu24){
-								//~ Fill("DrellYan_mll",mll);
-							//~ //	//~ Fill("DrellYan_met",met.Pt());
-							//~ }
-						//~ }
-					//~ }
-			//~ }
-
-
+		//~ //Drell Yan region (signal free) -> check MC/Data
+			//~ 
+			if (Muons.size()==2){		
+					if ( (Muons[0].IsIsolated()) && (Muons[1].IsIsolated()) ){
+					
+						float mll = (Muons[0]+Muons[1]).M();
+						bool m_cut = (75. <= mll) && (mll <=105.); 
+						//~ bool cuts = m_cut && (met.Pt() <= 99999999.) && (Muons[0].Pt()>=0) && (Muons[1].Pt()>=0);
+						 bool cuts = true;
+						if (cuts){
+							if(triggerIsoMu24){
+								Fill("DrellYan_mll",mll);
+								Fill("DrellYan_met",met.Pt());
+							}
+						}
+					}
+			}
+//~ 
+//~ 
 			//~ if(triggerIsoMu24){
 				//~ Fill("Muon_Pt_leading",Muons[0].Pt());
 			//~ }
