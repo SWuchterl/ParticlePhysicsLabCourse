@@ -56,12 +56,8 @@ void TTBarAnalysis::CreateHistograms()
 	  Fill("cutflow", "N_{Jet} #geq 4", 0);
 	  Fill("cutflow", "N_{Jet,b} #geq 2", 0);
 	  Fill("cutflow", "E_{T}^{missing}>20", 0);
-	  //~ Fill("cutflow", "7th", 0);
-	  //~ Fill("cutflow", "8th", 0);
-	  //~ Fill("cutflow", "9th", 0);
 	  
 	  //N-1 Plots
-	  //~ CreateHisto("N-1 pT", "cut flow", 50, 0, 250);  
 	  CreateHisto("N-1 NIso", "Number of isolated muons", 5, 0, 5);  
 	  CreateHisto("N-1 NJet", "Number of Jets (with ID)", 10, 0, 10);  
 	  CreateHisto("N-1 NBJet", "Number of b-tagged Jets (with ID)", 5, 0, 5);  
@@ -131,10 +127,32 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
   // implementation of systematic effects
 
   // As an example, we show how to apply the muon scale uncertainty
+  
+    // variables for systematic uncertainties from header/just here for information
+  //~ double weight_factor;
+  //~ double jet_scale;
+  //~ double jet_smear;
+  //~ double muon_scale;
+  
+  
+	TRandom Random;
+	Random.SetSeed();
+	double jet_smear_rnd = 1.;
+  
+  
   for (unsigned int i = 0; i < Muons.size(); i++) {
     Muons[i] *= muon_scale;
   }
   
+  for (unsigned int i = 0; i < Jets.size(); i++) {
+    Jets[i] *= jet_scale;
+  }
+  for (unsigned int i = 0; i < Jets.size(); i++) {
+	jet_smear_rnd = Random.Gaus(1.,jet_smear);
+    Jets[i] *= jet_smear_rnd;
+    cout<<jet_smear_rnd<<endl;
+  }
+	EventWeight=EventWeight*weight_factor;
   
   // the following 4 lines are necessary because:
   // 	if I want to cut on muon Pt for the trigger for exmaple, i need to select events in which is at least one muon. -so uncomment the 2 lines therefore
@@ -305,7 +323,10 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 						if(NBJetCut){
 							Fill("cutflow", "N_{Jet,b} #geq 2");
 							if(metCut){
-								Fill("cutflow", "E_{T}^{missing}>20");															
+								Fill("cutflow", "E_{T}^{missing}>20");
+								//~ cout<<"EvWeight1 " << EventWeight;
+								events_sel=events_sel+EventWeight;															
+								//~ events_sel=events_sel+1;															
 							}
 						}
 					}
@@ -330,12 +351,8 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 
 
 	}
-	  //~ CreateHisto("N-1 NIso", "cut flow", 5, 0, 5);  
-	  //~ CreateHisto("N-1 NJet", "cut flow", 10, 0, 10);  
-	  //~ CreateHisto("N-1 NBJet", "cut flow", 5, 0, 5);  
-	  //~ CreateHisto("N-1 MET", "cut flow", 25, 0, 500);  
-
-
+	//~ cout<<"EvWeight2 "  << EventWeight<<endl;
+	events_total=events_total+EventWeight;
 
 
   // ... and then you have to add more code for the selection here ...

@@ -1,12 +1,16 @@
 #include "TTBarAnalysis.h"
 #include "Plotter.h"
 #include <iostream>
+#include <fstream>
+using namespace std;
 #include <string>
 #include <TChain.h>
 #include <TGraphAsymmErrors.h>
 #include <TF1.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <TRandom.h>
+#include <TMath.h>
 
 int main()
 {
@@ -31,13 +35,20 @@ int main()
 
   // Jet scale and resolution, muon scale
   double jet_scale = 1.0;
-  double jet_smear = 0.0;
+  double jet_smear = 0.;
   double muon_scale = 1.0;
 
   //////////////////////////////////////////////////////////////////////
   // data analysis
 
+ //Gaussian for Jet energy resolution smearing
+
+
+
+
+
   // data sample
+  //~ TTBarAnalysis *A = new TTBarAnalysis(measureTrig,1.0, 1.0, 1.0, 0.0, 1.0);
   TTBarAnalysis *A = new TTBarAnalysis(measureTrig,1.0, 1.0, 1.0, 0.0, 1.0);
   TChain* ch = new TChain("events");
   ch->Add("files/data.root");
@@ -113,12 +124,12 @@ int main()
 
 	  // add backgrounds to plotter
 	  P.AddBg(B->histo, std::string("TTbar"));
-	  //~ P.AddBg(C->histo, std::string("Wjets"));
-	  //~ P.AddBg(D->histo, std::string("DY"));
-	  //~ P.AddBg(E->histo, std::string("WW"));
-	  //~ P.AddBg(F->histo, std::string("WZ"));
-	  //~ P.AddBg(G->histo, std::string("ZZ"));
-	  //~ P.AddBg(H->histo, std::string("QCD"));
+	  P.AddBg(C->histo, std::string("Wjets"));
+	  P.AddBg(D->histo, std::string("DY"));
+	  P.AddBg(E->histo, std::string("WW"));
+	  P.AddBg(F->histo, std::string("WZ"));
+	  P.AddBg(G->histo, std::string("ZZ"));
+	  P.AddBg(H->histo, std::string("QCD"));
 
 	  // Print logarithmic plots to PDF file "results_log.pdf"
 	  P.Plot(string("TriggerMeasurement/results_log.pdf"), true);
@@ -127,7 +138,7 @@ int main()
 	}
 	else{
 	  //~ --------------------------DATA~ 
-	  //~ P.SetData(A->histo, std::string("Data")); 
+	  P.SetData(A->histo, std::string("Data")); 
 
 	  // add backgrounds to plotter
 	  P.AddBg(B->histo, std::string("TTbar"));
@@ -158,6 +169,69 @@ int main()
   //~ TH1D * h_data_muonpt = A->histo["Muon_Pt"];
   //~ double NMuonsData = h_data_muonpt->Integral();
   //~ cout << "Found " << NMuonsData << " muons in " << lumi << "/pb data." << endl;
+    
+    float eventsSelData= A->events_sel;
+    float eventsSelTT =B->events_sel;
+    float eventsSelWJets =C->events_sel;
+    float eventsSelDY =D->events_sel;
+    float eventsSelWW =E->events_sel;
+    float eventsSelWZ =F->events_sel;
+    float eventsSelZZ =G->events_sel;
+    float eventsSelQCD =H->events_sel;
+    float eventsTotalTT =B->events_total;
+    
+    float eventsSelBKG = eventsSelWJets+eventsSelDY+eventsSelWW+eventsSelWZ+eventsSelZZ+eventsSelQCD;
+    
+    float scaleLumi = 1.;
+    float scaleTheo = 1.; //10% for MC cross section fo BKG; in TT it cancels out
+    float scaleTrigger = 1.0; //5% for SingleMuonTrigger - put into acceptance
+    
+    float acceptance = eventsSelTT/eventsTotalTT;
+    float crossSection = (eventsSelData-eventsSelBKG*scaleTheo)/(acceptance*scaleTrigger*scaleLumi*lumi);
+    
+    //stat. Error only on measured Data / sqrt(N)
+    float ErrEventsSelData = TMath::Sqrt(eventsSelData);
+    float ErrEventsSelBKG = TMath::Sqrt(eventsSelBKG);
+    //~ cout << "ErrEventsSelData: " << ErrEventsSelData<<endl;
+    //- error propagation gives:
+    //~ float ErrCrossSection = ErrEventsSelData/(acceptance*lumi);
+    float ErrCrossSection = TMath::Sqrt(ErrEventsSelBKG*ErrEventsSelBKG+ErrEventsSelData*ErrEventsSelData)/(acceptance*lumi);
+    
+    
+    
+    cout << "Events Selected and triggered in ttbar: " << eventsSelTT<<endl;
+    cout << "Events Selected and triggered in Data: " << eventsSelData<<endl;
+    cout << "Events total in ttbar: " << eventsTotalTT<<endl;
+    cout << "Events selected in BKGs: " << eventsSelBKG<<endl;
+    cout << "acceptance: " << acceptance<<endl;
+    cout << "cross section[pb^-1]: " << crossSection<<endl;
+    cout << "stat Unc. cross section[pb^-1] +- : " << ErrCrossSection<<endl;
+
+    int status3;
+    status3 = mkdir("crossSection", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+
+    //if one wants to write files with the values.... comment in....
+
+    //~ ofstream myfile;
+    //~ myfile.open ("crossSection/crossSection_Smear.txt");
+    //~ myfile<< "scaleLumi " << scaleLumi << "\n";
+    //~ myfile<< "scaleTheo " << scaleTheo << "\n";
+    //~ myfile<< "scaleTrigger " << scaleTrigger << "\n";
+    //~ myfile<< "jetScale " << jet_scale << "\n";
+    //~ myfile<< "muonScale " << muon_scale << "\n";
+    //~ myfile<< "weightFactor " << weight_factor << "\n";
+    //~ myfile<< "BTagScale " << BTagScale << "\n";
+    //~ myfile<< "jetSmear " << jet_smear << "\n";
+    //~ myfile<< "Events Selected and triggered in ttbar: " << eventsSelTT << "\n";
+    //~ myfile<< "Events Selected and triggered in Data: " << eventsSelData << "\n";
+    //~ myfile<< "Events total in ttbar: " << eventsTotalTT << "\n";
+    //~ myfile<< "Events selected in BKGs: " << eventsSelBKG << "\n";
+    //~ myfile<< "acceptance: " << acceptance << "\n";
+    //~ myfile<< "cross section[pb^-1]: " <<crossSection << "\n";
+    //~ myfile<< "stat Unc. cross section[pb^-1]: " <<ErrCrossSection << "\n";
+    //~ myfile.close();
+
 
   //////////////////////////////////////////////////////////////////////
   // saving results to a file

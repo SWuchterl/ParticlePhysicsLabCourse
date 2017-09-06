@@ -32,8 +32,8 @@ public:
 
   // add your own variables here
     bool trig;
-    int events_total;
-    int events_sel;
+    float events_total;
+    float events_sel;
     
 };
 
