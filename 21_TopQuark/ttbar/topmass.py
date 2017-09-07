@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import pickle
 from array import array
 import numpy as np
 import argparse
@@ -29,7 +30,7 @@ labels = {
 }
 
 for topmass in topmasses:
-    NBINS = int(20)
+    NBINS = int(50)
     XLOW =  float(100)
     XUP = float(300)
 
@@ -135,30 +136,37 @@ for topmass in topmasses:
 		un=par[3]
 		return par[2]*ret+un
 
+    def func_constrained(x,par):
+		ret=1./(2.*np.pi)*(par[1])/((x[0]-par[0])**2. + par[1]**2. /4.)
+		return par[2]*ret
 
-    breitwigner = ROOT.TF1('breitwigner', func, 100,300, 4)
+
+    breitwigner = ROOT.TF1('breitwigner', func_constrained if args.constrain else func, 100,300, 3 if args.constrain else 4)
     breitwigner.SetParameters(175.,5.,100.,1.)
-    breitwigner.SetParNames("mean","width","ampl","const")
+    breitwigner.SetParLimits(1, 10., 50.)
+    if not args.constrain:
+        breitwigner.SetParLimits(3, 0.,3.)
+    breitwigner.SetParNames("mean","width","ampl") if args.constrain else breitwigner.SetParNames("mean","width","ampl","const")
     breitwigner.SetLineColor(ROOT.kGreen)
     breitwigner.SetLineStyle(2)
     breitwigner.SetLineWidth(3)
     data.Fit('breitwigner',"","",100,300)
 
     #fit parameter to legend
-    pt = ROOT.TPaveText(270.,5.,310.,7.,'BR')
-    pt.AddText("Mean: "+str(round(breitwigner.GetParameter(0), 4)))
-    pt.AddText("Width: "+str(round(breitwigner.GetParameter(1), 4)))
-    pt.AddText("Amplitude: "+str(round(breitwigner.GetParameter(2), 4)))
-    pt.AddText("Const.: "+str(round(breitwigner.GetParameter(3), 4)))
-
-
     stacked.Draw('hist')
     data.Draw('same')
-    #legend.Draw('same')
-    pt.Draw('same')
+    legend.Draw('same')
     stacked.GetXaxis().SetTitle(labels[topmass])
     stacked.GetYaxis().SetTitle('Events/Bin')
     c.Modified()
     c.Update()
     c.SaveAs('topmass_plots/'+str(topmass)+'_constrained_fit.pdf') if args.constrain else c.SaveAs('topmass_plots/'+str(topmass)+'_original_fit.pdf')
+    errors = breitwigner.GetParErrors()
+
+    #save to pickle
+    with open('topmass_plots/fitparameter_'+str(topmass)+'_'+('constrained' if args.constrain else '')+'.txt', 'wb') as fitparams:
+        fitparams.write('Mean: {0}'.format(breitwigner.GetParameter(0))+' +/- {0}'.format(errors[0]) +'\n')
+        fitparams.write('Width: {0}'.format(breitwigner.GetParameter(1))+' +/- {0}'.format(errors[1])+'\n')
+        fitparams.write('Amplitude: {0}'.format(breitwigner.GetParameter(2))+' +/- {0}'.format(errors[2])+'\n')
+        if not args.constrain: (fitparams.write('Const: {0}'.format(breitwigner.GetParameter(3))+' +/- {0}'.format(errors[3])))
     c.IsA().Destructor(c)
