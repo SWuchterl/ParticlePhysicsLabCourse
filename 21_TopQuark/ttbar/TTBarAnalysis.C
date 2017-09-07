@@ -401,6 +401,11 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 								
 								// hadronic NJet 4or5   NBJet 2
 								
+								//SECOND iteration: first guess: m_top = 169 GeV
+								
+								float m_t=169;
+								
+								
 								float m_W=80.385;
 								vector<MyJet> BJets;
 								vector<MyJet> OtherJets;
@@ -445,8 +450,18 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 								
 								float m_T1_hadr=(resultingFourVector_hadr+BJets[0]).M();
 								float m_T2_hadr=(resultingFourVector_hadr+BJets[1]).M();
-								Fill("topmass_hadr",m_T1_hadr);
-								Fill("topmass_hadr",m_T2_hadr);
+								
+								float difT1 = abs(m_T1_hadr-m_t);
+								float difT2 = abs(m_T2_hadr-m_t);
+								
+								if(difT1<difT2){
+									Fill("topmass_hadr",m_T1_hadr);									
+								}else{
+									Fill("topmass_hadr",m_T2_hadr);									
+								}
+								
+								//~ Fill("topmass_hadr",m_T1_hadr);
+								//~ Fill("topmass_hadr",m_T2_hadr);
 								
 								//now look at leptonic branch
 																
@@ -493,8 +508,20 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 																
 								float m_T1_lept=(resultingFourVector_lept+BJets[0]).M();
 								float m_T2_lept=(resultingFourVector_lept+BJets[1]).M();
-								Fill("topmass_lept",m_T1_lept);
-								Fill("topmass_lept",m_T2_lept);
+								
+								
+								float difT1_lept = abs(m_T1_lept-m_t);
+								float difT2_lept = abs(m_T2_lept-m_t);
+								
+								if(difT1_lept<difT2_lept){
+									Fill("topmass_lept",m_T1_lept);									
+								}else{
+									Fill("topmass_lept",m_T2_lept);									
+								}
+								
+								
+								//~ Fill("topmass_lept",m_T1_lept);
+								//~ Fill("topmass_lept",m_T2_lept);
 								
 																				
 							}
