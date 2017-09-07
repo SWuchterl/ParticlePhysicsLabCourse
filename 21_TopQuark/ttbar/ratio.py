@@ -24,23 +24,24 @@ data_samples=['Plots/results.root']
 mc_samples=['Plots/ttbar.root', 'Plots/dy.root', 'Plots/wjets.root', 'Plots/ww.root', 'Plots/wz.root', 'Plots/zz.root', 'Plots/qcd.root']
 efficiency_sample = 'TriggerMeasurement/ttbar.root'
 
+
 list_of_variables = ['Muon_Pt',
-					'NIsoMuon',
-					'Muon_Eta',
-					'Muon_E',
-					'MET',
-					'Muon_Phi',
-					'Jet_Pt',
-					'Jet_Eta',
-					'Jet_E',
-					'Jet_Phi',
-					'NJetID',
-					'NJetID_btag',
-					'NPrimaryVertices',
-					'DrellYan_mll',
-					'DrellYan_met']
+					 'NIsoMuon',
+					 'Muon_Eta',
+					 'Muon_E',
+					 'MET',
+					 'Muon_Phi',
+					 'Jet_Pt',
+					 'Jet_Eta',
+					 'Jet_E',
+					 'Jet_Phi',
+					 'NJetID',
+					 'NJetID_btag',
+					 'NPrimaryVertices',
+					 'DrellYan_mll',
+					 'DrellYan_met']
 
-
+print list_of_variables[4]
 binnings = {
 	'Muon_Pt': [50, 0, 250],
 	'NIsoMuon': [5, 0, 5],
@@ -93,7 +94,7 @@ for data in data_samples:
 		t.GetXaxis().SetTitle(labels[variable])
 		t.GetYaxis().SetTitle("Events")
 		t.Draw()
-		c1.SaveAs('data_'+str(variable)+'.pdf')
+		c1.SaveAs(str(data)+str(variable)+'.pdf')
 		f.Close()
 
 #plot shape of variables in MC
@@ -120,10 +121,16 @@ for variable in list_of_variables:
 	XLOW =  float(binning[1])
 	XUP = float(binning[2])
 
+	print labels[variable]
+
+	print NBINS
+	print XLOW
+	print XUP
+
+	print variable
 
 	c = ROOT.TCanvas("canvas","",600,600)
 	c.SetGrid()
-	c.SetTitle(labels[variable])
 	stacked = ROOT.THStack('stacked', 'stacked')
 
 	#MONTE CARLOS
@@ -132,6 +139,7 @@ for variable in list_of_variables:
 	f_ttbar = ROOT.TFile(mc_samples[0])
 	t_ttbar = f_ttbar.Get(variable)
 	ttbar.Add(t_ttbar)
+	f_ttbar.Close()
 	ttbar.SetFillColor(ROOT.kRed)
 	stacked.Add(ttbar)
 
@@ -141,6 +149,7 @@ for variable in list_of_variables:
 	f_dy = ROOT.TFile(mc_samples[1])
 	t_dy = f_dy.Get(variable)
 	dy.Add(t_dy)
+	f_dy.Close()
 	dy.SetFillColor(ROOT.kYellow)
 	stacked.Add(dy)
 
@@ -149,6 +158,7 @@ for variable in list_of_variables:
 	f_wjets = ROOT.TFile(mc_samples[2])
 	t_wjets = f_wjets.Get(variable)
 	wjets.Add(t_wjets)
+	f_wjets.Close()
 	wjets.SetFillColor(ROOT.kOrange)
 	stacked.Add(wjets)
 
@@ -157,6 +167,7 @@ for variable in list_of_variables:
 	f_ww = ROOT.TFile(mc_samples[3])
 	t_ww = f_ww.Get(variable)
 	ww.Add(t_ww)
+	f_ww.Close()
 	ww.SetFillColor(ROOT.kGreen)
 	stacked.Add(ww)
 
@@ -165,6 +176,7 @@ for variable in list_of_variables:
 	f_wz = ROOT.TFile(mc_samples[4])
 	t_wz = f_wz.Get(variable)
 	wz.Add(t_wz)
+	f_wz.Close()
 	wz.SetFillColor(ROOT.kCyan)
 	stacked.Add(wz)
 
@@ -173,6 +185,7 @@ for variable in list_of_variables:
 	f_zz = ROOT.TFile(mc_samples[5])
 	t_zz = f_zz.Get(variable)
 	zz.Add(t_zz)
+	f_zz.Close()
 	zz.SetFillColor(ROOT.kBlue)
 	stacked.Add(zz)
 
@@ -181,6 +194,7 @@ for variable in list_of_variables:
 	f_qcd = ROOT.TFile(mc_samples[6])
 	t_qcd = f_qcd.Get(variable)
 	qcd.Add(t_qcd)
+	f_qcd.Close()
 	qcd.SetFillColor(ROOT.kMagenta)
 	stacked.Add(qcd)
 
@@ -189,6 +203,7 @@ for variable in list_of_variables:
 	f_data = ROOT.TFile(data_samples[0])
 	t_data = f_data.Get(variable)
 	data.Add(t_data)
+	f_data.Close()
 	#data.SetFillStyle(3001)
 	data.SetMarkerStyle(20)
 	data.SetMarkerSize(0.8)
@@ -196,8 +211,6 @@ for variable in list_of_variables:
 
 	#Styles
 	c.SetLogy()
-	qcd.GetXaxis().SetTitle(labels[variable])
-	qcd.GetYaxis().SetTitle("Events")
 	ROOT.gStyle.SetOptStat(0)
 	ROOT.gStyle.SetOptTitle(0)
 	ROOT.gStyle.SetLineWidth(1)
@@ -215,21 +228,21 @@ for variable in list_of_variables:
 	rp = ROOT.TRatioPlot(stacked, data)
 	c.SetTicks(0,1)
 	rp.GetLowYaxis().SetNdivisions(505)
-	c.Update()
 	stacked.Draw()
 	data.Draw('same')
 	rp.Draw()
-	rp.GetLowYaxis().SetTitle("MC/Data")
 	legend.Draw('same')
-	c.SaveAs(str(variable)+'_ratio.pdf')
-	f_data.Close()
-	f_dy.Close()
-	f_wjets.Close()
-	f_ww.Close()
-	f_wz.Close()
-	f_zz.Close()
-	f_qcd.Close()
-	f_ttbar.Close()
+	lines = ROOT.std.vector('double')()
+	lines.push_back(1.)
+	rp.SetGridlines(lines)
+	rp.GetLowerRefGraph().SetMinimum(0)
+	rp.GetLowerRefGraph().SetMaximum(2)
+	rp.GetLowerRefYaxis().SetTitle("MC/Data")
+	rp.GetUpperRefYaxis().SetTitle("Events/Bin")
+	rp.GetLowerRefGraph().GetXaxis().SetTitle(str(labels[variable]))
+	c.Update()
+	c.SaveAs('MC_data_plots/'+str(variable)+'_ratio.pdf')
+	c.IsA().Destructor(c)
 
 # EFFICIENCIES
 def flattenList(listOfLists):
