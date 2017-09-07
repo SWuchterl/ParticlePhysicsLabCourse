@@ -9,17 +9,6 @@ import sys
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-parser = argparse.ArgumentParser(description="Perform plots for shape and MC/data agreement.",
-	                                 fromfile_prefix_chars="@", conflict_handler="resolve")
-#parser.add_argument("-d", "--data", nargs="+", required=True, default=None,
-#	                    help="data file. Format same as for TChain.Add: path/to/file.root.")
-#parser.add_argument("-m", "--montecarlo", nargs="+", required=True, default=None,
-#	                    help="monte carlo file. Format same as for TChain.Add: path/to/file.root.")
-#parser.add_argument("-v", "--variables", nargs="+", required=True, default=None,
-#	            help="variables.")
-
-args = parser.parse_args()
-
 data_samples=['Plots/results.root']
 mc_samples=['Plots/ttbar.root', 'Plots/dy.root', 'Plots/wjets.root', 'Plots/ww.root', 'Plots/wz.root', 'Plots/zz.root', 'Plots/qcd.root']
 efficiency_sample = 'TriggerMeasurement/ttbar.root'
@@ -239,7 +228,9 @@ for variable in list_of_variables:
 	rp.GetLowerRefGraph().SetMaximum(2)
 	rp.GetLowerRefYaxis().SetTitle("MC/Data")
 	rp.GetUpperRefYaxis().SetTitle("Events/Bin")
-	rp.GetLowerRefGraph().GetXaxis().SetTitle(str(labels[variable]))
+	stacked.GetXaxis().SetTitle(labels[variable])
+	c.Modified()
+#	rp.GetLowerRefGraph().GetXaxis().SetTitle(str(labels[variable]))
 	c.Update()
 	c.SaveAs('MC_data_plots/'+str(variable)+'_ratio.pdf')
 	c.IsA().Destructor(c)
