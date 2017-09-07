@@ -11,7 +11,7 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 data_samples = ['Plots/results.root']
 mc_samples = ['Plots/ttbar.root', 'Plots/dy.root', 'Plots/wjets.root', 'Plots/ww.root', 'Plots/wz.root', 'Plots/zz.root', 'Plots/qcd.root']
-
+efficiency_sample = 'TriggerMeasurement/ttbar.root'
 
 list_of_variables = ['Muon_Pt',
 					 'NIsoMuon',
