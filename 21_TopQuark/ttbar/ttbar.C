@@ -19,6 +19,8 @@ int main()
 
 	//Want trigger eff histos?
 	bool measureTrig = false;
+	//Want trigger mass constrained top mass histos?
+	bool massConstrained = true;
 
 
   // luminosity of data sample
@@ -49,48 +51,48 @@ int main()
 
   // data sample
   //~ TTBarAnalysis *A = new TTBarAnalysis(measureTrig,1.0, 1.0, 1.0, 0.0, 1.0);
-  TTBarAnalysis *A = new TTBarAnalysis(measureTrig,1.0, 1.0, 1.0, 0.0, 1.0);
+  TTBarAnalysis *A = new TTBarAnalysis(massConstrained,measureTrig,1.0, 1.0, 1.0, 0.0, 1.0);
   TChain* ch = new TChain("events");
   ch->Add("files/data.root");
   ch->Process(A);
 
   // ttbar sample
-  TTBarAnalysis *B = new TTBarAnalysis(measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
+  TTBarAnalysis *B = new TTBarAnalysis(massConstrained,measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
   TChain* ch2 = new TChain("events");
   ch2->Add("files/ttbar.root");
   ch2->Process(B);
 
   // w+jets sample
-  TTBarAnalysis *C = new TTBarAnalysis(measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
+  TTBarAnalysis *C = new TTBarAnalysis(massConstrained,measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
   TChain* ch3 = new TChain("events");
   ch3->Add("files/wjets.root");
   ch3->Process(C);
 
   // Drell-Yan sample
-  TTBarAnalysis *D = new TTBarAnalysis(measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
+  TTBarAnalysis *D = new TTBarAnalysis(massConstrained,measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
   TChain* ch4 = new TChain("events");
   ch4->Add("files/dy.root");
   ch4->Process(D);
 
   // WW sample
-  TTBarAnalysis *E = new TTBarAnalysis(measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
+  TTBarAnalysis *E = new TTBarAnalysis(massConstrained,measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
   TChain* ch5 = new TChain("events");
   ch5->Add("files/ww.root");
   ch5->Process(E);
 
-  TTBarAnalysis *F = new TTBarAnalysis(measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
+  TTBarAnalysis *F = new TTBarAnalysis(massConstrained,measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
   TChain* ch6 = new TChain("events");
   ch6->Add("files/wz.root");
   ch6->Process(F);
 
   // ZZ sample
-  TTBarAnalysis *G = new TTBarAnalysis(measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
+  TTBarAnalysis *G = new TTBarAnalysis(massConstrained,measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
   TChain* ch7 = new TChain("events");
   ch7->Add("files/zz.root");
   ch7->Process(G);
 
   // QCD sample
-  TTBarAnalysis *H = new TTBarAnalysis(measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
+  TTBarAnalysis *H = new TTBarAnalysis(massConstrained,measureTrig,BTagScale, weight_factor, jet_scale, jet_smear, muon_scale);
   TChain* ch8 = new TChain("events");
   ch8->Add("files/qcd.root");
   ch8->Process(H);
@@ -111,11 +113,13 @@ int main()
 
 	int status;
     int status2;
+    int status3;
 	//~ string folderTrig;
     //~ folderTrig = "TriggerMeasurement";
 	status = mkdir("TriggerMeasurement", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	//~ string folderElse = "Plots";
 	status2 = mkdir("Plots", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	status3 = mkdir("Plots_constrained", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
   
   if (measureTrig) {
   
@@ -141,7 +145,7 @@ int main()
 	  P.SetData(A->histo, std::string("Data")); 
 
 	  // add backgrounds to plotter
-	  P.AddBg(B->histo, std::string("TTbar"));
+	  //~ P.AddBg(B->histo, std::string("TTbar"));
 	  P.AddBg(C->histo, std::string("Wjets"));
 	  P.AddBg(D->histo, std::string("DY"));
 	  P.AddBg(E->histo, std::string("WW"));
@@ -150,9 +154,16 @@ int main()
 	  P.AddBg(H->histo, std::string("QCD"));
 
 	  // Print logarithmic plots to PDF file "results_log.pdf"
-	  P.Plot(string("Plots/results_log.pdf"), true);
-	  // Print linear plots to PDF file "results_lin.pdf"
-	  P.Plot(string("Plots/results_lin.pdf"), false);	
+      if(!massConstrained){
+          P.Plot(string("Plots/results_log.pdf"), true);
+          // Print linear plots to PDF file "results_lin.pdf"
+          P.Plot(string("Plots/results_lin.pdf"), false);	
+      }
+      else{
+        P.Plot(string("Plots_constrained/results_log.pdf"), true);
+          // Print linear plots to PDF file "results_lin.pdf"
+          P.Plot(string("Plots_constrained/results_lin.pdf"), false);	
+      }
 	}
 
 
@@ -211,8 +222,8 @@ int main()
     cout << "cross section[pb^-1]: " << crossSection<<endl;
     cout << "stat Unc. cross section[pb^-1] +- : " << ErrCrossSection<<endl;
 
-    int status3;
-    status3 = mkdir("crossSection", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    int status4;
+    status4 = mkdir("crossSection", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
 
     //if one wants to write files with the values.... comment in....
@@ -262,6 +273,7 @@ int main()
 	  //~ H->histo.Write("qcd.root");
   }
   else{
+      if (!massConstrained){
 	  A->histo.Write("Plots/results.root");
   	  B->histo.Write("Plots/ttbar.root");
 	  C->histo.Write("Plots/wjets.root");
@@ -270,5 +282,16 @@ int main()
 	  F->histo.Write("Plots/wz.root");
 	  G->histo.Write("Plots/zz.root");
 	  H->histo.Write("Plots/qcd.root");
+      }
+      else{
+ 	  A->histo.Write("Plots_constrained/results.root");
+  	  B->histo.Write("Plots_constrained/ttbar.root");
+	  C->histo.Write("Plots_constrained/wjets.root");
+	  D->histo.Write("Plots_constrained/dy.root");
+	  E->histo.Write("Plots_constrained/ww.root");
+	  F->histo.Write("Plots_constrained/wz.root");
+	  G->histo.Write("Plots_constrained/zz.root");
+	  H->histo.Write("Plots_constrained/qcd.root");       
+      }
   }
 }

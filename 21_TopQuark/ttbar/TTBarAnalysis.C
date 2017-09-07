@@ -16,7 +16,7 @@
 #include <TMath.h>
 using namespace std;
 
-TTBarAnalysis::TTBarAnalysis(bool trigger, float sf, float wf,
+TTBarAnalysis::TTBarAnalysis(bool sec, bool trigger, float sf, float wf,
 			     double jscale, double jsmear, double mscale,
 			     TTree * /*tree*/)
   : MyAnalysis()
@@ -31,6 +31,7 @@ TTBarAnalysis::TTBarAnalysis(bool trigger, float sf, float wf,
   TotalEvents = 0;
   SelectedEvents = 0;
   trig=trigger;
+  second=sec;
   events_total=0;
   events_sel=0;
 }
@@ -105,8 +106,8 @@ void TTBarAnalysis::CreateHistograms()
 	  CreateHisto("DrellYan_mll", "m_{ll} [GeV]", 30, 75, 105);
 	  CreateHisto("DrellYan_met", "E_{T}^{missing} [GeV]", 40, 0, 80);
 	  
-	  CreateHisto("topmass_hadr", "m_{t,hadronic} [GeV]", 20, 100, 300);
-	  CreateHisto("topmass_lept", "m_{t,semileptonic} [GeV]", 20, 100, 300);
+	  CreateHisto("topmass_hadr", "m_{t,hadronic} [GeV]", 50, 100, 300);
+	  CreateHisto("topmass_lept", "m_{t,semileptonic} [GeV]", 50, 100, 300);
   }
   
   if (trig){
@@ -402,6 +403,8 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 								// hadronic NJet 4or5   NBJet 2
 								
 								//SECOND iteration: first guess: m_top = 169 GeV
+								//~ bool secondIteration = false;
+								bool secondIteration = second;
 								
 								float m_t=169;
 								
@@ -454,15 +457,17 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 								float difT1 = abs(m_T1_hadr-m_t);
 								float difT2 = abs(m_T2_hadr-m_t);
 								
-								if(difT1<difT2){
-									Fill("topmass_hadr",m_T1_hadr);									
+								if(secondIteration){
+								
+									if(difT1<difT2){
+										Fill("topmass_hadr",m_T1_hadr);									
+									}else{
+										Fill("topmass_hadr",m_T2_hadr);									
+									}
 								}else{
-									Fill("topmass_hadr",m_T2_hadr);									
+									Fill("topmass_hadr",m_T1_hadr);
+									Fill("topmass_hadr",m_T2_hadr);
 								}
-								
-								//~ Fill("topmass_hadr",m_T1_hadr);
-								//~ Fill("topmass_hadr",m_T2_hadr);
-								
 								//now look at leptonic branch
 																
 								TLorentzVector resultingFourVector_lept;
@@ -513,16 +518,17 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 								float difT1_lept = abs(m_T1_lept-m_t);
 								float difT2_lept = abs(m_T2_lept-m_t);
 								
-								if(difT1_lept<difT2_lept){
-									Fill("topmass_lept",m_T1_lept);									
+								if(secondIteration){
+									if(difT1_lept<difT2_lept){
+										Fill("topmass_lept",m_T1_lept);									
+									}else{
+										Fill("topmass_lept",m_T2_lept);									
+									}
 								}else{
-									Fill("topmass_lept",m_T2_lept);									
+								
+									Fill("topmass_lept",m_T1_lept);
+									Fill("topmass_lept",m_T2_lept);
 								}
-								
-								
-								//~ Fill("topmass_lept",m_T1_lept);
-								//~ Fill("topmass_lept",m_T2_lept);
-								
 																				
 							}
 						}

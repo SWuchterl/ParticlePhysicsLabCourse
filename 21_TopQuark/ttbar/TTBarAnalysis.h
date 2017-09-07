@@ -10,7 +10,7 @@
 
 class TTBarAnalysis: public MyAnalysis {
 public:
-  TTBarAnalysis(bool trigger, float sf = 1., float wf = 1, 
+  TTBarAnalysis(bool sec,bool trigger, float sf = 1., float wf = 1, 
 		double jscale = 1., double jsmear = 0., double mscale = 1,
 		TTree * /*tree*/ = 0);
   virtual ~TTBarAnalysis() { };
@@ -35,6 +35,7 @@ public:
     float events_total;
     float events_sel;
     float events_sel2;
+    bool second;
     
 };
 
