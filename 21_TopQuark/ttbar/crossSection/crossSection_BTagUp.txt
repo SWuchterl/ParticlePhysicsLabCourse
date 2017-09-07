@@ -1,0 +1,15 @@
+scaleLumi 1
+scaleTheo 1
+scaleTrigger 1
+jetScale 1
+muonScale 1
+weightFactor 1
+BTagScale 0.9975
+jetSmear 1
+Events Selected and triggered in ttbar: 91.992
+Events Selected and triggered in Data: 86
+Events total in ttbar: 7928.61
+Events selected in BKGs: 1.64589
+acceptance: 0.0116025
+cross section[pb^-1]: 145.406
+stat Unc. cross section[pb^-1]: 16.1377
