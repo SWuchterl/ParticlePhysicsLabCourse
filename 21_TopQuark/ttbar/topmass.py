@@ -118,13 +118,21 @@ for topmass in topmasses:
     legend.AddEntry(qcd, 'QCD', 'f')
 
     #fit
-    breitwigner = ROOT.TF1('breitwigner', "TMath::BreitWigner(x,[0],[1])", 140., 200.)
-    #breitwigner.SetParameters(0.,1.)
-    breitwigner.SetParNames("mean","decay width")
+    
+    
+    def func(x,par):
+		ret=1./(2.*np.pi)*(par[1])/((x[0]-par[0])**2. + par[1]**2. /4.)
+		un=par[3]
+		return par[2]*ret+un
+    
+    
+    breitwigner = ROOT.TF1('breitwigner', func, 100,300, 4)
+    breitwigner.SetParameters(175.,5.,100.,1.)
+    breitwigner.SetParNames("mean","width","ampl","const")
     breitwigner.SetLineColor(ROOT.kGreen)
     breitwigner.SetLineStyle(2)
     breitwigner.SetLineWidth(3)
-    data.Fit('breitwigner')
+    data.Fit('breitwigner',"","",100,300)
 
 
     stacked.Draw('hist')
