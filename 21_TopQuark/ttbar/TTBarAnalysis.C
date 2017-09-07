@@ -8,10 +8,12 @@
 
 #include <iostream>
 #include <algorithm>
+#include <stdlib.h>
 
 #include <TH1D.h>
 #include <sys/stat.h>
-
+#include <typeinfo>
+#include <TMath.h>
 using namespace std;
 
 TTBarAnalysis::TTBarAnalysis(bool trigger, float sf, float wf,
@@ -43,6 +45,7 @@ void TTBarAnalysis::CreateHistograms()
   
   if (!trig){
 	  CreateHisto("cutflow", "cut flow", 7, 0, 7);
+	  CreateHisto("cutflow_MassSelection", "cut flow Mass Selection", 7, 0, 7);
 
 	  // For a cut flow histogram, it is important that we initialize all bins we
 	  // are using with zeroes before processing the first event. If this is
@@ -51,17 +54,30 @@ void TTBarAnalysis::CreateHistograms()
 	  // You need to use the same names below in your analysis code!
 	  Fill("cutflow", "all", 0);
 	  Fill("cutflow", "trigger", 0);
-	  Fill("cutflow", "p_{T}>26", 0);
+	  Fill("cutflow", "p_{T}#geq26", 0);
 	  Fill("cutflow", "N{#mu,Iso} #geq 1", 0);
 	  Fill("cutflow", "N_{Jet} #geq 4", 0);
 	  Fill("cutflow", "N_{Jet,b} #geq 2", 0);
-	  Fill("cutflow", "E_{T}^{missing}>20", 0);
+	  Fill("cutflow", "E_{T}^{missing}#geq20", 0);
+	  
+	  Fill("cutflow_MassSelection", "all", 0);
+	  Fill("cutflow_MassSelection", "trigger", 0);
+	  Fill("cutflow_MassSelection", "p_{T}#geq26", 0);
+	  Fill("cutflow_MassSelection", "N{#mu,Iso} = 1", 0);
+	  Fill("cutflow_MassSelection", "N_{Jet} = 4v5", 0);
+	  Fill("cutflow_MassSelection", "N_{Jet,b} = 2", 0);
+	  Fill("cutflow_MassSelection", "E_{T}^{missing}#geq20", 0);
 	  
 	  //N-1 Plots
 	  CreateHisto("N-1 NIso", "Number of isolated muons", 5, 0, 5);  
 	  CreateHisto("N-1 NJet", "Number of Jets (with ID)", 10, 0, 10);  
 	  CreateHisto("N-1 NBJet", "Number of b-tagged Jets (with ID)", 5, 0, 5);  
-	  CreateHisto("N-1 MET", "E_{T}^{missing} [GeV]", 25, 0, 500);  
+	  CreateHisto("N-1 MET", "E_{T}^{missing} [GeV]", 25, 0, 500); 
+	   
+	  CreateHisto("N-1 NIso 2", "Number of isolated muons", 5, 0, 5);  
+	  CreateHisto("N-1 NJet 2", "Number of Jets (with ID)", 10, 0, 10);  
+	  CreateHisto("N-1 NBJet 2", "Number of b-tagged Jets (with ID)", 5, 0, 5);  
+	  CreateHisto("N-1 MET 2", "E_{T}^{missing} [GeV]", 25, 0, 500);  
 	  
 	  
 	}
@@ -74,7 +90,6 @@ void TTBarAnalysis::CreateHistograms()
   
   if (!trig){
 	  CreateHisto("Muon_Pt", "p_{T} of all muons [GeV]", 50, 0, 250);
-	  //~ CreateHisto("Muon_Pt_leading", "P_{T}^{leading} [GeV]", 50, 0, 250);
 	  CreateHisto("NIsoMuon", "Number of isolated muons", 5, 0, 5);
 	  CreateHisto("Muon_Eta", "#eta of all muons", 20, -3.5, 3.5);
 	  CreateHisto("Muon_E", "Energy distribution [GeV]", 50, 0, 750);
@@ -89,6 +104,9 @@ void TTBarAnalysis::CreateHistograms()
 	  CreateHisto("NPrimaryVertices", "Number of primary Vertices", 36, 0, 36);
 	  CreateHisto("DrellYan_mll", "m_{ll} [GeV]", 30, 75, 105);
 	  CreateHisto("DrellYan_met", "E_{T}^{missing} [GeV]", 40, 0, 80);
+	  
+	  CreateHisto("topmass_hadr", "m_{t,hadronic} [GeV]", 20, 100, 300);
+	  CreateHisto("topmass_lept", "m_{t,semileptonic} [GeV]", 20, 100, 300);
   }
   
   if (trig){
@@ -122,18 +140,12 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
   // fill the cutflow histogram at the beginning and after each cut
   if (!trig){
 	Fill("cutflow", "all");
+	Fill("cutflow_MassSelection", "all");
 	}
   //////////////////////////////////////////////////////////////////////
   // implementation of systematic effects
 
   // As an example, we show how to apply the muon scale uncertainty
-  
-    // variables for systematic uncertainties from header/just here for information
-  //~ double weight_factor;
-  //~ double jet_scale;
-  //~ double jet_smear;
-  //~ double muon_scale;
-  
   
 	TRandom Random;
 	Random.SetSeed();
@@ -150,21 +162,18 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
   for (unsigned int i = 0; i < Jets.size(); i++) {
 	jet_smear_rnd = Random.Gaus(1.,jet_smear);
     Jets[i] *= jet_smear_rnd;
-    cout<<jet_smear_rnd<<endl;
   }
 	EventWeight=EventWeight*weight_factor;
   
   // the following 4 lines are necessary because:
-  // 	if I want to cut on muon Pt for the trigger for exmaple, i need to select events in which is at least one muon. -so uncomment the 2 lines therefore
+  // 	if I want to cut on muon Pt for the trigger for example, i need to select events in which is at least one muon. -so uncomment the 2 lines therefore
   // if I want to plot all events, uncomment the other 2 lines
-  //~ if (Muons.size()>0){
-  if (true){
-   //~ bool is =(Muons[0].Pt()>30.);
-   bool is =true;
+  if (Muons.size()>0){
+  //~ if (true){
+   bool is =(Muons[0].Pt()>30.);
+   //~ bool is =true;
 	
-	
- //~ && (Muons[0].Pt()>30.)
- //~ && is
+
   //////////////////////////////////////////////////////////////////////
   // first, we identify all objects (muons, jets) by applying quality and
   // isolation requirements.
@@ -238,8 +247,8 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 					
 						float mll = (Muons[0]+Muons[1]).M();
 						bool m_cut = (75. <= mll) && (mll <=105.); 
-						//~ //bool cuts = m_cut && (met.Pt() <= 99999999.) && (Muons[0].Pt()>=0) && (Muons[1].Pt()>=0);
-						 bool cuts = true;
+						bool cuts = m_cut && (met.Pt() <= 4000000.) && (Muons[0].Pt()>=0) && (Muons[1].Pt()>=0);
+						 //~ bool cuts = true;
 						if (cuts){
 							if(triggerIsoMu24){
 								Fill("DrellYan_mll",mll);
@@ -248,11 +257,6 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 						}
 					}
 			}
-//~ 
-//~ 
-			//~ if(triggerIsoMu24  && is){
-				//~ Fill("Muon_Pt_leading",Muons[0].Pt());
-			//~ }
 	}
 }
 // histos for trigger measurement
@@ -287,7 +291,7 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
   // ... and after the trigger requirement we fill the cut flow again ...
   
 	bool muonSize = (Muons.size()>0);
-	
+	//following is for cross section measurement
 	if (muonSize){
 		bool ptCut= (Muons[0].Pt()>=26.);
 		int NIsoMuons = 0;
@@ -315,7 +319,7 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 		if (hasTriggered){
 			Fill("cutflow", "trigger");
 			if(ptCut){
-				Fill("cutflow", "p_{T}>26");
+				Fill("cutflow", "p_{T}#geq26");
 				if(NIsoMuonCut){
 					Fill("cutflow", "N{#mu,Iso} #geq 1");
 					if(NJetCut){
@@ -323,10 +327,8 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 						if(NBJetCut){
 							Fill("cutflow", "N_{Jet,b} #geq 2");
 							if(metCut){
-								Fill("cutflow", "E_{T}^{missing}>20");
-								//~ cout<<"EvWeight1 " << EventWeight;
-								events_sel=events_sel+EventWeight;															
-								//~ events_sel=events_sel+1;															
+								Fill("cutflow", "E_{T}^{missing}#geq20");
+								events_sel=events_sel+EventWeight;																														
 							}
 						}
 					}
@@ -351,7 +353,176 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 
 
 	}
-	//~ cout<<"EvWeight2 "  << EventWeight<<endl;
+	
+	
+	
+	//following is for top mass measurement
+	
+	if (muonSize){
+		bool ptCut= (Muons[0].Pt()>=26.);
+		int NIsoMuons = 0;
+		for (unsigned int i=0; i< Muons.size();i++){
+			if (Muons[i].IsIsolated()){
+				NIsoMuons = NIsoMuons+1;
+			}					
+		}
+		bool NIsoMuonCut = NIsoMuons==1;
+		int NJets=0;
+		int NBJets=0;
+		for (unsigned int i=0; i< Jets.size();i++){
+			if (Jets[i].GetJetID()){
+				NJets = NJets+1;
+				if (Jets[i].IsBTagged()){
+					NBJets = NBJets+1;
+				}
+			}					
+		}
+		bool NJetCut = (NJets >= 4) && (NJets <= 5);
+		bool NBJetCut = NBJets == 2;
+		bool metCut = met.Pt()>=20.;
+
+
+		if (hasTriggered){
+			Fill("cutflow_MassSelection", "trigger");
+			if(ptCut){
+				Fill("cutflow_MassSelection", "p_{T}#geq26");
+				if(NIsoMuonCut){
+					Fill("cutflow_MassSelection", "N{#mu,Iso} = 1");
+					if(NJetCut){
+						Fill("cutflow_MassSelection", "N_{Jet} = 4v5");
+						if(NBJetCut){
+							Fill("cutflow_MassSelection", "N_{Jet,b} = 2");
+							if(metCut){
+								Fill("cutflow_MassSelection", "E_{T}^{missing}#geq20");	
+								events_sel2=events_sel2+EventWeight;	
+								
+								
+								//top mass combination
+								
+								// hadronic NJet 4or5   NBJet 2
+								
+								float m_W=80.385;
+								vector<MyJet> BJets;
+								vector<MyJet> OtherJets;
+								for (unsigned int i=0; i< Jets.size();i++){
+									if(Jets[i].IsBTagged()){
+										BJets.push_back(Jets[i]);
+									}else{
+										OtherJets.push_back(Jets[i]);
+									}
+								}
+
+								float temp01_m;
+								float temp12_m;
+								float temp02_m;
+								
+								TLorentzVector resultingFourVector_hadr;
+								
+								if(OtherJets.size()==3){
+									temp01_m=(OtherJets[0]+OtherJets[1]).M();
+									temp12_m=(OtherJets[1]+OtherJets[2]).M();
+									temp02_m=(OtherJets[0]+OtherJets[2]).M();
+									
+									float dif01=abs(temp01_m-m_W);
+									float dif12=abs(temp12_m-m_W);
+									float dif02=abs(temp02_m-m_W);
+
+									if ((dif01<dif02)&&(dif01<dif12)){
+										resultingFourVector_hadr=((OtherJets[0]+OtherJets[1]));
+									}else{
+										if ((dif02<dif01)&&(dif02<dif12)){
+											resultingFourVector_hadr=((OtherJets[0]+OtherJets[2]));
+										}else{
+											resultingFourVector_hadr=((OtherJets[1]+OtherJets[2]));
+											}
+									}
+
+									
+								}else{
+									resultingFourVector_hadr=((OtherJets[0]+OtherJets[1]));
+								}
+							
+								
+								float m_T1_hadr=(resultingFourVector_hadr+BJets[0]).M();
+								float m_T2_hadr=(resultingFourVector_hadr+BJets[1]).M();
+								Fill("topmass_hadr",m_T1_hadr);
+								Fill("topmass_hadr",m_T2_hadr);
+								
+								//now look at leptonic branch
+																
+								TLorentzVector resultingFourVector_lept;
+								TLorentzVector Neutrino1=met;
+								TLorentzVector Neutrino2=met;
+								
+								float pX_mu=Muons[0].Px();
+								float pY_mu=Muons[0].Py();
+								float pZ_mu=Muons[0].Pz();
+								float pX_met=met.Px();
+								float pY_met=met.Py();
+								
+								float m_mu=Muons[0].M();
+								float e_mu=Muons[0].E();
+								
+								float k1=(m_W*m_W/2.)-(m_mu*m_mu/2)+(pX_mu*pX_met)+(pY_mu*pY_met);
+								float k2=(e_mu*e_mu)*(pX_met*pX_met + pY_met*pY_met);
+								float k3=(pZ_mu*pZ_mu) -(e_mu*e_mu);
+								
+								float sol1=-(k1*pZ_mu/k3)+TMath::Sqrt((k1*pZ_mu/k3)*(k1*pZ_mu/k3)-(((k1*k1)-k2)/k3));
+								float sol2=-(k1*pZ_mu/k3)-TMath::Sqrt((k1*pZ_mu/k3)*(k1*pZ_mu/k3)-(((k1*k1)-k2)/k3));
+								
+								float e1_met=TMath::Sqrt(pX_met*pX_met + pY_met*pY_met + sol1*sol1);
+								float e2_met=TMath::Sqrt(pX_met*pX_met + pY_met*pY_met + sol2*sol2);
+								
+								Neutrino1.SetPxPyPzE(pX_met, pY_met, sol1, e1_met);
+								Neutrino2.SetPxPyPzE(pX_met, pY_met, sol2, e2_met);
+								
+								float temp1_m;
+								float temp2_m;								
+								temp1_m=(Muons[0]+Neutrino1).M();
+								temp2_m=(Muons[0]+Neutrino2).M();
+									
+								float dif1=abs(temp1_m-m_W);
+								float dif2=abs(temp2_m-m_W);
+								
+								if(dif1<dif2){
+									resultingFourVector_lept=Neutrino1+Muons[0];
+								}else{
+									resultingFourVector_lept=Neutrino2+Muons[0];
+								}
+
+																
+								float m_T1_lept=(resultingFourVector_lept+BJets[0]).M();
+								float m_T2_lept=(resultingFourVector_lept+BJets[1]).M();
+								Fill("topmass_lept",m_T1_lept);
+								Fill("topmass_lept",m_T2_lept);
+								
+																				
+							}
+						}
+					}
+				}
+				
+				if ((NJetCut)&&(NBJetCut)&&(metCut)){
+					Fill("N-1 NIso 2",NIsoMuons);
+				}
+				if ((NIsoMuonCut)&&(NBJetCut)&&(metCut)){
+					Fill("N-1 NJet 2",NJets);
+				}
+				if ((NJetCut)&&(NIsoMuonCut)&&(metCut)){
+					Fill("N-1 NBJet 2",NBJets);
+				}
+				if ((NJetCut)&&(NBJetCut)&&(NIsoMuonCut)){
+					Fill("N-1 MET 2",met.Pt());
+				}
+				
+				
+			}
+		}
+
+
+	}	
+	
+	
 	events_total=events_total+EventWeight;
 
 

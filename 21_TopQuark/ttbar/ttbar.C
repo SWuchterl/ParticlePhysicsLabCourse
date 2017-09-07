@@ -171,7 +171,9 @@ int main()
   //~ cout << "Found " << NMuonsData << " muons in " << lumi << "/pb data." << endl;
     
     float eventsSelData= A->events_sel;
+    float eventsSelData2= A->events_sel2;//for mass measurement/different cuts
     float eventsSelTT =B->events_sel;
+    float eventsSelTT2 =B->events_sel2;//for mass measurement/different cuts
     float eventsSelWJets =C->events_sel;
     float eventsSelDY =D->events_sel;
     float eventsSelWW =E->events_sel;
@@ -200,7 +202,9 @@ int main()
     
     
     cout << "Events Selected and triggered in ttbar: " << eventsSelTT<<endl;
+    cout << "Events Selected and triggered in ttbar2: " << eventsSelTT2<<endl;
     cout << "Events Selected and triggered in Data: " << eventsSelData<<endl;
+    cout << "Events Selected and triggered in Data2: " << eventsSelData2<<endl;
     cout << "Events total in ttbar: " << eventsTotalTT<<endl;
     cout << "Events selected in BKGs: " << eventsSelBKG<<endl;
     cout << "acceptance: " << acceptance<<endl;

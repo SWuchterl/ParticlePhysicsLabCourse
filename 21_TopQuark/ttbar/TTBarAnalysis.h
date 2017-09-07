@@ -34,6 +34,7 @@ public:
     bool trig;
     float events_total;
     float events_sel;
+    float events_sel2;
     
 };
 
