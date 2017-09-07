@@ -9,8 +9,8 @@ import sys
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-data_samples = ['Plots/results.root']
-mc_samples = ['Plots/ttbar.root', 'Plots/dy.root', 'Plots/wjets.root', 'Plots/ww.root', 'Plots/wz.root', 'Plots/zz.root', 'Plots/qcd.root']
+data_samples = ['Plots_original/results.root']
+mc_samples = ['Plots_original/ttbar.root', 'Plots_original/dy.root', 'Plots_original/wjets.root', 'Plots_original/ww.root', 'Plots_original/wz.root', 'Plots_original/zz.root', 'Plots_original/qcd.root']
 topmasses = ['topmass_hadr','topmass_lept']
 
 labels = {
@@ -118,14 +118,14 @@ for topmass in topmasses:
     legend.AddEntry(qcd, 'QCD', 'f')
 
     #fit
-    
-    
+
+
     def func(x,par):
 		ret=1./(2.*np.pi)*(par[1])/((x[0]-par[0])**2. + par[1]**2. /4.)
 		un=par[3]
 		return par[2]*ret+un
-    
-    
+
+
     breitwigner = ROOT.TF1('breitwigner', func, 100,300, 4)
     breitwigner.SetParameters(175.,5.,100.,1.)
     breitwigner.SetParNames("mean","width","ampl","const")
@@ -134,9 +134,18 @@ for topmass in topmasses:
     breitwigner.SetLineWidth(3)
     data.Fit('breitwigner',"","",100,300)
 
+    #fit parameter to legend
+    pt = ROOT.TPaveText(270.,11.,310.,13.,'BR')
+    pt.AddText("Mean: "+str(round(breitwigner.GetParameter(0), 4)))
+    pt.AddText("Width: "+str(round(breitwigner.GetParameter(1), 4)))
+    pt.AddText("Amplitude: "+str(round(breitwigner.GetParameter(2), 4)))
+    pt.AddText("Const.: "+str(round(breitwigner.GetParameter(3), 4)))
+
 
     stacked.Draw('hist')
     data.Draw('same')
+    legend.Draw('same')
+    pt.Draw('same')
     stacked.GetXaxis().SetTitle(labels[topmass])
     stacked.GetYaxis().SetTitle('Events/Bin')
     c.Modified()
