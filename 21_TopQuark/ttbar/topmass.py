@@ -11,7 +11,7 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 parser = argparse.ArgumentParser(description="Perform topmass plots.",
 	                                 fromfile_prefix_chars="@", conflict_handler="resolve")
-parser.add_argument("--no-constrain", default=False, action='store_true',
+parser.add_argument("--constrain", default=False, action='store_true',
 	                    help="Perform topmass plots. Either with or without constrain. [Default: %(default)s]")
 args = parser.parse_args()
 
@@ -19,8 +19,8 @@ args = parser.parse_args()
 data_samples_constrained = ['Plots_constrained/results.root']
 mc_samples_constrained = ['Plots_constrained/ttbar.root', 'Plots_constrained/dy.root', 'Plots_constrained/wjets.root', 'Plots_constrained/ww.root', 'Plots_constrained/wz.root', 'Plots_constrained/zz.root', 'Plots_constrained/qcd.root']
 
-data_samples_original = ['Plots_original/results.root']
-mc_samples_original = ['Plots_original/ttbar.root', 'Plots_original/dy.root', 'Plots_original/wjets.root', 'Plots_original/ww.root', 'Plots_original/wz.root', 'Plots_original/zz.root', 'Plots_original/qcd.root']
+data_samples_original = ['Plots/results.root']
+mc_samples_original = ['Plots/ttbar.root', 'Plots/dy.root', 'Plots/wjets.root', 'Plots/ww.root', 'Plots/wz.root', 'Plots/zz.root', 'Plots/qcd.root']
 topmasses = ['topmass_hadr','topmass_lept']
 
 labels = {
@@ -40,7 +40,7 @@ for topmass in topmasses:
     #MONTE CARLOS
     #TTbar
     ttbar = ROOT.TH1F('TTbar background', 'TTbar background', NBINS, XLOW, XUP)
-    f_ttbar = ROOT.TFile(mc_samples_original[0] if args.no_constrain else mc_samples_constrained[0])
+    f_ttbar = ROOT.TFile(mc_samples_constrained[0] if args.constrain else mc_samples_original[0])
     t_ttbar = f_ttbar.Get(topmass)
     ttbar.Add(t_ttbar)
     f_ttbar.Close()
@@ -49,7 +49,7 @@ for topmass in topmasses:
 
     #DY
     dy = ROOT.TH1F('DY background', 'DY background', NBINS, XLOW, XUP)
-    f_dy = ROOT.TFile(mc_samples_original[1] if args.no_constrain else mc_samples_constrained[1])
+    f_dy = ROOT.TFile(mc_samples_constrained[1] if args.constrain else mc_samples_original[1])
     t_dy = f_dy.Get(topmass)
     dy.Add(t_dy)
     f_dy.Close()
@@ -58,7 +58,7 @@ for topmass in topmasses:
 
     #W+jets
     wjets = ROOT.TH1F('W+jets background', 'W+jets background', NBINS, XLOW, XUP)
-    f_wjets = ROOT.TFile(mc_samples_original[2] if args.no_constrain else mc_samples_constrained[2])
+    f_wjets = ROOT.TFile(mc_samples_constrained[2] if args.constrain else mc_samples_original[2])
     t_wjets = f_wjets.Get(topmass)
     wjets.Add(t_wjets)
     f_wjets.Close()
@@ -67,7 +67,7 @@ for topmass in topmasses:
 
     #WW
     ww = ROOT.TH1F('WW background', 'WW background', NBINS, XLOW, XUP)
-    f_ww = ROOT.TFile(mc_samples_original[3] if args.no_constrain else mc_samples_constrained[3])
+    f_ww = ROOT.TFile(mc_samples_constrained[3] if args.constrain else mc_samples_original[3])
     t_ww = f_ww.Get(topmass)
     ww.Add(t_ww)
     f_ww.Close()
@@ -76,7 +76,7 @@ for topmass in topmasses:
 
     #WZ
     wz = ROOT.TH1F('WZ background', 'WZ background', NBINS, XLOW, XUP)
-    f_wz = ROOT.TFile(mc_samples_original[4] if args.no_constrain else mc_samples_constrained[4])
+    f_wz = ROOT.TFile(mc_samples_constrained[4] if args.constrain else mc_samples_original[4])
     t_wz = f_wz.Get(topmass)
     wz.Add(t_wz)
     f_wz.Close()
@@ -85,7 +85,7 @@ for topmass in topmasses:
 
     #ZZ
     zz = ROOT.TH1F('ZZ background', 'ZZ background', NBINS, XLOW, XUP)
-    f_zz = ROOT.TFile(mc_samples_original[5] if args.no_constrain else mc_samples_constrained[5])
+    f_zz = ROOT.TFile(mc_samples_constrained[5] if args.constrain else mc_samples_original[5])
     t_zz = f_zz.Get(topmass)
     zz.Add(t_zz)
     f_zz.Close()
@@ -94,7 +94,7 @@ for topmass in topmasses:
 
     #QCD
     qcd = ROOT.TH1F('QCD background', 'QCD background', NBINS, XLOW, XUP)
-    f_qcd = ROOT.TFile(mc_samples_original[6] if args.no_constrain else mc_samples_constrained[6])
+    f_qcd = ROOT.TFile(mc_samples_constrained[6] if args.constrain else mc_samples_original[6])
     t_qcd = f_qcd.Get(topmass)
     qcd.Add(t_qcd)
     f_qcd.Close()
@@ -103,7 +103,7 @@ for topmass in topmasses:
 
     #DATA
     data = ROOT.TH1F('data', 'data', NBINS, XLOW, XUP)
-    f_data = ROOT.TFile(data_samples_original[0] if args.no_constrain else data_samples_constrained[0])
+    f_data = ROOT.TFile(data_samples_constrained[0] if args.constrain else data_samples_original[0])
     t_data = f_data.Get(topmass)
     data.Add(t_data)
     f_data.Close()
@@ -160,5 +160,5 @@ for topmass in topmasses:
     stacked.GetYaxis().SetTitle('Events/Bin')
     c.Modified()
     c.Update()
-    c.SaveAs('topmass_plots/'+str(topmass)+'_original_fit.pdf') if args.no_constrain else c.SaveAs('topmass_plots/'+str(topmass)+'_constrained_fit.pdf')
+    c.SaveAs('topmass_plots/'+str(topmass)+'_constrained_fit.pdf') if args.constrain else c.SaveAs('topmass_plots/'+str(topmass)+'_original_fit.pdf')
     c.IsA().Destructor(c)
