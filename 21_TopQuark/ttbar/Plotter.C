@@ -161,7 +161,7 @@ void Plotter::Plot(std::string filename, bool DrawLog)
       hs->GetYaxis()->SetTitleOffset(1.3);
       if (bg.size() > 0)
 	hs->GetXaxis()->SetTitle(histo->GetXaxis()->GetTitle());
-      //~ hs->GetYaxis()->SetTitle("Events");
+      hs->GetYaxis()->SetTitle("Events");
       //~ hs->SetTitle(histo->GetTitle());
       //~ hs->SetTitle(";X Axis;Y Axis;");
       //~ hs->SetTitle(";"+histo->GetXaxis()->GetTitle()+";"+histo->GetYaxis()->GetTitle()+";");

@@ -20,7 +20,7 @@ int main()
 	//Want trigger eff histos?
 	bool measureTrig = false;
 	//Want trigger mass constrained top mass histos?
-	bool massConstrained = true;
+	bool massConstrained = false;
 
 
   // luminosity of data sample
@@ -142,10 +142,10 @@ int main()
 	}
 	else{
 	  //~ --------------------------DATA~ 
-	  P.SetData(A->histo, std::string("Data")); 
+	  //~ P.SetData(A->histo, std::string("Data")); 
 
 	  // add backgrounds to plotter
-	  //~ P.AddBg(B->histo, std::string("TTbar"));
+	  P.AddBg(B->histo, std::string("TTbar"));
 	  P.AddBg(C->histo, std::string("Wjets"));
 	  P.AddBg(D->histo, std::string("DY"));
 	  P.AddBg(E->histo, std::string("WW"));

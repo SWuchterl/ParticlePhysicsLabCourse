@@ -45,7 +45,7 @@ void TTBarAnalysis::CreateHistograms()
   // different stages of the analysis
 
   if (!trig){
-	  CreateHisto("cutflow", "cut flow", 7, 0, 7);
+	  CreateHisto("cutflow", "", 7, 0, 7);
 	  CreateHisto("cutflow_MassSelection", "cut flow Mass Selection", 7, 0, 7);
 
 	  // For a cut flow histogram, it is important that we initialize all bins we
@@ -73,7 +73,7 @@ void TTBarAnalysis::CreateHistograms()
 	  CreateHisto("N-1 NIso", "Number of isolated muons", 5, 0, 5);
 	  CreateHisto("N-1 NJet", "Number of Jets (with ID)", 10, 0, 10);
 	  CreateHisto("N-1 NBJet", "Number of b-tagged Jets (with ID)", 5, 0, 5);
-	  CreateHisto("N-1 MET", "E_{T}^{missing} [GeV]", 25, 0, 500);
+	  CreateHisto("N-1 MET", "E_{T}^{missing} [GeV]", 30, 0, 300);
 
 	  CreateHisto("N-1 NIso 2", "Number of isolated muons", 5, 0, 5);
 	  CreateHisto("N-1 NJet 2", "Number of Jets (with ID)", 10, 0, 10);
@@ -94,7 +94,7 @@ void TTBarAnalysis::CreateHistograms()
 	  CreateHisto("NIsoMuon", "Number of isolated muons", 5, 0, 5);
 	  CreateHisto("Muon_Eta", "#eta of all muons", 20, -3.5, 3.5);
 	  CreateHisto("Muon_E", "Energy distribution [GeV]", 50, 0, 750);
-	  CreateHisto("MET", "Missing transverse energy [GeV]", 25,0,500);
+	  CreateHisto("MET", "Missing transverse energy [GeV]", 40,0,200);
 	  CreateHisto("Muon_Phi", "#phi of all muons", 20, -3.5, 3.5);
 	  CreateHisto("Jet_Pt", "p_{T} of all jets [GeV]", 50, 0, 250);
 	  CreateHisto("Jet_Eta", "#eta of all jets", 10, -3., 3.);
@@ -167,11 +167,11 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 	EventWeight=EventWeight*weight_factor;
 
   // the following 4 lines are necessary because:
-  // 	if I want to cut on muon Pt for the trigger for example, i need to select events in which is at least one muon. -so uncomment the 2 lines therefore
+  // if I want to cut on muon Pt for the trigger for example, i need to select events in which is at least one muon. -so uncomment the 2 lines therefore
   // if I want to plot all events, uncomment the other 2 lines
   if (Muons.size()>0){
   //~ if (true){
-   bool is =(Muons[0].Pt()>30.);
+   bool is =(Muons[0].Pt()>26.);
    //~ bool is =true;
 
 
@@ -201,8 +201,9 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 
 
 		  int NIsoMuon = isomu.size();
-		  if ((triggerIsoMu24)&&  is){
-				Fill("NIsoMuon", NIsoMuon);
+		  if ((triggerIsoMu24)){
+		  //~ if ((triggerIsoMu24)&&  is){
+			Fill("NIsoMuon", NIsoMuon);
 			}
 
 			//MET
@@ -231,12 +232,14 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 		  }
 
 		  int NJetID = jets_ID.size();
-		  if(triggerIsoMu24  && is){
+		  if(triggerIsoMu24 ){
+		  //~ if(triggerIsoMu24  && is){
 			Fill("NJetID", NJetID);
 			}
 
 		  int NJetID_btag = jets_ID_btag.size();
-		  if (triggerIsoMu24 && is){
+		  //~ if (triggerIsoMu24 && is){
+		  if (triggerIsoMu24){
 				Fill("NJetID_btag", NJetID_btag);
 				Fill("NPrimaryVertices",NPrimaryVertices);
 			}
@@ -244,7 +247,8 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 		//Drell Yan region (signal free) -> check MC/Data
 
 			if (Muons.size()==2){
-					if ( (Muons[0].IsIsolated()) && (Muons[1].IsIsolated())  && is){
+				bool isPt =(Muons[0].Pt()>26.);
+					if ( (Muons[0].IsIsolated()) && (Muons[1].IsIsolated())  && isPt){
 
 						float mll = (Muons[0]+Muons[1]).M();
 						bool m_cut = (75. <= mll) && (mll <=105.);
@@ -286,7 +290,7 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 
   // the first requirement should be the trigger requirement...
   // ... add it here ...
-
+if (!trig){
 	bool hasTriggered = triggerIsoMu24;
 
   // ... and after the trigger requirement we fill the cut flow again ...
@@ -557,7 +561,7 @@ Bool_t TTBarAnalysis::Process(Long64_t entry)
 
 
 	events_total=events_total+EventWeight;
-
+  }
 
   // ... and then you have to add more code for the selection here ...
 
