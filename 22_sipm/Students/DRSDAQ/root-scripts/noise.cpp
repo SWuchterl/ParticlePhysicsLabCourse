@@ -22,13 +22,8 @@ void display(string pathIn, int nEntries = -1) {
 	tree->SetBranchAddress("channel1_wave", &data_wave);
 	tree->SetBranchAddress("channel1_time", &data_time);
 	// ROOT canvas to display data
-	cout<< typeid(data_wave).name() << endl;
-	cout<< typeid(data_wave[0]).name() << endl;
-	cout<< typeid(data_wave[0][0]).name() << endl;
-	if (!data_wave->IsValid() || !data_time->IsValid()){
-		cout<< "HELLLLOOOOOOOOOOO" << endl;
-	}
-	TH1D *h1 = new TH1D("h1", "positions of maximums", 100, 0., 1024.);
+
+	TH1D *h1 = new TH1D("h1", "positions of maxima", 100, 400., 800.);
 	TCanvas* canvas = new TCanvas("canvas", "canvas", 800, 800);
 
 	// ROOT Graph
@@ -55,15 +50,24 @@ void display(string pathIn, int nEntries = -1) {
 		//myGraph->GetYaxis()->SetRangeUser(-550,50);
 		myGraph->GetYaxis()->SetRangeUser(-300,0);
 		// update the canvas and wait 0.5 s
+
 		//Baseline
-		float baseline = (data_wave->GetSub(0, 400).Sum())/400.;
+		TH1D *h2 = new TH1D("h2", "noise", 120, -250., -230.);
+		double* y = myGraph->GetY();
+		for (unsigned int i = 0; i < 1024; i++){
+   			h2->Fill(y[i]);
+			//cout << y[i] << endl;
+		}
+
+		int binmax = h2->GetMaximumBin();
+   		double baseline = h2->GetXaxis()->GetBinCenter(binmax);
 		TLine *line_baseline = new TLine(0,baseline,1024,baseline);
   		line_baseline->SetLineColor(kGreen);
   		line_baseline->Draw();
+		delete h2;
 
 		//Peak with Max():
 		int n = myGraph->GetN();
-		double* y = myGraph->GetY();
 		int locmax = TMath::LocMax(n,y);
 
 		Double_t max = data_wave->Max();
@@ -73,7 +77,7 @@ void display(string pathIn, int nEntries = -1) {
 		h1->Fill(locmax);
 
 		canvas->Update();
-		//usleep(500000);
+		usleep(500000);
 		// delete the graph to prevent memory overflow
 		delete myGraph;
 	}
@@ -81,8 +85,8 @@ void display(string pathIn, int nEntries = -1) {
 	TCanvas* canvas1 = new TCanvas("canvas1", "canvas1", 800, 800);
 	h1->Draw();
 	canvas1->SaveAs("max_position.pdf");
-	file->Close();
 	delete canvas1;
+	file->Close();
 
 	delete data_wave;
 	delete data_time;
