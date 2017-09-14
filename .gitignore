@@ -5,3 +5,4 @@
 *.C~
 *.nfs*
 *.gitignore~
+fitparameter_*.txt
