@@ -6,7 +6,7 @@ from scipy.optimize import curve_fit
 def func(x, c):
      return c
 
-with open ("bode/sipm__fe_ch1.txt","r") as channel1:
+with open ("bode/sipm-fe-ch1_new.txt","r") as channel1:
     lines=channel1.readlines()
     result=[]
     for line in lines:
@@ -16,16 +16,16 @@ frequency= []
 log_mag = []
 phase = []
 for i in range(len(result_cropped)):
-    frequency.append(result_cropped[i][1])
-    log_mag.append(result_cropped[i][2])
-    phase.append(result_cropped[i][3])
+    frequency.append(result_cropped[i][5])
+    log_mag.append(result_cropped[i][6])
+    phase.append(result_cropped[i][7])
 
 
 frequency=np.array(frequency,dtype="f")
 log_mag=np.array(log_mag,dtype="f")
 phase=np.array(phase,dtype="f")
 
-with open ("bode/sipm__fe_ch2.txt","r") as channel2:
+with open ("bode/sipm-fe-ch2_new.txt","r") as channel2:
     lines=channel2.readlines()
     result2=[]
     for line in lines:
@@ -35,9 +35,9 @@ frequency2= []
 log_mag2 = []
 phase2 = []
 for i in range(len(result_cropped2)):
-    frequency2.append(result_cropped2[i][1])
-    log_mag2.append(result_cropped2[i][2])
-    phase2.append(result_cropped2[i][3])
+    frequency2.append(result_cropped2[i][5])
+    log_mag2.append(result_cropped2[i][6])
+    phase2.append(result_cropped2[i][7])
 
 
 frequency2=np.array(frequency2,dtype="f")
@@ -45,25 +45,33 @@ log_mag2=np.array(log_mag2,dtype="f")
 phase2=np.array(phase2,dtype="f")
 
 
-plt.figure(1)
-ax1 = plt.subplot(211)
-plt.semilogx(frequency, log_mag)
-plt.grid(True)
+fig = plt.figure(1)
+fig.suptitle("Channel 1")
+ax1 = fig.add_subplot(211)
+ax1.semilogx(frequency, log_mag)
+ax1.grid(True)
+ax1.set_title("Gain")
 plt.xlabel("Frequenz [GHz]")
-ax2 = plt.subplot(212, sharex=ax1)
-plt.plot(frequency, phase)
-plt.grid(True)
+plt.ylabel("Gain [db]")
+ax2 = fig.add_subplot(212, sharex=ax1)
+ax2.set_title("Phase")
+ax2.plot(frequency, phase)
+ax2.grid(True)
+plt.xlabel("Frequenz [GHz]")
+plt.ylabel("Phase [$^\circ$]")
+plt.subplots_adjust(hspace=0.5, wspace=1.0)
+#~ fig.tight_layout()
 
 
 
 
 
 #~ print len(frequency)
-
+print "-------------------------------"
 print "Channel1"
 
 popt,pcov=curve_fit(func,frequency[0:200],log_mag[0:200],p0=[12.])
-print "fit",popt,np.sqrt(pcov)
+print "Plateau",popt[0],"+-",np.sqrt(pcov[0][0])
 y_fit=[]
 for i in xrange(len(frequency[0:200])):
 	y_fit.append(popt)
@@ -81,29 +89,46 @@ for i in xrange(len(frequency)):
 		temp=np.abs(width_y-log_mag[i])
 		index=i
 		
-#~ print index
+
 width_x=frequency[index]
-print "bandbreite",width_x
+print "Bandbreite",width_x*1000.,"MHz"
 
 
-ax1.axvline(ymin=min(log_mag),ymax=max(log_mag), x=width_x, linewidth=2, color = 'k')
-#~ plt.show()
+#~ textstr = 'Plateau$=%.2f$\n=%.2f$\n$\sigma=%.2f$'%(mu, median, sigma)
+
+
+
+
+ax1.axvline(ymin=min(log_mag),ymax=max(log_mag), x=width_x, linewidth=1, color = 'k')
 plt.savefig("bode_channel1.pdf")
 
-plt.figure(2)
-ax3 = plt.subplot(211)
-plt.semilogx(frequency2, log_mag2)
-plt.grid(True)
+
+fig = plt.figure(2)
+fig.suptitle("Channel 2")
+ax3 = fig.add_subplot(211)
+ax3.semilogx(frequency2, log_mag2)
+ax3.grid(True)
+ax3.set_title("Gain")
 plt.xlabel("Frequenz [GHz]")
-ax4 = plt.subplot(212, sharex=ax3)
-plt.plot(frequency2, phase2)
-plt.grid(True)
+plt.ylabel("Gain [db]")
+ax4 = fig.add_subplot(212, sharex=ax3)
+ax4.set_title("Phase")
+ax4.plot(frequency2, phase2)
+ax4.grid(True)
+plt.xlabel("Frequenz [GHz]")
+plt.ylabel("Phase [$^\circ$]")
+plt.subplots_adjust(hspace=0.5, wspace=1.0)
 
 
-print "channel2"
+
+
+
+print "-------------------------------"
+print "Channel2"
 
 popt2,pcov2=curve_fit(func,frequency2[0:200],log_mag2[0:200],p0=[12.])
-print "fit",popt2,np.sqrt(pcov2)
+print "Plateau",popt2[0],"+-",np.sqrt(pcov2[0][0])
+
 y_fit2=[]
 for i in xrange(len(frequency2[0:200])):
 	y_fit2.append(popt2)
@@ -121,11 +146,10 @@ for i in xrange(len(frequency2)):
 		index2=i
 		
 width_x2=frequency2[index2]
-print "breite2",width_x2
+print "Bandbreite",width_x2*1000,"MHz"
 
 
 ax3.axvline(ymin=min(log_mag2),ymax=max(log_mag2), x=width_x2, linewidth=2, color = 'k')
-#~ plt.show()
 plt.savefig("bode_channel2.pdf")
 
 
@@ -135,23 +159,28 @@ phase3=np.array(phase2-phase,dtype="f")
 
 
 
-
-
-plt.figure(3)
-ax5 = plt.subplot(211)
-plt.semilogx(frequency3, log_mag3)
-plt.grid(True)
+fig = plt.figure(3)
+fig.suptitle("Channel 2 - Channel 1")
+ax5 = fig.add_subplot(211)
+ax5.semilogx(frequency3, log_mag3)
+ax5.grid(True)
+ax5.set_title("Gain")
 plt.xlabel("Frequenz [GHz]")
-ax6 = plt.subplot(212, sharex=ax5)
-plt.plot(frequency3, phase3)
-plt.grid(True)
+plt.ylabel("Gain [db]")
+ax6 = fig.add_subplot(212, sharex=ax5)
+ax6.set_title("Phase")
+ax6.plot(frequency3, phase3)
+ax6.grid(True)
+plt.xlabel("Frequenz [GHz]")
+plt.ylabel("Phase [$^\circ$]")
+plt.subplots_adjust(hspace=0.5, wspace=1.0)
 
-
-
-print "channel2minus"
+print "-------------------------------"
+print "Channel 2 - Channel 1"
 
 popt3,pcov3=curve_fit(func,frequency[0:220],log_mag3[0:220],p0=[12.])
-print "fit",popt3,np.sqrt(pcov3)
+print "Plateau",popt3[0],"+-",np.sqrt(pcov3[0][0])
+
 y_fit3=[]
 for i in xrange(len(frequency3[0:220])):
 	y_fit3.append(popt3)
@@ -169,26 +198,13 @@ for i in xrange(len(frequency3)):
 		index3=i
 		
 width_x3=frequency3[index3]
-print "breite3",width_x3,log_mag3[index3]
+#~ print "Bandbreite",width_x3,log_mag3[index3]*100
+print "Bandbreite",width_x3*1000,"MHz"
+print "-------------------------------"
 
 
 ax5.axvline(ymin=min(log_mag3),ymax=max(log_mag3), x=width_x3, linewidth=2, color = 'k')
 
-
-
-
-
-
-
-
-
-
-
 plt.savefig("bode_channel2minus.pdf")
-
-
-
-
-
 
 
