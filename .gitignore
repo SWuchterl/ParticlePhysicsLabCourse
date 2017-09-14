@@ -6,3 +6,5 @@
 *.nfs*
 *.gitignore~
 fitparameter_*.txt
+ttbar_backup
+ttbar_exec

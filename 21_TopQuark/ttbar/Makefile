@@ -5,7 +5,7 @@
 # (C) Martin Weber 2011-2013
 
 # Name of the executable
-PROGRAM        = ttbar
+PROGRAM        = ttbar_exec
 
 ######################################################################
 # You should not modify the lines below here
