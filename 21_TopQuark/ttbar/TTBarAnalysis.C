@@ -108,6 +108,7 @@ void TTBarAnalysis::CreateHistograms()
 
 	  CreateHisto("topmass_hadr", "m_{t,hadronic} [GeV]", 50, 100, 300);
 	  CreateHisto("topmass_lept", "m_{t,semileptonic} [GeV]", 50, 100, 300);
+	  CreateHisto("topmass_both", "m_{t,both} [GeV]", 50, 100, 300);
   }
 
   if (trig){
@@ -465,8 +466,10 @@ if (!trig){
 
 									if(difT1<difT2){
 										Fill("topmass_hadr",m_T1_hadr);
+										Fill("topmass_both",m_T1_hadr);
 									}else{
 										Fill("topmass_hadr",m_T2_hadr);
+										Fill("topmass_both",m_T2_hadr);
 									}
 								}else{
 									Fill("topmass_hadr",m_T1_hadr);
@@ -525,8 +528,10 @@ if (!trig){
 								if(secondIteration){
 									if(difT1_lept<difT2_lept){
 										Fill("topmass_lept",m_T1_lept);
+										Fill("topmass_both",m_T1_lept);
 									}else{
 										Fill("topmass_lept",m_T2_lept);
+										Fill("topmass_both",m_T2_lept);
 									}
 								}else{
 

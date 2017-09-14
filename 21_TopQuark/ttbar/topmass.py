@@ -22,11 +22,13 @@ mc_samples_constrained = ['Plots_constrained/ttbar.root', 'Plots_constrained/dy.
 
 data_samples_original = ['Plots/results.root']
 mc_samples_original = ['Plots/ttbar.root', 'Plots/dy.root', 'Plots/wjets.root', 'Plots/ww.root', 'Plots/wz.root', 'Plots/zz.root', 'Plots/qcd.root']
-topmasses = ['topmass_hadr','topmass_lept']
+topmasses = ['topmass_hadr','topmass_lept','topmass_both']
+#~ topmasses = ['topmass_both']
 
 labels = {
     'topmass_hadr': "m_{t,hadronic} [GeV]",
-    'topmass_lept':"m_{t,semileptonic} [GeV]"
+    'topmass_lept':"m_{t,semileptonic} [GeV]",
+    'topmass_both':"m_{t,both} [GeV]"
 }
 
 for topmass in topmasses:
@@ -151,6 +153,8 @@ for topmass in topmasses:
     breitwigner.SetLineStyle(2)
     breitwigner.SetLineWidth(3)
     data.Fit('breitwigner',"","",100,300)
+    print breitwigner.GetChisquare()/breitwigner.GetNDF()
+
 
     #fit parameter to legend
     stacked.Draw('hist')
