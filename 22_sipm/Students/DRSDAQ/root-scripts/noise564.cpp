@@ -8,9 +8,9 @@
 
 using namespace std;
 
-void display(string pathIn, int nEntries = -1) {
+void display(int nEntries = -1) {
 	// open the input file
-	TFile * file = new TFile((string("./../io/")+pathIn+string(".root")).c_str(),"READ");
+	TFile * file = new TFile((string("./../io/")+string("noise_564V")+string(".root")).c_str(),"READ");
 	// retrieve the data tree from the input file
 	TTree * tree = (TTree*)(file->Get("DataTree"));
 	// create variables for the tree data and connect them with the ROOT tree via branch addresses
@@ -72,7 +72,7 @@ void display(string pathIn, int nEntries = -1) {
 		int n = myGraph->GetN();
 		int locmax = TMath::LocMax(n,y);
 
-		Double_t max = data_wave->GetSub(535, 570).Max(); // range constrain to avoid spikes from max_position_... plot
+		Double_t max = data_wave->GetSub(538, 568).Max(); // range constrain to avoid spikes from max_position_... plot
 		TLine *line_max = new TLine(0,max,1024,max);
   		line_max->SetLineColor(kRed);
   		line_max->Draw();
@@ -90,15 +90,15 @@ void display(string pathIn, int nEntries = -1) {
 	delete canvas;
 	TCanvas* canvas1 = new TCanvas("canvas1", "canvas1", 800, 800);
 	h1->Draw("HIST");
-	canvas1->SaveAs((string("max_position_")+pathIn+string(".pdf")).c_str());
+	canvas1->SaveAs((string("max_position_")+string("noise_564V")+string(".pdf")).c_str());
 	delete canvas1;
 	TCanvas* canvas_finger = new TCanvas("canvas_finger", "canvas_finger", 800, 800);
 	canvas_finger->SetLogy();
 	gStyle->SetOptStat(0);
 	Double_t par[9];
 	TF1 *g1    = new TF1("g1","gaus",12,30);
-    TF1 *g2    = new TF1("g2","gaus",30,45);
-    TF1 *g3    = new TF1("g3","gaus",45,60);
+    TF1 *g2    = new TF1("g2","gaus",25,40);
+    TF1 *g3    = new TF1("g3","gaus",40,55);
     TF1 *total = new TF1("total","gaus(0)+gaus(3)+gaus(6)",15,68);
 	finger->Fit(g1,"R");
 	finger->Fit(g2,"R+");
@@ -126,7 +126,7 @@ void display(string pathIn, int nEntries = -1) {
     canvas_finger->Update();
  	finger->Draw("SAME");
 	pt->Draw("SAME");
-	canvas_finger->SaveAs((string("fingerspectrum_")+pathIn+string(".pdf")).c_str());
+	canvas_finger->SaveAs((string("fingerspectrum_")+string("noise_564V")+string(".pdf")).c_str());
 	delete canvas_finger;
 
 	file->Close();

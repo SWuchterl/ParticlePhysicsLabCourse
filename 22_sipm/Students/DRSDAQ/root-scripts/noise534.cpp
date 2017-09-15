@@ -8,9 +8,9 @@
 
 using namespace std;
 
-void display(string pathIn, int nEntries = -1) {
+void display(int nEntries = -1) {
 	// open the input file
-	TFile * file = new TFile((string("./../io/")+pathIn+string(".root")).c_str(),"READ");
+	TFile * file = new TFile((string("./../io/")+string("noise_534V")+string(".root")).c_str(),"READ");
 	// retrieve the data tree from the input file
 	TTree * tree = (TTree*)(file->Get("DataTree"));
 	// create variables for the tree data and connect them with the ROOT tree via branch addresses
@@ -72,7 +72,7 @@ void display(string pathIn, int nEntries = -1) {
 		int n = myGraph->GetN();
 		int locmax = TMath::LocMax(n,y);
 
-		Double_t max = data_wave->GetSub(535, 570).Max(); // range constrain to avoid spikes from max_position_... plot
+		Double_t max = data_wave->GetSub(530, 575).Max(); // range constrain to avoid spikes from max_position_... plot
 		TLine *line_max = new TLine(0,max,1024,max);
   		line_max->SetLineColor(kRed);
   		line_max->Draw();
@@ -90,19 +90,19 @@ void display(string pathIn, int nEntries = -1) {
 	delete canvas;
 	TCanvas* canvas1 = new TCanvas("canvas1", "canvas1", 800, 800);
 	h1->Draw("HIST");
-	canvas1->SaveAs((string("max_position_")+pathIn+string(".pdf")).c_str());
+	canvas1->SaveAs((string("max_position_")+string("noise_534V")+string(".pdf")).c_str());
 	delete canvas1;
 	TCanvas* canvas_finger = new TCanvas("canvas_finger", "canvas_finger", 800, 800);
 	canvas_finger->SetLogy();
 	gStyle->SetOptStat(0);
 	Double_t par[9];
-	TF1 *g1    = new TF1("g1","gaus",12,30);
+	TF1 *g1    = new TF1("g1","gaus",12,24);
     TF1 *g2    = new TF1("g2","gaus",30,45);
     TF1 *g3    = new TF1("g3","gaus",45,60);
-    TF1 *total = new TF1("total","gaus(0)+gaus(3)+gaus(6)",15,68);
+    //TF1 *total = new TF1("total","gaus(0)+gaus(3)+gaus(6)",15,68);
 	finger->Fit(g1,"R");
-	finger->Fit(g2,"R+");
-	finger->Fit(g3,"R+");
+	finger->Fit(g2,"0R+");
+	finger->Fit(g3,"0R+");
 	g1->GetParameters(&par[0]);
 	g2->GetParameters(&par[3]);
 	g3->GetParameters(&par[6]);
@@ -110,13 +110,13 @@ void display(string pathIn, int nEntries = -1) {
 	//total->SetLineColor(kRed);
 	//total->SetParNames("Constant gaus1","Mean gaus1","Sigma gaus1","Constant gaus2","Mean gaus2","Sigma gaus2", "Constant gaus3","Mean gaus3","Sigma gaus3");
 	//finger->Fit(total,"R+");
-	TPaveText *pt = new TPaveText(.6,.7,.9,.9, "blNDC");
+	TPaveText *pt = new TPaveText(.6,.85,.9,.9, "blNDC");
 	pt->AddText(Form("Mean of first gaussian fit: %g #pm %g",g1->GetParameter(1),g1->GetParError(1)));
 	pt->AddText(Form("#chi^{2}/ndof of first gaussian fit: %g / %d",g1->GetChisquare(),g1->GetNDF()));
-	pt->AddText(Form("Mean of second gaussian fit: %g #pm %g",g2->GetParameter(1),g2->GetParError(1)));
-	pt->AddText(Form("#chi^{2}/ndof of second gaussian fit: %g / %d",g2->GetChisquare(),g2->GetNDF()));
-	pt->AddText(Form("Mean of third gaussian fit: %g #pm %g",g3->GetParameter(1),g3->GetParError(1)));
-	pt->AddText(Form("#chi^{2}/ndof of third gaussian fit: %g / %d",g3->GetChisquare(),g3->GetNDF()));
+	//pt->AddText(Form("Mean of second gaussian fit: %g #pm %g",g2->GetParameter(1),g2->GetParError(1)));
+	//pt->AddText(Form("#chi^{2}/ndof of second gaussian fit: %g / %d",g2->GetChisquare(),g2->GetNDF()));
+	//pt->AddText(Form("Mean of third gaussian fit: %g #pm %g",g3->GetParameter(1),g3->GetParError(1)));
+	//pt->AddText(Form("#chi^{2}/ndof of third gaussian fit: %g / %d",g3->GetChisquare(),g3->GetNDF()));
 	pt->SetFillStyle(0);
 	//cout << "Chi^2: " << total->GetChisquare() << endl;
 	//cout << "Degrees of freedom (ndof): " << total->GetNDF() << endl;
@@ -126,7 +126,7 @@ void display(string pathIn, int nEntries = -1) {
     canvas_finger->Update();
  	finger->Draw("SAME");
 	pt->Draw("SAME");
-	canvas_finger->SaveAs((string("fingerspectrum_")+pathIn+string(".pdf")).c_str());
+	canvas_finger->SaveAs((string("fingerspectrum_")+string("noise_534V")+string(".pdf")).c_str());
 	delete canvas_finger;
 
 	file->Close();
