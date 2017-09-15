@@ -23,7 +23,9 @@ void display(string pathIn, int nEntries = -1) {
 	tree->SetBranchAddress("channel1_time", &data_time);
 	// ROOT canvas to display data
 
-	TH1D *h1 = new TH1D("h1", "positions of maxima", 100, 400., 800.);
+	TH1D *h1 = new TH1D("h1", "positions of maxima", 100, 500., 600.); // histogram for poisitions of maxima
+	TH1D *finger = new TH1D("finger", "Fingerspectrum", 100, 10., 90.); // histogram for fingerspectrum
+
 	TCanvas* canvas = new TCanvas("canvas", "canvas", 800, 800);
 
 	// ROOT Graph
@@ -53,14 +55,14 @@ void display(string pathIn, int nEntries = -1) {
 
 		//Baseline
 		TH1D *h2 = new TH1D("h2", "noise", 120, -250., -230.);
-		double* y = myGraph->GetY();
+		Double_t* y = myGraph->GetY();
 		for (unsigned int i = 0; i < 1024; i++){
    			h2->Fill(y[i]);
 			//cout << y[i] << endl;
 		}
 
-		int binmax = h2->GetMaximumBin();
-   		double baseline = h2->GetXaxis()->GetBinCenter(binmax);
+		Int_t binmax = h2->GetMaximumBin();
+   		Double_t baseline = h2->GetXaxis()->GetBinCenter(binmax);
 		TLine *line_baseline = new TLine(0,baseline,1024,baseline);
   		line_baseline->SetLineColor(kGreen);
   		line_baseline->Draw();
@@ -76,16 +78,55 @@ void display(string pathIn, int nEntries = -1) {
   		line_max->Draw();
 		h1->Fill(locmax);
 
+		//fingerspectrum
+		Double_t pulseheight = max - baseline;
+		finger->Fill(pulseheight);
+
 		canvas->Update();
-		usleep(500000);
+		//usleep(500000);
 		// delete the graph to prevent memory overflow
 		delete myGraph;
 	}
 	delete canvas;
 	TCanvas* canvas1 = new TCanvas("canvas1", "canvas1", 800, 800);
-	h1->Draw();
-	canvas1->SaveAs("max_position.pdf");
+	h1->Draw("HIST");
+	canvas1->SaveAs((string("max_position_")+pathIn+string(".pdf")).c_str());
 	delete canvas1;
+	TCanvas* canvas_finger = new TCanvas("canvas_finger", "canvas_finger", 800, 800);
+	canvas_finger->SetLogy();
+	gStyle->SetOptStat(0);
+	Double_t par[9];
+	TF1 *g1    = new TF1("g1","gaus",15,30);
+    TF1 *g2    = new TF1("g2","gaus",38,48);
+    TF1 *g3    = new TF1("g3","gaus",54,68);
+    TF1 *total = new TF1("total","gaus(0)+gaus(3)+gaus(6)",15,68);
+	finger->Fit(g1,"0R");
+	finger->Fit(g2,"0R+");
+	finger->Fit(g3,"0R+");
+	g1->GetParameters(&par[0]);
+	g2->GetParameters(&par[3]);
+	g3->GetParameters(&par[6]);
+	total->SetParameters(par);
+	total->SetLineColor(kRed);
+	total->SetParNames("Constant gaus1","Mean gaus1","Sigma gaus1","Constant gaus2","Mean gaus2","Sigma gaus2", "Constant gaus3","Mean gaus3","Sigma gaus3");
+	finger->Fit(total,"R+");
+	TPaveText *pt = new TPaveText(.6,.8,.9,.9, "blNDC");
+	pt->AddText(Form("Mean of first gaussian fit: %g #pm %g",total->GetParameter(1),total->GetParError(1)));
+	pt->AddText(Form("Mean of second gaussian fit: %g #pm %g",total->GetParameter(4),total->GetParError(4)));
+	pt->AddText(Form("Mean of third gaussian fit: %g #pm %g",total->GetParameter(7),total->GetParError(7)));
+	pt->AddText(Form("#chi^{2}/ndof: %g / %d",total->GetChisquare(),total->GetNDF()));
+	pt->SetFillStyle(0);
+	cout << "Chi^2: " << total->GetChisquare() << endl;
+	cout << "Degrees of freedom (ndof): " << total->GetNDF() << endl;
+	cout << "===> Chi^2/ndof: " << total->GetChisquare()/total->GetNDF() << endl;
+	gStyle->SetOptFit(0);
+	canvas_finger->Modified();
+    canvas_finger->Update();
+ 	finger->Draw("SAME");
+	pt->Draw("SAME");
+	canvas_finger->SaveAs((string("fingerspectrum_")+pathIn+string(".pdf")).c_str());
+	delete canvas_finger;
+
 	file->Close();
 
 	delete data_wave;
