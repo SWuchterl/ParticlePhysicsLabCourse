@@ -100,7 +100,7 @@ void display(int nEntries = -1) {
     TF1 *g2    = new TF1("g2","gaus",30,45);
     TF1 *g3    = new TF1("g3","gaus",45,60);
     //TF1 *total = new TF1("total","gaus(0)+gaus(3)+gaus(6)",15,68);
-	finger->Fit(g1,"R");
+	finger->Fit(g1,"0R");
 	finger->Fit(g2,"0R+");
 	finger->Fit(g3,"0R+");
 	g1->GetParameters(&par[0]);
@@ -128,6 +128,11 @@ void display(int nEntries = -1) {
 	pt->Draw("SAME");
 	canvas_finger->SaveAs((string("fingerspectrum_")+string("noise_534V")+string(".pdf")).c_str());
 	delete canvas_finger;
+
+	TFile f("finger534.root", "RECREATE");
+	finger->Write();
+	h1->Write();
+	f.Close();
 
 	file->Close();
 
