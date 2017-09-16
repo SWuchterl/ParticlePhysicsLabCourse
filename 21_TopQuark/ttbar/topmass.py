@@ -120,7 +120,7 @@ for topmass in topmasses:
     ROOT.gStyle.SetOptStat(0)
     ROOT.gStyle.SetOptTitle(0)
     ROOT.gStyle.SetLineWidth(1)
-    legend = ROOT.TLegend(0.6,0.6,0.8,0.8)
+    legend = ROOT.TLegend(0.7,0.5,0.9,0.7)
     legend.AddEntry(data, 'Data', 'p')
     legend.AddEntry(ttbar, 'TTbar', 'f')
     legend.AddEntry(dy, 'DY', 'f')
@@ -153,6 +153,7 @@ for topmass in topmasses:
     breitwigner.SetLineStyle(2)
     breitwigner.SetLineWidth(3)
     data.Fit('breitwigner',"","",100,300)
+    ROOT.gStyle.SetOptFit(1)
     print breitwigner.GetChisquare()/breitwigner.GetNDF()
 
 
