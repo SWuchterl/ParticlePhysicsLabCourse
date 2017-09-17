@@ -127,8 +127,8 @@ void display(string pathIn, int nEntries = -1) {
 	pt->AddText(Form("#chi^{2}/ndof of gaussian fit: %g / %d",g->GetChisquare(),g->GetNDF()));
 	pt->AddText(Form("Peak of landau fit: %g #pm %g",l->GetParameter(1),l->GetParError(1)));
 	pt->AddText(Form("#chi^{2}/ndof of landau fit: %g / %d",l->GetChisquare(),l->GetNDF()));
-	pt->AddText(Form("Peak of combined fit: %g #pm %g",total->GetParameter(1),total->GetParError(1)));
-	pt->AddText(Form("#chi^{2}/ndof of combined fit: %g / %d",total->GetChisquare(),total->GetNDF()));
+	pt->AddText(Form("Peak of convolution fit: %g #pm %g",total->GetMaximumX(200,800), (1050./(100.* TMath::Sqrt(12)))));
+	pt->AddText(Form("#chi^{2}/ndof of convolution fit: %g / %d",total->GetChisquare(),total->GetNDF()));
 	pt->SetFillStyle(0);
 	//cout << "Chi^2: " << total->GetChisquare() << endl;
 	//cout << "Degrees of freedom (ndof): " << total->GetNDF() << endl;
