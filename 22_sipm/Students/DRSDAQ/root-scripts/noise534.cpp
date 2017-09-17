@@ -26,7 +26,7 @@ void display(int nEntries = -1) {
 	TH1D *h1 = new TH1D("h1", "positions of maxima", 100, 500., 600.); // histogram for poisitions of maxima
 	TH1D *finger = new TH1D("finger", "Fingerspectrum", 100, 10., 90.); // histogram for fingerspectrum
 
-	//TCanvas* canvas = new TCanvas("canvas", "canvas", 800, 800);
+	//~ TCanvas* canvas = new TCanvas("canvas", "canvas", 800, 800);
 
 	// ROOT Graph
 	TGraph* myGraph;
@@ -47,9 +47,9 @@ void display(int nEntries = -1) {
 		sstitle << "Event " << iEvent << ", time " << eventTime << "s;t / ns;U / mV";
 		myGraph->SetTitle(sstitle.str().c_str());
 		// draw with (A)xis and (L)ine, set axis ranges
-		//myGraph->Draw("AL");
+		//~ myGraph->Draw("AL");
 		myGraph->GetXaxis()->SetRangeUser(0,1024);
-		//myGraph->GetYaxis()->SetRangeUser(-550,50);
+		myGraph->GetYaxis()->SetRangeUser(-550,50);
 		myGraph->GetYaxis()->SetRangeUser(-300,0);
 		// update the canvas and wait 0.5 s
 
@@ -65,25 +65,25 @@ void display(int nEntries = -1) {
    		Double_t baseline = h2->GetXaxis()->GetBinCenter(binmax);
 		TLine *line_baseline = new TLine(0,baseline,1024,baseline);
   		line_baseline->SetLineColor(kGreen);
-  		//line_baseline->Draw();
+  		//~ line_baseline->Draw();
 		delete h2;
 
 		//Peak with Max():
 		int n = myGraph->GetN();
 		int locmax = TMath::LocMax(n,y);
 
-		Double_t max = data_wave->GetSub(530, 575).Max(); // range constrain to avoid spikes from max_position_... plot
+		Double_t max = data_wave->GetSub(534, 560).Max(); // range constrain to avoid spikes from max_position_... plot
 		TLine *line_max = new TLine(0,max,1024,max);
   		line_max->SetLineColor(kRed);
-  		//line_max->Draw();
+  		//~ line_max->Draw();
 		h1->Fill(locmax);
 
 		//fingerspectrum
 		Double_t pulseheight = max - baseline;
 		finger->Fill(pulseheight);
 
-		//canvas->Update();
-		//usleep(500000);
+		//~ canvas->Update();
+		//~ usleep(500000);
 		// delete the graph to prevent memory overflow
 		delete myGraph;
 	}

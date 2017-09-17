@@ -26,7 +26,7 @@ void display(int nEntries = -1) {
 	TH1D *h1 = new TH1D("h1", "positions of maxima", 100, 500., 600.); // histogram for poisitions of maxima
 	TH1D *finger = new TH1D("finger", "Fingerspectrum", 100, 10., 90.); // histogram for fingerspectrum
 
-	//TCanvas* canvas = new TCanvas("canvas", "canvas", 800, 800);
+	//~ TCanvas* canvas = new TCanvas("canvas", "canvas", 800, 800);
 
 	// ROOT Graph
 	TGraph* myGraph;
@@ -47,10 +47,10 @@ void display(int nEntries = -1) {
 		sstitle << "Event " << iEvent << ", time " << eventTime << "s;t / ns;U / mV";
 		myGraph->SetTitle(sstitle.str().c_str());
 		// draw with (A)xis and (L)ine, set axis ranges
-		//myGraph->Draw("AL");
-		//myGraph->GetXaxis()->SetRangeUser(0,1024);
+		//~ myGraph->Draw("AL");
+		myGraph->GetXaxis()->SetRangeUser(0,1024);
 		//myGraph->GetYaxis()->SetRangeUser(-550,50);
-		//myGraph->GetYaxis()->SetRangeUser(-300,0);
+		myGraph->GetYaxis()->SetRangeUser(-300,0);
 		// update the canvas and wait 0.5 s
 
 		//Baseline
@@ -65,29 +65,29 @@ void display(int nEntries = -1) {
    		Double_t baseline = h2->GetXaxis()->GetBinCenter(binmax);
 		TLine *line_baseline = new TLine(0,baseline,1024,baseline);
   		line_baseline->SetLineColor(kGreen);
-  		//line_baseline->Draw();
+  		//~ line_baseline->Draw();
 		delete h2;
 
 		//Peak with Max():
 		int n = myGraph->GetN();
 		int locmax = TMath::LocMax(n,y);
 
-		Double_t max = data_wave->GetSub(540, 570).Max(); // range constrain to avoid spikes from max_position_... plot
+		Double_t max = data_wave->GetSub(542, 568).Max(); // range constrain to avoid spikes from max_position_... plot
 		TLine *line_max = new TLine(0,max,1024,max);
   		line_max->SetLineColor(kRed);
-  		//line_max->Draw();
+  		//~ line_max->Draw();
 		h1->Fill(locmax);
 
 		//fingerspectrum
 		Double_t pulseheight = max - baseline;
 		finger->Fill(pulseheight);
 
-		//canvas->Update();
+		//~ canvas->Update();
 		//usleep(500000);
 		// delete the graph to prevent memory overflow
 		delete myGraph;
 	}
-	//delete canvas;
+	//~ delete canvas;
 	TCanvas* canvas1 = new TCanvas("canvas1", "canvas1", 800, 800);
 	h1->Draw("HIST");
 	canvas1->SaveAs((string("max_position_")+string("noise_574V")+string(".pdf")).c_str());
@@ -96,13 +96,13 @@ void display(int nEntries = -1) {
 	canvas_finger->SetLogy();
 	gStyle->SetOptStat(0);
 	Double_t par[9];
-	TF1 *g1    = new TF1("g1","gaus",18.25,24);
-    TF1 *g2    = new TF1("g2","gaus",38,44);
-    TF1 *g3    = new TF1("g3","gaus",59,64);
+	TF1 *g1    = new TF1("g1","gaus",12,30);
+    TF1 *g2    = new TF1("g2","gaus",30,50);
+    TF1 *g3    = new TF1("g3","gaus",55,70);
     TF1 *total = new TF1("total","gaus(0)+gaus(3)+gaus(6)",15,68);
-	finger->Fit(g1,"0R");
-	finger->Fit(g2,"0R+");
-	finger->Fit(g3,"0R+");
+	finger->Fit(g1,"R");
+	finger->Fit(g2,"R+");
+	finger->Fit(g3,"R+");
 	g1->GetParameters(&par[0]);
 	g2->GetParameters(&par[3]);
 	g3->GetParameters(&par[6]);
@@ -133,6 +133,7 @@ void display(int nEntries = -1) {
 	finger->Write();
 	h1->Write();
 	f.Close();
+
 
 	file->Close();
 

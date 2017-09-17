@@ -36,7 +36,7 @@ for i in xrange(5):
     XUP = float(90)
 
     c = ROOT.TCanvas("canvas","",800,800)
-    c.SetLogy()
+    #~ c.SetLogy()
     #c.SetGrid()
     #~ stacked = ROOT.THStack('stacked', 'stacked')
 
@@ -148,7 +148,7 @@ arErrP=np.array(arErrProb)
 arV=np.array([5.,4.,3.,2.,1.])
 print arV
 plt.figure(1)
-plt.errorbar(arV[:-1],arP[:-1],yerr=arErrP[:-1])
+plt.errorbar(arV,arP,yerr=arErrP)
 plt.xlabel("OV [V]")
 plt.ylabel("crosstalk probability")
 plt.grid()

@@ -72,7 +72,7 @@ void display(int nEntries = -1) {
 		int n = myGraph->GetN();
 		int locmax = TMath::LocMax(n,y);
 
-		Double_t max = data_wave->GetSub(535, 570).Max(); // range constrain to avoid spikes from max_position_... plot
+		Double_t max = data_wave->GetSub(537, 565).Max(); // range constrain to avoid spikes from max_position_... plot
 		TLine *line_max = new TLine(0,max,1024,max);
   		line_max->SetLineColor(kRed);
   		//line_max->Draw();
