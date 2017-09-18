@@ -22,7 +22,8 @@ mc_samples_constrained = ['Plots_constrained/ttbar.root', 'Plots_constrained/dy.
 
 data_samples_original = ['Plots/results.root']
 mc_samples_original = ['Plots/ttbar.root', 'Plots/dy.root', 'Plots/wjets.root', 'Plots/ww.root', 'Plots/wz.root', 'Plots/zz.root', 'Plots/qcd.root']
-topmasses = ['topmass_hadr','topmass_lept','topmass_both']
+#~ topmasses = ['topmass_hadr','topmass_lept','topmass_both']
+topmasses = ['topmass_hadr','topmass_lept']
 #~ topmasses = ['topmass_both']
 
 labels = {
@@ -120,7 +121,7 @@ for topmass in topmasses:
     ROOT.gStyle.SetOptStat(0)
     ROOT.gStyle.SetOptTitle(0)
     ROOT.gStyle.SetLineWidth(1)
-    legend = ROOT.TLegend(0.7,0.5,0.9,0.7)
+    legend = ROOT.TLegend(0.7,0.48,0.9,0.68)
     legend.AddEntry(data, 'Data', 'p')
     legend.AddEntry(ttbar, 'TTbar', 'f')
     legend.AddEntry(dy, 'DY', 'f')
