@@ -37,9 +37,9 @@ void display(int nEntries = -1) {
 	TH1D *finger = new TH1D("finger", "Fingerspectrum", 100, 10., 90.); // histogram for fingerspectrum
 
 	//~ TH1D *time_SIPM_PMT1 = new TH1D("time_SIPM_PMT1","zeitaufloesung",160,-60.,20.);
-	TH1D *time_SIPM_PMT1 = new TH1D("time SIPM PMT1","time resolution detector to PMT1",100,-55.,-30.);
-	TH1D *time_SIPM_PMT2 = new TH1D("time SIPM PMT2","time resolution detector to PMT2",100,-55.,-30.);
-	TH1D *time_PMT1_PMT2 = new TH1D("time PMT1 PMT2","time resolution PMT1 to PMT2",40,-5.,15.);
+	TH1D *time_SIPM_PMT1 = new TH1D("time_SIPM_PMT1","time resolution detector to PMT1",100,-55.,-30.);
+	TH1D *time_SIPM_PMT2 = new TH1D("time_SIPM_PMT2","time resolution detector to PMT2",100,-55.,-30.);
+	TH1D *time_PMT1_PMT2 = new TH1D("time_PMT1_PMT2","time resolution PMT1 to PMT2",40,-5.,15.);
 	
 	TCanvas* canvas = new TCanvas("canvas", "canvas", 1000, 1000);
 	canvas->Divide(2,2);
@@ -332,36 +332,39 @@ void display(int nEntries = -1) {
 	TCanvas* canvas1 = new TCanvas("canvas1", "canvas1", 800, 800);
 		time_SIPM_PMT1->Draw("HIST");
 		TF1 *g1    = new TF1("g1","gaus",-55,-30);
-		time_SIPM_PMT1->Fit(g1,"0R");		
+		time_SIPM_PMT1->Fit(g1,"R");		
 		//~ canvas1->Modified();
 		//~ canvas1->Update();
+		//~ time_SIPM_PMT1->Draw("HIST");	
 		time_SIPM_PMT1->Draw("SAME");	
 		gStyle->SetOptFit(1);
 		gStyle->SetOptStat("e");
 		
 	canvas1->SaveAs((string("time_resolution_SIPM_PMT1")+string(".pdf")).c_str());
 	delete canvas1;
-	TCanvas* canvas2 = new TCanvas("canvas1", "canvas1", 800, 800);
+	TCanvas* canvas2 = new TCanvas("canvas2", "canvas2", 800, 800);
 		time_SIPM_PMT2->Draw("HIST");
 		TF1 *g2    = new TF1("g2","gaus",-55,-30);
-		time_SIPM_PMT2->Fit(g2,"0R");
+		time_SIPM_PMT2->Fit(g2,"R");
 		//~ canvas2->Modified();
 		//~ canvas2->Update();
 		time_SIPM_PMT2->Draw("SAME");	
-		gStyle->SetOptStat("e");
-		gStyle->SetOptFit(1);
-	canvas1->SaveAs((string("time_resolution_SIPM_PMT2")+string(".pdf")).c_str());
+		//~ time_SIPM_PMT2->Draw("HIST");	
+		//~ gStyle->SetOptFit(1);
+		//~ gStyle->SetOptStat("e");
+	canvas2->SaveAs((string("time_resolution_SIPM_PMT2")+string(".pdf")).c_str());
 	delete canvas2;
-	TCanvas* canvas3 = new TCanvas("canvas1", "canvas1", 800, 800);
+	TCanvas* canvas3 = new TCanvas("canvas3", "canvas3", 800, 800);
 		time_PMT1_PMT2->Draw("HIST");
 		TF1 *g3    = new TF1("g3","gaus",-5,15);
-		time_PMT1_PMT2->Fit(g3,"0R");
+		time_PMT1_PMT2->Fit(g3,"R");
 		//~ canvas3->Modified();
 		//~ canvas3->Update();
+		//~ time_PMT1_PMT2->Draw("HIST");	
 		time_PMT1_PMT2->Draw("SAME");	
-		gStyle->SetOptFit(1);
-		gStyle->SetOptStat("e");
-	canvas1->SaveAs((string("time_resolution_PMT1_PMT2")+string(".pdf")).c_str());
+		//~ gStyle->SetOptFit(1);
+		//~ gStyle->SetOptStat("e");
+	canvas3->SaveAs((string("time_resolution_PMT1_PMT2")+string(".pdf")).c_str());
 	delete canvas3;
 	
 	
