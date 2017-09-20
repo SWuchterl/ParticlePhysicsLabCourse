@@ -115,14 +115,14 @@ void display(string pathIn, int nEntries = -1) {
 	l->GetParameters(&par[3]);
 	total->SetParameters(5000., 5000., 500., -5000., 500.);
     finger->Fit(total,"R+");
-    auto legend = new TLegend(0.6,0.65,0.9,0.75);
+    auto legend = new TLegend(0.55,0.55,0.9,0.65);
     legend->AddEntry(finger, "Histogram", "f");
     legend->AddEntry(g, "Gaussian fit", "l");
     legend->AddEntry(l, "Landau fit", "l");
     legend->AddEntry(total, "Convolution fit", "l");
     legend->Draw("SAME");
 	//total->SetParNames("Constant gaus1","Mean gaus1","Sigma gaus1","Constant gaus2","Mean gaus2","Sigma gaus2", "Constant gaus3","Mean gaus3","Sigma gaus3");
-	TPaveText *pt = new TPaveText(.6,.75,.9,.9, "blNDC");
+	TPaveText *pt = new TPaveText(.55,.65,.9,.9, "blNDC");
 	pt->AddText(Form("Peak of gaussian fit: %g #pm %g",g->GetParameter(1),g->GetParError(1)));
 	pt->AddText(Form("#chi^{2}/ndof of gaussian fit: %g / %d",g->GetChisquare(),g->GetNDF()));
 	pt->AddText(Form("Peak of landau fit: %g #pm %g",l->GetParameter(1),l->GetParError(1)));
@@ -130,7 +130,12 @@ void display(string pathIn, int nEntries = -1) {
 	pt->AddText(Form("Peak of convolution fit: %g #pm %g",total->GetMaximumX(200,800), (1050./(100.* TMath::Sqrt(12)))));
 	pt->AddText(Form("#chi^{2}/ndof of convolution fit: %g / %d",total->GetChisquare(),total->GetNDF()));
 	pt->SetFillStyle(0);
-	//cout << "Chi^2: " << total->GetChisquare() << endl;
+
+	TH1F *finger_new=(TH1F*)finger->Clone();
+	finger_new->GetXaxis()->SetRangeUser(200., 800.);
+	cout << "mean: " << finger_new->GetMean(1) << " +/- " << finger_new->GetMeanError(1) << endl;
+
+
 	//cout << "Degrees of freedom (ndof): " << total->GetNDF() << endl;
 	//cout << "===> Chi^2/ndof: " << total->GetChisquare()/total->GetNDF() << endl;
 	gStyle->SetOptFit(0);
@@ -143,12 +148,12 @@ void display(string pathIn, int nEntries = -1) {
 	canvas_finger->SaveAs((string("pulseheightspectrum_")+pathIn+string(".pdf")).c_str());
 	delete canvas_finger;
 
-    /*
+    
 	TFile f("data_results.root", "RECREATE");
 	finger->Write();
 	h1->Write();
 	f.Close();
-    */
+    
 	file->Close();
 
 	delete data_wave;
