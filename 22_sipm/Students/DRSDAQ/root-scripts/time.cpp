@@ -38,7 +38,7 @@ void display(int nEntries = -1) {
 
 	//~ TH1D *time_SIPM_PMT1 = new TH1D("time_SIPM_PMT1","zeitaufloesung",160,-60.,20.);
 	TH1D *time_SIPM_PMT1 = new TH1D("time_SIPM_PMT1","time resolution detector to PMT1",100,-55.,-30.);
-	TH1D *time_SIPM_PMT2 = new TH1D("time_SIPM_PMT2","time resolution detector to PMT2",100,-55.,-30.);
+	TH1D *time_SIPM_PMT2 = new TH1D("time_SIPM_PMT2","time resolution detector to PMT2",180,-55.,-10.);
 	TH1D *time_PMT1_PMT2 = new TH1D("time_PMT1_PMT2","time resolution PMT1 to PMT2",40,-5.,15.);
 	
 	TCanvas* canvas = new TCanvas("canvas", "canvas", 1000, 1000);
@@ -336,7 +336,8 @@ void display(int nEntries = -1) {
 		//~ canvas1->Modified();
 		//~ canvas1->Update();
 		//~ time_SIPM_PMT1->Draw("HIST");	
-		time_SIPM_PMT1->Draw("SAME");	
+		time_SIPM_PMT1->Draw("SAME");
+		gStyle->SetFitFormat("5.5g");	
 		gStyle->SetOptFit(1);
 		gStyle->SetOptStat("e");
 		

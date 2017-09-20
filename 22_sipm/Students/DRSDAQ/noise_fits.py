@@ -24,7 +24,7 @@ OVs = ['finger574','finger564','finger554','finger544','finger534']
 Title = ['574','564','554','544','534']
 fitranges = [[[17.,28.],[38.,44.],[55.,65.]],
 			[[11.,18.75],[26.,38.],[44.,52.]],
-			[[10.5,17.5],[22.,30.],[35.,45.]],
+			[[10.5,17.5],[22.,30.],[32.,44.]],
 			[[10.5,21.],[22.,38.]],
 			[[13.5,18.5],[13.5,18.5]]]
 
@@ -38,7 +38,7 @@ for i in xrange(5):
     XUP = float(90)
 
     c = ROOT.TCanvas("canvas", "", 800, 800)
-    #~ c.SetLogy()
+    c.SetLogy()
     # c.SetGrid()
     #~ stacked = ROOT.THStack('stacked', 'stacked')
 
@@ -86,6 +86,7 @@ for i in xrange(5):
     gaus1 = ROOT.TF1('g1', func, fitranges[i][0][0],fitranges[i][0][1], 3)
     gaus1.SetParNames("amplitude","mean","width")
     gaus1.SetParameters(22000.,20.,5.)
+    #~ gaus1.SetParLimits(2,0.,99999999.)
     
 
     
@@ -103,7 +104,7 @@ for i in xrange(5):
     data.Fit('g1',"","",fitranges[i][0][0],fitranges[i][0][1])
     if (i<3):
 		data.Fit('g2',"+","",fitranges[i][1][0],fitranges[i][1][1])
-    if (i<2):
+    if (i<3):
 		data.Fit('g3',"+","",fitranges[i][2][0],fitranges[i][2][1])
 
     #~ ROOT.gStyle.SetOptFit(1)
@@ -119,6 +120,7 @@ for i in xrange(5):
     errors1 = gaus1.GetParErrors()
     if(i < 3):
         errors2 = gaus2.GetParErrors()
+        errors3 = gaus3.GetParErrors()
 
 
 # calculate probability:
@@ -140,19 +142,17 @@ for i in xrange(5):
 
     # save to pickle
     with open('noise_plots/noiseGaussFits_' + str(OVs[i]) + '.txt', 'wb') as fitparams:
-        fitparams.write('Mean: {0}'.format(gaus1.GetParameter(
-            1)) + ' +/- {0}'.format(errors1[1]) + '\n')
-        fitparams.write('Width: {0}'.format(gaus1.GetParameter(
-            2)) + ' +/- {0}'.format(errors1[2]) + '\n')
-        fitparams.write('Amplitude: {0}'.format(
-            gaus1.GetParameter(0)) + ' +/- {0}'.format(errors1[0]) + '\n')
+        fitparams.write('Mean: {0}'.format(gaus1.GetParameter(1)) + ' +/- {0}'.format(errors1[1]) + '\n')
+        fitparams.write('Width: {0}'.format(gaus1.GetParameter(2)) + ' +/- {0}'.format(errors1[2]) + '\n')
+        fitparams.write('Amplitude: {0}'.format(gaus1.GetParameter(0)) + ' +/- {0}'.format(errors1[0]) + '\n')
         if(i < 3):
-            fitparams.write('Mean 2: {0}'.format(
-                gaus2.GetParameter(1)) + ' +/- {0}'.format(errors2[1]) + '\n')
-            fitparams.write('Width 2: {0}'.format(
-                gaus2.GetParameter(2)) + ' +/- {0}'.format(errors2[2]) + '\n')
-            fitparams.write('Amplitude 2: {0}'.format(
-                gaus2.GetParameter(0)) + ' +/- {0}'.format(errors2[0]) + '\n')
+            fitparams.write('Mean 2: {0}'.format(gaus2.GetParameter(1)) + ' +/- {0}'.format(errors2[1]) + '\n')
+            fitparams.write('Width 2: {0}'.format(gaus2.GetParameter(2)) + ' +/- {0}'.format(errors2[2]) + '\n')
+            fitparams.write('Amplitude 2: {0}'.format(gaus2.GetParameter(0)) + ' +/- {0}'.format(errors2[0]) + '\n')
+        if(i<3):
+            fitparams.write('Mean 3: {0}'.format(gaus3.GetParameter(1)) + ' +/- {0}'.format(errors3[1]) + '\n')
+            fitparams.write('Width 3: {0}'.format(gaus3.GetParameter(2)) + ' +/- {0}'.format(errors3[2]) + '\n')
+            fitparams.write('Amplitude 3: {0}'.format(gaus3.GetParameter(0)) + ' +/- {0}'.format(errors3[0]) + '\n')
 
 
 arP = np.array(arProb)

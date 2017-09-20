@@ -49,6 +49,7 @@ fig = plt.figure(1)
 fig.suptitle("Channel 1")
 ax1 = fig.add_subplot(211)
 ax1.semilogx(frequency, log_mag)
+#~ ax1.plot(frequency, log_mag,'.')
 ax1.grid(True)
 ax1.set_title("Gain")
 plt.xlabel("Frequenz [GHz]")
@@ -72,6 +73,8 @@ print "Channel1"
 
 popt,pcov=curve_fit(func,frequency[0:200],log_mag[0:200],p0=[12.])
 print "Plateau",popt[0],"+-",np.sqrt(pcov[0][0])
+print "Gain",10.**(popt[0]/20.),np.sqrt(pcov[0][0]*(popt[0]/20. *10.**(popt[0]/20. -1))**2.)
+
 y_fit=[]
 for i in xrange(len(frequency[0:200])):
 	y_fit.append(popt)
@@ -91,7 +94,7 @@ for i in xrange(len(frequency)):
 		
 
 width_x=frequency[index]
-print "Bandbreite",width_x*1000.,"MHz"
+print "Bandbreite",width_x*1000.,"MHz","+-",(frequency[index+1]-frequency[index])*1000.
 
 
 #~ textstr = 'Plateau$=%.2f$\n=%.2f$\n$\sigma=%.2f$'%(mu, median, sigma)
@@ -128,7 +131,7 @@ print "Channel2"
 
 popt2,pcov2=curve_fit(func,frequency2[0:200],log_mag2[0:200],p0=[12.])
 print "Plateau",popt2[0],"+-",np.sqrt(pcov2[0][0])
-
+print "Gain",10.**(popt2[0]/20.),np.sqrt(pcov2[0][0]*(popt2[0]/20. *10.**(popt2[0]/20. -1))**2.)
 y_fit2=[]
 for i in xrange(len(frequency2[0:200])):
 	y_fit2.append(popt2)
@@ -146,7 +149,7 @@ for i in xrange(len(frequency2)):
 		index2=i
 		
 width_x2=frequency2[index2]
-print "Bandbreite",width_x2*1000,"MHz"
+print "Bandbreite",width_x2*1000,"MHz","+-",(frequency2[index2+1]-frequency2[index2])*1000.
 
 
 ax3.axvline(ymin=min(log_mag2),ymax=max(log_mag2), x=width_x2, linewidth=2, color = 'k')
@@ -180,6 +183,7 @@ print "Channel 2 - Channel 1"
 
 popt3,pcov3=curve_fit(func,frequency[0:220],log_mag3[0:220],p0=[12.])
 print "Plateau",popt3[0],"+-",np.sqrt(pcov3[0][0])
+print "Gain",10.**(popt3[0]/20.),np.sqrt(pcov3[0][0]*(popt3[0]/20. *10.**(popt3[0]/20. -1))**2.)
 
 y_fit3=[]
 for i in xrange(len(frequency3[0:220])):
@@ -199,7 +203,7 @@ for i in xrange(len(frequency3)):
 		
 width_x3=frequency3[index3]
 #~ print "Bandbreite",width_x3,log_mag3[index3]*100
-print "Bandbreite",width_x3*1000,"MHz"
+print "Bandbreite",width_x3*1000,"MHz","+-",(frequency3[index3+1]-frequency3[index3])*1000.
 print "-------------------------------"
 
 
