@@ -42,8 +42,8 @@ plt.plot([params[1] + 2. * params[2]], [erfunc(params[1] + 2. *
                                                params[2], *params)], marker='*', markersize=10, color="red", label='Working point')
 plt.legend()
 plt.title('Efficiency and Purity')
-plt.show()
 plt.savefig('efficiency_fitPMT_4.pdf', format='pdf')
+plt.show()
 
 print "mean: ", params[1]
 print "mean unc.: ", np.sqrt(extras[1, 1])
