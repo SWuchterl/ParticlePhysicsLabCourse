@@ -11,6 +11,7 @@ using namespace std;
 void display(int nEntries = -1) {
 	// open the input file
 	TFile * file = new TFile((string("./../io/")+string("data02__OV56")+string(".root")).c_str(),"READ");
+	//~ TFile * file = new TFile((string("./../io/")+string("data03_Schwelle100_OV56")+string(".root")).c_str(),"READ");
 	// retrieve the data tree from the input file
 	TTree * tree = (TTree*)(file->Get("DataTree"));
 	// create variables for the tree data and connect them with the ROOT tree via branch addresses
@@ -335,18 +336,23 @@ void display(int nEntries = -1) {
 		time_SIPM_PMT1->Fit(g1,"R");		
 		//~ canvas1->Modified();
 		//~ canvas1->Update();
-		//~ time_SIPM_PMT1->Draw("HIST");	
+		//~ time_SIPM_PMT1->Draw("HIST");
+		time_SIPM_PMT1->GetXaxis()->SetTitle("#Delta t/ns");
+		time_SIPM_PMT1->GetYaxis()->SetTitle("Events/bin");	
 		time_SIPM_PMT1->Draw("SAME");
 		gStyle->SetFitFormat("5.5g");	
 		gStyle->SetOptFit(1);
 		gStyle->SetOptStat("e");
 		
 	canvas1->SaveAs((string("time_resolution_SIPM_PMT1")+string(".pdf")).c_str());
+	//~ canvas1->SaveAs((string("time_resolution2_SIPM_PMT1")+string(".pdf")).c_str());
 	delete canvas1;
 	TCanvas* canvas2 = new TCanvas("canvas2", "canvas2", 800, 800);
 		time_SIPM_PMT2->Draw("HIST");
 		TF1 *g2    = new TF1("g2","gaus",-55,-30);
 		time_SIPM_PMT2->Fit(g2,"R");
+		time_SIPM_PMT2->GetXaxis()->SetTitle("#Delta t/ns");
+		time_SIPM_PMT2->GetYaxis()->SetTitle("Events/bin");
 		//~ canvas2->Modified();
 		//~ canvas2->Update();
 		time_SIPM_PMT2->Draw("SAME");	
@@ -354,11 +360,14 @@ void display(int nEntries = -1) {
 		//~ gStyle->SetOptFit(1);
 		//~ gStyle->SetOptStat("e");
 	canvas2->SaveAs((string("time_resolution_SIPM_PMT2")+string(".pdf")).c_str());
+	//~ canvas2->SaveAs((string("time_resolution2_SIPM_PMT2")+string(".pdf")).c_str());
 	delete canvas2;
 	TCanvas* canvas3 = new TCanvas("canvas3", "canvas3", 800, 800);
 		time_PMT1_PMT2->Draw("HIST");
 		TF1 *g3    = new TF1("g3","gaus",-5,15);
 		time_PMT1_PMT2->Fit(g3,"R");
+		time_PMT1_PMT2->GetXaxis()->SetTitle("#Delta t/ns");
+		time_PMT1_PMT2->GetYaxis()->SetTitle("Events/bin");
 		//~ canvas3->Modified();
 		//~ canvas3->Update();
 		//~ time_PMT1_PMT2->Draw("HIST");	
@@ -366,6 +375,7 @@ void display(int nEntries = -1) {
 		//~ gStyle->SetOptFit(1);
 		//~ gStyle->SetOptStat("e");
 	canvas3->SaveAs((string("time_resolution_PMT1_PMT2")+string(".pdf")).c_str());
+	//~ canvas3->SaveAs((string("time_resolution2_PMT1_PMT2")+string(".pdf")).c_str());
 	delete canvas3;
 	
 	
@@ -375,6 +385,7 @@ void display(int nEntries = -1) {
 
 
 	TFile f("zeitaufloesung.root", "RECREATE");
+	//~ TFile f("zeitaufloesung2.root", "RECREATE");
 	time_SIPM_PMT1->Write();
 	time_SIPM_PMT2->Write();
 	time_PMT1_PMT2->Write();
