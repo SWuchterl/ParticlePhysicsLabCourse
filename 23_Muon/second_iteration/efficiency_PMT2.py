@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.special import erf
 from scipy.optimize import curve_fit
+from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 
 
@@ -15,23 +16,33 @@ y_data4 = [14., 33., 181., 531., 1039., 1508.,
            1609., 1926., 1834., 1880., 1933.]
 y_data3 = [2259., 2249., 2204., 2166.,
            2249., 2205., 2128., 2263., 2164., 2101., 2172.]
+noise = [46., 142., 679., 2108., 5478., 16552.,
+         34277., 53883., 75106., 91159., 119162.]
+y_purity = [y_data4[i] / noise[i] for i in range(len(x_data))]
+y_err_purity = [np.sqrt((np.sqrt(noise[i]) / noise[i])**2. +
+                        (np.sqrt(y_data3[i]) / y_data3[i])**2.) * y_purity[i] for i in range(len(x_data))]
 y_data = [y_data4[i] / y_data3[i] for i in range(len(x_data))]
 y_err = [np.sqrt((np.sqrt(y_data4[i]) / y_data4[i])**2. +
                  (np.sqrt(y_data3[i]) / y_data3[i])**2.) * y_data[i] for i in range(len(x_data))]
 
-y_err = np.array(y_err)
-print y_err
 
+interpolation = interp1d(x_data, y_purity, kind='cubic')
 
 params, extras = curve_fit(
     erfunc, x_data, y_data,  p0=[1., 1850., 10.])
 
 fig = plt.figure()
-plt.plot(x_fit, erfunc(x_fit, *params))
-plt.errorbar(x_data, y_data, yerr=y_err, fmt='.')
-plt.axvline(params[1] + params[2], 0., 1.)
-plt.axvline(params[1] + 2. * params[2], 0., 1.)
-plt.title('Errorfunction fit')
+plt.plot(x_fit, erfunc(x_fit, *params), label='Errorfunction fit')
+plt.errorbar(x_data, y_data, yerr=y_err, fmt='.',
+             label='Efficiency data points')
+plt.plot(x_data, interpolation(x_data), '--',
+         label='Spline interpolation (purity)')
+plt.errorbar(x_data, y_purity, yerr=y_err_purity,
+             fmt='.', label='Purity data points')
+plt.plot([params[1] + 2. * params[2]], [erfunc(params[1] + 2. *
+                                               params[2], *params)], marker='*', markersize=10, color="red", label='Working point')
+plt.legend()
+plt.title('Efficiency and Purity')
 plt.show()
 plt.savefig('efficiency_fitPMT_2.pdf', format='pdf')
 

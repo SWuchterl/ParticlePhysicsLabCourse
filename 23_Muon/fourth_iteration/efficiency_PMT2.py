@@ -9,15 +9,15 @@ def erfunc(x, a, b, c):
     return a / 2. * (erf((x - b) / (np.sqrt(2.) * c)) + 1.)
 
 
-x_fit = np.linspace(1743, 2271, num=2271. - 1743.)
-x_data = [1743., 1800., 1850., 1901., 1950.,
-          2000., 2055., 2101., 2154., 2206., 2271.]
-y_data4 = [15., 44., 109., 565., 1070.,
-           1410., 1728., 1780., 1884., 1903., 2024.]
-y_data3 = [2440., 2384., 2331., 2413.,
-           2378., 2285., 2332., 2308., 2333., 2295., 2366.]
-noise = [50., 221., 592., 3851., 30422., 82746.,
-         136849., 169464., 198531., 235049., 313214.]
+x_fit = np.linspace(1749, 2256, num=2256. - 1749.)
+x_data = [1749., 1802., 1850., 1905., 1955., 2000.,
+          2054., 2100., 2148., 2200., 2256.]
+y_data4 = [7., 43., 197., 638., 1189., 1555.,
+           1821., 1802., 1918., 1851., 1909.]
+y_data3 = [2274., 2280., 2260., 2329.,
+           2298., 2236., 2263., 2145., 2163., 2092., 2146.]
+noise = [15., 198., 820., 2419., 7180., 20692.,
+         42398., 61143., 78582., 98810., 124525.]
 y_purity = [y_data4[i] / noise[i] for i in range(len(x_data))]
 y_err_purity = [np.sqrt((np.sqrt(noise[i]) / noise[i])**2. +
                         (np.sqrt(y_data3[i]) / y_data3[i])**2.) * y_purity[i] for i in range(len(x_data))]
@@ -29,7 +29,7 @@ y_err = [np.sqrt((np.sqrt(y_data4[i]) / y_data4[i])**2. +
 interpolation = interp1d(x_data, y_purity, kind='cubic')
 
 params, extras = curve_fit(
-    erfunc, x_data, y_data,  p0=[1., 1850., 5.])
+    erfunc, x_data, y_data,  p0=[1., 1850., 1.])
 
 fig = plt.figure()
 plt.plot(x_fit, erfunc(x_fit, *params), label='Errorfunction fit')
@@ -44,7 +44,7 @@ plt.plot([params[1] + 2. * params[2]], [erfunc(params[1] + 2. *
 plt.legend()
 plt.title('Efficiency and Purity')
 plt.show()
-plt.savefig('efficiency_fitPMT_3.pdf', format='pdf')
+plt.savefig('efficiency_fitPMT_2.pdf', format='pdf')
 
 print "mean: ", params[1]
 print "mean unc.: ", np.sqrt(extras[1, 1])
