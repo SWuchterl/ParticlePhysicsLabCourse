@@ -29,6 +29,7 @@ fitranges = [[[17.,28.],[38.,44.],[55.,65.]],
 			[[13.5,18.5],[13.5,18.5]]]
 
 
+
 arProb = []
 arErrProb = []
 
@@ -87,19 +88,19 @@ for i in xrange(5):
     gaus1.SetParNames("amplitude","mean","width")
     gaus1.SetParameters(22000.,20.,5.)
     #~ gaus1.SetParLimits(2,0.,99999999.)
-    
 
-    
+
+
     if(i<3):
 		#~ gaus2 = ROOT.TF1('g2', func, fitranges[i][1][0],fitranges[i][1][1], 4)
 		gaus2 = ROOT.TF1('g2', func, fitranges[i][1][0],fitranges[i][1][1], 3)
 		gaus2.SetParNames("amplitude","mean","width")
 		gaus2.SetParameters(2200.,20.,5.)
-		
+
     if(i<2):
 		gaus3 = ROOT.TF1('g3', func, fitranges[i][2][0],fitranges[i][2][1], 3)
 		gaus3.SetParNames("amplitude","mean","width")
-		gaus3.SetParameters(200.,20.,5.)	
+		gaus3.SetParameters(200.,20.,5.)
 
     data.Fit('g1',"","",fitranges[i][0][0],fitranges[i][0][1])
     if (i<3):

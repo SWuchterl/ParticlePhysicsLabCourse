@@ -47,7 +47,7 @@ void display(int nEntries = -1) {
 	TH1D *time_SIPM_PMT2 = new TH1D("time_SIPM_PMT2","time resolution detector to PMT2",100,-1000.,1000.);
 	//~ TH1D *time_PMT1_PMT2 = new TH1D("time_PMT1_PMT2","time resolution PMT1 to PMT2",40,-5.,15.);
 	TH1D *time_PMT1_PMT2 = new TH1D("time_PMT1_PMT2","time resolution PMT1 to PMT2",100,-1000.,1000.);
-	
+
 	TCanvas* canvas = new TCanvas("canvas", "canvas", 1000, 1000);
 	canvas->Divide(2,2);
 
@@ -56,8 +56,8 @@ void display(int nEntries = -1) {
 	TGraph* myGraph2;
 	TGraph* myGraph3;
 	TGraph* myGraph4;
-	
-	
+
+
 	// if a second parameter was given display this many events, otherwise show all
 	if(nEntries == -1 || nEntries > tree->GetEntries()){
 		nEntries = tree->GetEntries();
@@ -67,30 +67,30 @@ void display(int nEntries = -1) {
 
 	// start looping over the tree entries
 	cout << "Starting loop" << endl;
-	
-	
-	
-	
+
+
+
+
 	for(int iEntry = 0; iEntry < nEntries; iEntry++){
 		//~ if ((iEntry ==15) || (iEntry ==23 )||(iEntry ==24)||(iEntry ==39)||(iEntry ==73)||(iEntry ==77)||(iEntry ==91)||(iEntry ==97)||(iEntry ==147)||(iEntry ==152) || iEntry ==161)||(iEntry ==199)||(iEntry ==217)||(iEntry ==228)||(iEntry ==231)||(iEntry ==236)||(iEntry ==237)||(iEntry ==240)||(iEntry ==254)||(iEntry ==309)||(iEntry ==325)||(iEntry ==342)||(iEntry ==355)||(iEntry ==360)||(iEntry ==369)||(iEntry ==382)||(iEntry ==387)||(iEntry ==393)){
 			if(true){
 			// get the next tree entry, this will load all tree variables
 			tree->GetEntry(iEntry);
-			
+
 			Double_t timeSiPM=0.;
 			Double_t timePMT1=0.;
 			Double_t timePMT2=0.;
-			
+
 			Double_t timeDiff_SIPM_PMT1=0.;
 			Double_t timeDiff_SIPM_PMT2=0.;
 			Double_t timeDiff_PMT1_PMT2=0.;
-			
-			
+
+
 			bool status1=false;
 			bool status2=false;
 			bool status3=false;
-			
-			
+
+
 			canvas->cd(1);
 			myGraph = new TGraph(*data_time, *data_wave);
 			stringstream sstitle;
@@ -121,14 +121,14 @@ void display(int nEntries = -1) {
 			TLine *line_max = new TLine(0,max,1024,max);
 			line_max->SetLineColor(kRed);
 			//~ line_max->Draw();
-			h1->Fill(locmax);		
+			h1->Fill(locmax);
 			Double_t height = max-baseline;
-			Double_t heightHalf = height/2.;		
-			//~ if((!(height<40.))&& !(abs(750.-max)<=0.1) ){	
-			if((!(height<40.))&& (abs(750.-max)<=0.1) ){	
-				
+			Double_t heightHalf = height/2.;
+			//~ if((!(height<40.))&& !(abs(750.-max)<=0.1) ){
+			if((!(height<40.))&& (abs(750.-max)<=0.1) ){
+
 				status1=true;
-						
+
 				Double_t halfMax =baseline + (max-baseline)/2.;
 				TLine *line_halfMax = new TLine(0,halfMax,1024,halfMax);
 				line_halfMax->SetLineColor(kBlue);
@@ -153,12 +153,12 @@ void display(int nEntries = -1) {
 				}
 				TLine *lineTime=new TLine(halfX,baseline,halfX,max);
 				lineTime->SetLineColor(kRed);
-				lineTime->Draw();		
-			
+				lineTime->Draw();
+
 			timeSiPM=halfX;
 			}
-			
-			
+
+
 			canvas->cd(2);
 			myGraph = new TGraph(*PMT1_time, *PMT1_wave);
 			stringstream sstitle2;
@@ -188,14 +188,14 @@ void display(int nEntries = -1) {
 			TLine *line_maxPMT1 = new TLine(0,maxPMT1,1024,maxPMT1);
 			line_maxPMT1->SetLineColor(kRed);
 			//~ line_max->Draw();
-			h1PMT1->Fill(locmaxPMT1);		
+			h1PMT1->Fill(locmaxPMT1);
 			Double_t heightPMT1 = maxPMT1-baselinePMT1;
-			Double_t heightHalfPMT1 = heightPMT1/2.;		
-			//~ if((!(heightPMT1<40.))&& !(abs(750.-maxPMT1)<=0.1) ){			
-			if(true){			
-				
+			Double_t heightHalfPMT1 = heightPMT1/2.;
+			//~ if((!(heightPMT1<40.))&& !(abs(750.-maxPMT1)<=0.1) ){
+			if(true){
+
 				status2=true;
-				
+
 				Double_t halfMaxPMT1 =baselinePMT1 + (maxPMT1-baselinePMT1)/2.;
 				TLine *line_halfMaxPMT1 = new TLine(0,halfMaxPMT1,1024,halfMaxPMT1);
 				line_halfMaxPMT1->SetLineColor(kBlue);
@@ -220,18 +220,18 @@ void display(int nEntries = -1) {
 				}
 				TLine *lineTimePMT1=new TLine(halfXPMT1,baselinePMT1,halfXPMT1,maxPMT1);
 				lineTimePMT1->SetLineColor(kRed);
-				lineTimePMT1->Draw();		
-			
+				lineTimePMT1->Draw();
+
 
 				timePMT1=halfXPMT1;
 
-			
-			}		
+
+			}
 
 
 
 
-			
+
 			canvas->cd(3);
 			myGraph = new TGraph(*PMT2_time, *PMT2_wave);
 			stringstream sstitle3;
@@ -257,18 +257,18 @@ void display(int nEntries = -1) {
 			//Peak with Max():
 			int nPMT2 = myGraph->GetN();
 			int locmaxPMT2 = TMath::LocMax(nPMT2,yPMT2);
-			Double_t maxPMT2 = data_wave->GetSub(342, 768).Max(); // range constrain to avoid spikes from max_position_... plot
+			Double_t maxPMT2 = PMT2_wave->GetSub(342, 768).Max(); // range constrain to avoid spikes from max_position_... plot
 			TLine *line_maxPMT2 = new TLine(0,maxPMT2,1024,maxPMT2);
 			line_maxPMT2->SetLineColor(kRed);
 			//~ line_max->Draw();
-			h1PMT2->Fill(locmaxPMT2);		
+			h1PMT2->Fill(locmaxPMT2);
 			Double_t heightPMT2 = maxPMT2-baselinePMT2;
-			Double_t heightHalfPMT2 = heightPMT2/2.;		
-			//~ if((!(heightPMT2<40.))&& !(abs(750.-maxPMT2)<=0.1) ){	
-			if(true){	
-				
+			Double_t heightHalfPMT2 = heightPMT2/2.;
+			//~ if((!(heightPMT2<40.))&& !(abs(750.-maxPMT2)<=0.1) ){
+			if(true){
+
 				status3=true;
-						
+
 				Double_t halfMaxPMT2 =baselinePMT2 + (maxPMT2-baselinePMT2)/2.;
 				TLine *line_halfMaxPMT2 = new TLine(0,halfMaxPMT2,1024,halfMaxPMT2);
 				line_halfMaxPMT2->SetLineColor(kBlue);
@@ -293,11 +293,11 @@ void display(int nEntries = -1) {
 				}
 				TLine *lineTimePMT2=new TLine(halfXPMT2,baselinePMT2,halfXPMT2,maxPMT2);
 				lineTimePMT2->SetLineColor(kRed);
-				lineTimePMT2->Draw();		
-			
+				lineTimePMT2->Draw();
+
 				timePMT2=halfXPMT2;
-			
-			}		
+
+			}
 
 
 
@@ -320,7 +320,7 @@ void display(int nEntries = -1) {
 			myGraph3->GetYaxis()->SetRangeUser(-350,850);
 			myGraph4->SetLineColor(3);
 			myGraph4->GetXaxis()->SetRangeUser(0,1024);
-			myGraph4->GetYaxis()->SetRangeUser(-350,850);		
+			myGraph4->GetYaxis()->SetRangeUser(-350,850);
 
 			TMultiGraph *mg = new TMultiGraph();
 
@@ -328,6 +328,7 @@ void display(int nEntries = -1) {
 			mg->Add(myGraph3);
 			mg->Add(myGraph4);
 			mg->Draw("AL");
+			mg->SetTitle(sstitle.str().c_str());
 
 
 
@@ -338,22 +339,24 @@ void display(int nEntries = -1) {
 			Str << iEntry;
 			string iString(Str.str());
 
+			//~ if(status1 && status2 && status3){
 			if(status1){
+				//~ canvas->SaveAs((string("normal/normal")+string(iString)+string(".pdf")).c_str());
 				canvas->SaveAs((string("crap/crap")+string(iString)+string(".pdf")).c_str());
 			}
 			canvas->Update();
 			//~ usleep(500000);
-			usleep(1000000);
+			//~ usleep(1000000);
 			delete myGraph;
-		
-		
-		
-		
-		
+
+
+
+
+
 			//~ timeSiPM=halfX;
 			//~ timePMT1=halfXPMT1;
 			//~ timePMT2=halfXPMT2;
-			
+
 			timeDiff_SIPM_PMT1=timeSiPM-timePMT1;
 			timeDiff_SIPM_PMT2=timeSiPM-timePMT2;
 			timeDiff_PMT1_PMT2=timePMT1-timePMT2;
@@ -364,37 +367,37 @@ void display(int nEntries = -1) {
 				time_SIPM_PMT2->Fill(timeDiff_SIPM_PMT2);
 				time_PMT1_PMT2->Fill(timeDiff_PMT1_PMT2);
 			}
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		}
 	}
 		//~ TCanvas* canvas1 = new TCanvas("canvas1", "canvas1", 800, 800);
 			//~ time_SIPM_PMT1->Draw("HIST");
 			//~ TF1 *g1    = new TF1("g1","gaus",-55,-30);
-			//~ time_SIPM_PMT1->Fit(g1,"R");		
+			//~ time_SIPM_PMT1->Fit(g1,"R");
 			//~ time_SIPM_PMT1->GetXaxis()->SetTitle("#Delta t/ns");
-			//~ time_SIPM_PMT1->GetYaxis()->SetTitle("Events/bin");	
+			//~ time_SIPM_PMT1->GetYaxis()->SetTitle("Events/bin");
 			//~ time_SIPM_PMT1->Draw("SAME");
-			//~ gStyle->SetFitFormat("5.5g");	
+			//~ gStyle->SetFitFormat("5.5g");
 		//~ gStyle->SetOptFit(1);
 		//~ gStyle->SetOptStat("e");
-		
+
 	//~ canvas1->SaveAs((string("CRAPtime_resolution_SIPM_PMT1")+string(".pdf")).c_str());
 	//canvas1->SaveAs((string("time_resolution2_SIPM_PMT1")+string(".pdf")).c_str());
 	//~ delete canvas1;
@@ -404,7 +407,7 @@ void display(int nEntries = -1) {
 		//~ time_SIPM_PMT2->Fit(g2,"R");
 		//~ time_SIPM_PMT2->GetXaxis()->SetTitle("#Delta t/ns");
 		//~ time_SIPM_PMT2->GetYaxis()->SetTitle("Events/bin");
-		//~ time_SIPM_PMT2->Draw("SAME");	
+		//~ time_SIPM_PMT2->Draw("SAME");
 	//~ canvas2->SaveAs((string("CRAPtime_resolution_SIPM_PMT2")+string(".pdf")).c_str());
 	//canvas2->SaveAs((string("time_resolution2_SIPM_PMT2")+string(".pdf")).c_str());
 	//~ delete canvas2;
@@ -413,19 +416,20 @@ void display(int nEntries = -1) {
 		//~ TF1 *g3    = new TF1("g3","gaus",-5,15);
 		//~ time_PMT1_PMT2->Fit(g3,"R");
 		//~ time_PMT1_PMT2->GetXaxis()->SetTitle("#Delta t/ns");
-		//~ time_PMT1_PMT2->GetYaxis()->SetTitle("Events/bin");	
-		//~ time_PMT1_PMT2->Draw("SAME");	
+		//~ time_PMT1_PMT2->GetYaxis()->SetTitle("Events/bin");
+		//~ time_PMT1_PMT2->Draw("SAME");
 	//~ canvas3->SaveAs((string("CRAPtime_resolution_PMT1_PMT2")+string(".pdf")).c_str());
 	//canvas3->SaveAs((string("time_resolution2_PMT1_PMT2")+string(".pdf")).c_str());
 	//~ delete canvas3;
-	
-	
+
+
 
 
 	delete canvas;
 
 
-	TFile f("zeitaufloesung_crap.root", "RECREATE");
+	//~ TFile f("normal/zeitaufloesung_normal.root", "RECREATE");
+	TFile f("crap/zeitaufloesung_crap.root", "RECREATE");
 	//TFile f("zeitaufloesung2.root", "RECREATE");
 	time_SIPM_PMT1->Write();
 	time_SIPM_PMT2->Write();
