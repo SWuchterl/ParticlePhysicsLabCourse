@@ -8,3 +8,6 @@
 fitparameter_*.txt
 ttbar_backup
 ttbar_exec
+trial.cpp
+noise*.txt
+trial.py
