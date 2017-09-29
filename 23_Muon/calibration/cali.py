@@ -65,10 +65,10 @@ dataMean=np.array(dataMean)
 dataErr=np.array(dataErr)
 
 
-popt,pcov=curve_fit(func,dataMean,times)
-# popt,pcov=curve_fit(func,dataMean,times,sigma=erTimes)
-print popt[0],"+-",np.sqrt(pcov[0][0])
-print popt[1],"+-",np.sqrt(pcov[1][1])
+# popt,pcov=curve_fit(func,dataMean,times)
+popt,pcov=curve_fit(func,dataMean,times,sigma=erTimes)
+print "a:",popt[0],"+-",np.sqrt(pcov[0][0])
+print "b:",popt[1],"+-",np.sqrt(pcov[1][1])
 
 x_linspace=np.linspace(0.,lengthMax,lengthMax)
 y_fit=func(dataMean,popt[0],popt[1])
@@ -80,7 +80,7 @@ def chi2(y_exp,y_obs,y_err):
 
 errNewY=np.sqrt(erTimes**2. +(popt[0]*dataErr)**2.)
 
-print chi2(y_fit,times,errNewY)/(len(erTimes)-2.)
+print "chi2/ndof",chi2(y_fit,times,errNewY)/(len(erTimes)-2.)
 
 fig = plt.figure(1)
 fig.suptitle("Time Calibration")
@@ -88,7 +88,7 @@ ax1 = fig.add_subplot(211)
 ax1.errorbar(dataMean,times,xerr=dataErr,yerr=erTimes,fmt=".",linewidth=0.5,capsize=1.5,markersize=2.5,label="data")
 ax1.grid(True)
 ax1.set_title("Measurement")
-plt.ylabel("$\Delta$ time [$\mu$ s]")
+plt.ylabel("$\Delta$ time [$\mu s$]")
 plt.xlabel("Channel Number")
 plt.plot(x_linspace,y_linspace,label="fit")
 
@@ -102,9 +102,18 @@ ax2.set_title("Resdiues")
 # y_res=times-func(times,popt[0],popt[1])
 ax2.errorbar(dataMean,y_res,xerr=dataErr,yerr=errNewY,fmt=".",linewidth=0.5,capsize=1.5,markersize=2.5)
 ax2.grid(True)
-plt.ylabel("data-fit")
+plt.ylabel("data-fit [$\mu s$]")
+plt.axhline(0.,0.,len(dataMean),color='red',alpha=0.8,lw=0.5)
 plt.xlabel("Channel Number")
+plt.ylim((-0.15,0.15))
 plt.subplots_adjust(hspace=0.5, wspace=1.0)
 
 
 fig.savefig("timecali.pdf")
+
+with open('cali.txt', 'wb') as datei:
+    datei.write(str(popt[0])+ '\n')
+    datei.write(str(pcov[0][0])+ '\n')
+    datei.write(str(popt[1])+ '\n')
+    datei.write(str(pcov[0][0])+ '\n')
+    datei.close()

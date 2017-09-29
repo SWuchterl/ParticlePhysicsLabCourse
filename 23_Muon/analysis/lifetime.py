@@ -5,7 +5,8 @@ from scipy.interpolate import interp1d
 from scipy import stats
 import matplotlib.pyplot as plt
 
-data = np.loadtxt('dienstag.TKA', skiprows=2)
+# data = np.loadtxt('dienstag.TKA', skiprows=2)
+data = np.loadtxt('../data/mittwoch.TKA', skiprows=2)
 channel = np.linspace(0., len(data), len(data))
 
 bin_means, bin_edges, binnumber = stats.binned_statistic(
@@ -16,6 +17,6 @@ plt.grid()
 plt.title('Muon decay')
 plt.ylabel('Events/Bin')
 plt.xlabel('Channel')
-plt.yscale('log')
+# plt.yscale('log')
 plt.savefig('lifetime.pdf', format='pdf')
 plt.show()
