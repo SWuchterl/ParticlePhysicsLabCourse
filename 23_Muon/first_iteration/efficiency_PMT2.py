@@ -29,7 +29,7 @@ y_err = [np.sqrt((np.sqrt(y_data4[i]) / y_data4[i])**2. +
 interpolation = interp1d(x_data, y_purity, kind='cubic')
 
 params, extras = curve_fit(
-    erfunc, x_data, y_data, sigma=y_err, p0=[1., 1850., 1.])
+    erfunc, x_data, y_data, sigma=y_err, p0=[1., 1850., 5.])
 
 fig = plt.figure()
 plt.plot(x_fit, erfunc(x_fit, *params), label='Errorfunction fit')
