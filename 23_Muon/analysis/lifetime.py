@@ -30,6 +30,10 @@ def linear(x, a, b):
     return a * x + b
 
 
+def chi2(y_exp, y_obs, y_err):
+    return sum(((y_obs - y_exp)**2.) / (y_err**2.))
+
+
 # Read in data
 data = np.loadtxt('../data/mittwoch.TKA', skiprows=2)
 # data = np.loadtxt('../data/dienstag.TKA', skiprows=2)
@@ -260,3 +264,52 @@ ax2.axvline(secondCut, color="black", alpha=0.5)
 ax2.set_title("Residues")
 plt.subplots_adjust(hspace=0.5, wspace=0.5)
 fig_res.savefig("region1+2_fit_pos.pdf")
+
+# fit exponential in this region
+
+
+def exponential_one(x, A, tau):
+    return A * np.exp(x / tau)
+
+
+par_exp_pos, pcov_exp_pos = curve_fit(
+    exponential_one, X_pos, Y_pos, sigma=erY_pos, p0=[300., -2.])
+exp_pos_err = np.sqrt(np.diag(pcov_exp_pos))
+print par_exp_pos[1], exp_pos_err[1]
+
+X_pos_exp_fit = np.linspace(X_pos[0], X_pos[-1], 1000)
+Y_pos_exp_fit = exponential_one(X_pos_exp_fit, par_exp_pos[0], par_exp_pos[1])
+
+Y_pos_exp_up = exponential_one(
+    X_pos_exp_fit, par_exp_pos[0] + 1. * exp_pos_err[0], par_exp_pos[1] + 2. * exp_pos_err[1])
+Y_pos_exp_down = exponential_one(
+    X_pos_exp_fit, par_exp_pos[0] - 1. * exp_pos_err[0], par_exp_pos[1] - 2. * exp_pos_err[1])
+Y_pos_exp_res = Y_pos - exponential_one(X_pos, par_exp_pos[0], par_exp_pos[1])
+
+Y_exp_pos_temp = exponential_one(X_pos, par_exp_pos[0], par_exp_pos[1])
+chi2_exp_pos = chi2(Y_exp_pos_temp, Y_pos, erY_pos) / (len(Y_pos) - 2.)
+
+fig_pos_exp = plt.figure()
+ax1 = fig_pos_exp.add_subplot(211)
+ax1.grid()
+ax1.set_title("exp. fit pos. range")
+plt.xlabel("t [$\mu s$]")
+plt.ylabel("ln(Events/Bin)")
+plt.errorbar(X_pos, Y_pos, yerr=erY_pos, fmt=".", linewidth=0.5,
+             capsize=1.5, markersize=2.5, label="data")
+plt.plot(X_pos_exp_fit, Y_pos_exp_fit, label="fit")
+ax1.fill_between(X_pos_exp_fit, Y_pos_exp_up, Y_pos_exp_down,
+                 alpha=.25, label="$2\sigma$ fit")
+ax1.text(7.5, 150., r'A= ' + str(round(par_exp_pos[0], 1)) + " $\pm$ " + str(round(exp_pos_err[0], 1)) + " \n" + r"($\tau$= " + str(round(par_exp_pos[1], 3)) + " $\pm$ " + str(round(exp_pos_err[1], 3)) + ") $\mu s^{-1}$ \n $\chi ^2 / ndof=$" + str(round(chi2_exp_pos, 2)), style='italic', fontsize="small",
+         bbox={'facecolor': 'grey', 'alpha': 0.3, 'pad': 5})
+plt.legend(loc="best")
+ax2 = fig_pos_exp.add_subplot(212)
+ax2.set_title("Residues")
+plt.xlabel("t [$\mu s$]")
+plt.ylabel("data-fit")
+ax2.grid()
+ax2.axhline(0., 0, 1, color='red', alpha=0.8, lw=0.5)
+ax2.errorbar(X_pos, Y_pos_exp_res, yerr=erY_pos, fmt=".",
+             linewidth=0.5, capsize=1.5, markersize=2.5)
+plt.subplots_adjust(hspace=0.5, wspace=0.5)
+fig_pos_exp.savefig("expFit_pos.pdf")
