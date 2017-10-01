@@ -27,7 +27,7 @@ y_err = [np.sqrt((np.sqrt(y_data4[i]) / y_data4[i])**2. +
 interpolation = interp1d(x_data, y_purity, kind='cubic')
 
 params, extras = curve_fit(
-    erfunc, x_data, y_data, sigma=y_err, p0=[1., 1850., 5.])
+    erfunc, x_data, y_data, sigma=y_err, p0=[1., 1850., 10.])
 
 fig = plt.figure()
 plt.plot(x_fit, erfunc(x_fit, *params), label='Errorfunction fit')
@@ -41,8 +41,7 @@ plt.plot([params[1] + 2. * params[2]], [erfunc(params[1] + 2. *
                                                params[2], *params)], marker='*', markersize=10, color="red", label='Working point')
 plt.legend()
 plt.title('Efficiency and Purity')
-plt.savefig('efficiency_fitPMT_4.pdf', format='pdf')
-plt.show()
+plt.savefig('efficiency_fitPMT_4_first.pdf', format='pdf')
 
 print "mean: ", params[1]
 print "mean unc.: ", np.sqrt(extras[1, 1])
@@ -51,3 +50,14 @@ print "sigma unc.: ", np.sqrt(extras[2, 2])
 print "mean+2*sigma: ", params[1] + 2. * params[2]
 print "mean+2*sigma unc.: ", np.sqrt(extras[1, 1] + 2 * extras[2, 2])
 print "purity: ", interpolation(params[1] + 2. * params[2])
+
+with open('PMT4_first.txt', 'wb') as f:
+    f.write('mean: ' + str(params[1]) + '\n')
+    f.write('mean unc.: ' + str(np.sqrt(extras[1, 1])) + '\n')
+    f.write('sigma: ' + str(params[2]) + '\n')
+    f.write('sigma unc.: ' + str(np.sqrt(extras[2, 2])) + '\n')
+    f.write('mean+2*sigma: ' + str(params[1] + 2. * params[2]) + '\n')
+    f.write('mean+2*sigma unc.: ' +
+            str(np.sqrt(extras[1, 1] + 2 * extras[2, 2])) + '\n')
+    f.write('purity: ' + str(interpolation(params[1] + 2. * params[2])))
+    f.close()

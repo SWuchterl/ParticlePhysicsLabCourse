@@ -43,8 +43,7 @@ plt.plot([params[1] + 2. * params[2]], [erfunc(params[1] + 2. *
                                                params[2], *params)], marker='*', markersize=10, color="red", label='Working point')
 plt.legend()
 plt.title('Efficiency and Purity')
-plt.savefig('efficiency_fitPMT_2.pdf', format='pdf')
-plt.show()
+plt.savefig('efficiency_fitPMT_2_fourth.pdf', format='pdf')
 
 print "mean: ", params[1]
 print "mean unc.: ", np.sqrt(extras[1, 1])
@@ -53,3 +52,14 @@ print "sigma unc.: ", np.sqrt(extras[2, 2])
 print "mean+2*sigma: ", params[1] + 2. * params[2]
 print "mean+2*sigma unc.: ", np.sqrt(extras[1, 1] + 2 * extras[2, 2])
 print "purity: ", interpolation(params[1] + 2. * params[2])
+
+with open('PMT2_fourth.txt', 'wb') as f:
+    f.write('mean: ' + str(params[1]) + '\n')
+    f.write('mean unc.: ' + str(np.sqrt(extras[1, 1])) + '\n')
+    f.write('sigma: ' + str(params[2]) + '\n')
+    f.write('sigma unc.: ' + str(np.sqrt(extras[2, 2])) + '\n')
+    f.write('mean+2*sigma: ' + str(params[1] + 2. * params[2]) + '\n')
+    f.write('mean+2*sigma unc.: ' +
+            str(np.sqrt(extras[1, 1] + 2 * extras[2, 2])) + '\n')
+    f.write('purity: ' + str(interpolation(params[1] + 2. * params[2])))
+    f.close()
