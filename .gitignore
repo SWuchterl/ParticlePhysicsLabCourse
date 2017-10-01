@@ -12,3 +12,6 @@ trial.cpp
 noise*.txt
 trial.py
 23_Muon/calibration/values/*
+23_Muon/data/david*.TKA
+23_Muon/data/Weekend.TKA
+23_Muon/efficiencies/PMT*.txt
