@@ -302,9 +302,9 @@ X_pos_exp_fit = np.linspace(X_pos[0], X_pos[-1], 1000)
 Y_pos_exp_fit = exponential_one(X_pos_exp_fit, par_exp_pos[0], par_exp_pos[1])
 
 Y_pos_exp_up = exponential_one(
-    X_pos_exp_fit, par_exp_pos[0] + 1. * exp_pos_err[0], par_exp_pos[1] + 2. * exp_pos_err[1])
+    X_pos_exp_fit, par_exp_pos[0] + 2. * exp_pos_err[0], par_exp_pos[1] + 2. * exp_pos_err[1])
 Y_pos_exp_down = exponential_one(
-    X_pos_exp_fit, par_exp_pos[0] - 1. * exp_pos_err[0], par_exp_pos[1] - 2. * exp_pos_err[1])
+    X_pos_exp_fit, par_exp_pos[0] - 2. * exp_pos_err[0], par_exp_pos[1] - 2. * exp_pos_err[1])
 Y_pos_exp_res = Y_pos - exponential_one(X_pos, par_exp_pos[0], par_exp_pos[1])
 
 Y_exp_pos_temp = exponential_one(X_pos, par_exp_pos[0], par_exp_pos[1])
@@ -413,7 +413,7 @@ print "------"
 print a_pos, a_neg, a_pos - a_neg
 print 1. / a_pos, 1. / a_neg, 1. / (a_pos - a_neg)
 Y_fit_neg = linear(X_fit_neg, a_neg, b_neg)
-Y_fit_neg_up = linear(X_fit_neg, a_neg + 1. * ea_neg, b_pos + 1. * eb_neg)
+Y_fit_neg_up = linear(X_fit_neg, a_neg + 1. * ea_neg, b_neg + 1. * eb_neg)
 Y_fit_neg_down = linear(X_fit_neg, a_neg - 1. * ea_neg, b_neg - 1. * eb_neg)
 Y_fit_neg_res = Y_neg_log - linear(X_neg, a_neg, b_neg)
 
@@ -494,9 +494,9 @@ X_neg_exp_fit = np.linspace(X_neg[0], X_neg[-1], 1000)
 Y_neg_exp_fit = exponential_one(X_neg_exp_fit, par_exp_neg[0], par_exp_neg[1])
 
 Y_neg_exp_up = exponential_one(
-    X_neg_exp_fit, par_exp_neg[0] + 1. * exp_neg_err[0], par_exp_neg[1] + 2. * exp_neg_err[1])
+    X_neg_exp_fit, par_exp_neg[0] + 2. * exp_neg_err[0], par_exp_neg[1] + 2. * exp_neg_err[1])
 Y_neg_exp_down = exponential_one(
-    X_neg_exp_fit, par_exp_neg[0] - 1. * exp_neg_err[0], par_exp_neg[1] - 2. * exp_neg_err[1])
+    X_neg_exp_fit, par_exp_neg[0] - 2. * exp_neg_err[0], par_exp_neg[1] - 2. * exp_neg_err[1])
 Y_neg_exp_res = Y_neg - exponential_one(X_neg, par_exp_neg[0], par_exp_neg[1])
 
 Y_exp_neg_temp = exponential_one(X_neg, par_exp_neg[0], par_exp_neg[1])
