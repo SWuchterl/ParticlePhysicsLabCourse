@@ -52,6 +52,7 @@ plt.savefig("raw_log.pdf")
 # REBINNING
 length = len(channel)
 nBins = 80
+# nBins = 90
 binLength = length / nBins
 binnedX = []
 binnedY = []
@@ -114,7 +115,8 @@ calLength = len(calX)
 """
 BACKGROUND ESTIMATION
 """
-cut = 11.5
+# cut = 11.5
+cut = 12.
 # find bin
 cutBin = 0
 for i in range(calLength):
@@ -150,7 +152,12 @@ fig.savefig("background.pdf")
 
 
 """
-TRANSFORM/subtract and do first fit
+TRANSFORM/subtract and do first fitY_first = np.delete(Y_first, ar_ToDelete)
+X_first = np.delete(X_first, ar_ToDelete)
+erY_first = np.delete(erY_first, ar_ToDelete)
+erX_first = np.delete(erX_first, ar_ToDelete)
+
+Y_first_log = np.log(Y_first)
 """
 X_new = calX[:cutBin]
 erX_new = erCalX[:cutBin]
@@ -182,7 +189,9 @@ plt.xticks(np.arange(0., max(X_new) + 1., 1.0))
 plt.title("Finding pos. range")
 plt.savefig("region1+2.pdf")
 
-secondCut = 5.
+# secondCut = 4.5
+# secondCut = 5.
+secondCut = 3.5
 cutBin_new = 0
 for i in range(len(X_new)):
     if((X_new[i] < secondCut)and(X_new[i + 1] > secondCut)):
@@ -196,12 +205,22 @@ erY_pos_log = erY_new_log[cutBin_new:cutBin]
 erY_pos = erY_new[cutBin_new:cutBin]
 
 # FIT
-# pos_fit,pos_cov=curve_fit(linear,X_pos,Y_pos_log,sigma=erY_pos_log)
-# pos_fit,pos_cov=np.polyfit(X_pos,Y_pos_log,1,w=1./(erY_pos_log),cov=True)
+pos_fit, pos_cov = curve_fit(linear, X_pos, Y_pos_log, sigma=erY_pos_log)
+# pos_fit, pos_cov = np.polyfit(
+# X_pos, Y_pos_log, 1, w=1. / (erY_pos_log), cov=True)
 a_pos, ea_pos, b_pos, eb_pos, chiq_pos, corr_pos = lineare_regression(
     X_pos, Y_pos_log, erY_pos_log)
+chiq_pos = chi2(linear(X_pos, pos_fit[0], pos_fit[1]), Y_pos_log, erY_pos_log)
 chiNdof_pos = chiq_pos / (len(X_pos) - 2.)
 X_fit_pos = np.linspace(secondCut, cut, 1000)
+
+# print "covmatrix", pos_cov
+#
+# a_pos = pos_fit[0]
+# b_pos = pos_fit[1]
+# ea_pos = np.sqrt(pos_cov[0][0])
+# eb_pos = np.sqrt(pos_cov[1][1])
+# corr_pos = pos_cov[0][1] * (ea_pos * eb_pos)
 
 Y_fit_pos = linear(X_fit_pos, a_pos, b_pos)
 Y_fit_pos_up = linear(X_fit_pos, a_pos + 1. * ea_pos, b_pos + 1. * eb_pos)
@@ -268,14 +287,16 @@ fig_res.savefig("region1+2_fit_pos.pdf")
 # fit exponential in this region
 
 
-def exponential_one(x, A, tau):
-    return A * np.exp(x / tau)
+# def exponential_one(x, A, tau):
+# return A * np.exp(x / tau)
+def exponential_one(x, A, lam):
+    return A * np.exp(-1. * x * lam)
 
 
 par_exp_pos, pcov_exp_pos = curve_fit(
     exponential_one, X_pos, Y_pos, sigma=erY_pos, p0=[300., -2.])
 exp_pos_err = np.sqrt(np.diag(pcov_exp_pos))
-print par_exp_pos[1], exp_pos_err[1]
+# print par_exp_pos[1], exp_pos_err[1]
 
 X_pos_exp_fit = np.linspace(X_pos[0], X_pos[-1], 1000)
 Y_pos_exp_fit = exponential_one(X_pos_exp_fit, par_exp_pos[0], par_exp_pos[1])
@@ -294,13 +315,13 @@ ax1 = fig_pos_exp.add_subplot(211)
 ax1.grid()
 ax1.set_title("exp. fit pos. range")
 plt.xlabel("t [$\mu s$]")
-plt.ylabel("ln(Events/Bin)")
+plt.ylabel("Events/Bin")
 plt.errorbar(X_pos, Y_pos, yerr=erY_pos, fmt=".", linewidth=0.5,
              capsize=1.5, markersize=2.5, label="data")
 plt.plot(X_pos_exp_fit, Y_pos_exp_fit, label="fit")
 ax1.fill_between(X_pos_exp_fit, Y_pos_exp_up, Y_pos_exp_down,
                  alpha=.25, label="$2\sigma$ fit")
-ax1.text(7.5, 150., r'A= ' + str(round(par_exp_pos[0], 1)) + " $\pm$ " + str(round(exp_pos_err[0], 1)) + " \n" + r"($\tau$= " + str(round(par_exp_pos[1], 3)) + " $\pm$ " + str(round(exp_pos_err[1], 3)) + ") $\mu s^{-1}$ \n $\chi ^2 / ndof=$" + str(round(chi2_exp_pos, 2)), style='italic', fontsize="small",
+ax1.text(7.5, 150., r'A= ' + str(round(par_exp_pos[0], 1)) + " $\pm$ " + str(round(exp_pos_err[0], 1)) + " \n" + r"($\lambda$= " + str(round(par_exp_pos[1], 3)) + " $\pm$ " + str(round(exp_pos_err[1], 3)) + ") $\mu s^{-1}$ \n $\chi ^2 / ndof=$" + str(round(chi2_exp_pos, 2)), style='italic', fontsize="small",
          bbox={'facecolor': 'grey', 'alpha': 0.3, 'pad': 5})
 plt.legend(loc="best")
 ax2 = fig_pos_exp.add_subplot(212)
@@ -313,3 +334,237 @@ ax2.errorbar(X_pos, Y_pos_exp_res, yerr=erY_pos, fmt=".",
              linewidth=0.5, capsize=1.5, markersize=2.5)
 plt.subplots_adjust(hspace=0.5, wspace=0.5)
 fig_pos_exp.savefig("expFit_pos.pdf")
+
+"""
+negative muons, first region
+"""
+
+# extrapolate linear from second region and subtract in log
+# in ln. represenation subtract exp. fit
+
+cov_pos_linreg = corr_pos * (ea_pos * eb_pos)
+Amplitude_pos = np.exp(b_pos)
+# tau_pos = 1. / a_pos
+lambda_pos = -1. * a_pos
+print lambda_pos
+erAmplitude_pos = Amplitude_pos * eb_pos
+# erTau_pos = ea_pos / (a_pos)**2.
+erLambda_pos = ea_pos
+# print tau_pos, erTau_pos
+# print Amplitude_pos, erAmplitude_pos
+# print b_pos, eb_pos
+X_first = X_new[:cutBin_new]
+# Y_first = Y_new - (Amplitude_pos * np.exp(-1. * X_new / tau_pos))
+Y_first = Y_new - (Amplitude_pos * np.exp(-1. * X_new * lambda_pos))
+Y_first = Y_first[:cutBin_new]
+
+ar_ToDelete = []
+for i in range(len(X_first)):
+    if (Y_first[i] < 0.):
+        Y_first[i] = 1.
+        ar_ToDelete.append(i)
+
+
+erY_first = erY_new[:cutBin_new]
+# erY_first = np.sqrt(erY_first**2. + (erAmplitude_pos * np.exp(X_first / tau_pos))**2. + (erTau_pos * X_first / (tau_pos**2.) * Amplitude_pos *
+#                                                                                          np.exp(X_first / tau_pos))**2. + 2. * X_first / (tau_pos**2.) * Amplitude_pos * (np.exp(X_first / tau_pos))**2. * cov_pos_linreg)
+erY_first = np.sqrt(erY_first**2. + (erAmplitude_pos * np.exp(-1. * X_first * lambda_pos))**2. + (erLambda_pos * X_first * Amplitude_pos *
+                                                                                                  np.exp(-1. * X_first * lambda_pos))**2. + 2. * X_first * Amplitude_pos * (np.exp(-1. * X_first * lambda_pos))**2. * cov_pos_linreg)
+
+
+Y_first = np.delete(Y_first, ar_ToDelete)
+X_first = np.delete(X_first, ar_ToDelete)
+erY_first = np.delete(erY_first, ar_ToDelete)
+# erX_first = np.delete(erX_first, ar_ToDelete)
+Y_first_log = np.log(Y_first)
+erY_first_log = erY_first / Y_first
+
+
+# thirdCut = 1.5
+thirdCut = 0.7
+cutBin_third = 0
+for i in range(len(X_first)):
+    if((X_first[i] < thirdCut)and(X_first[i + 1] > thirdCut)):
+        cutBin_third = i + 1
+
+
+X_neg = X_first[cutBin_third:cutBin_new]
+Y_neg = Y_first[cutBin_third:cutBin_new]
+Y_neg_log = Y_first_log[cutBin_third:cutBin_new]
+# erX_neg = erX_first[cutBin_third:cutBin_new]
+erY_neg_log = erY_first_log[cutBin_third:cutBin_new]
+erY_neg = erY_first[cutBin_third:cutBin_new]
+
+
+# FIT
+neg_fit, neg_cov = curve_fit(linear, X_neg, Y_neg_log, sigma=erY_neg_log)
+chiq_neg = chi2(linear(X_neg, neg_fit[0], neg_fit[1]), Y_neg_log, erY_neg_log)
+chiNdof_neg = chiq_neg / (len(X_neg) - 2.)
+X_fit_neg = np.linspace(thirdCut, secondCut, 1000)
+
+# print "------"
+# print a_pos, a_neg, a_pos - b_neg
+a_neg = neg_fit[0]
+b_neg = neg_fit[1]
+ea_neg = np.sqrt(neg_cov[0][0])
+eb_neg = np.sqrt(neg_cov[1][1])
+corr_neg = neg_cov[0][1] * (ea_neg * eb_neg)
+print "------"
+print a_pos, a_neg, a_pos - a_neg
+print 1. / a_pos, 1. / a_neg, 1. / (a_pos - a_neg)
+Y_fit_neg = linear(X_fit_neg, a_neg, b_neg)
+Y_fit_neg_up = linear(X_fit_neg, a_neg + 1. * ea_neg, b_pos + 1. * eb_neg)
+Y_fit_neg_down = linear(X_fit_neg, a_neg - 1. * ea_neg, b_neg - 1. * eb_neg)
+Y_fit_neg_res = Y_neg_log - linear(X_neg, a_neg, b_neg)
+
+
+# plot fit with residues
+fig_neg_fit = plt.figure()
+ax1 = fig_neg_fit.add_subplot(211)
+ax1.grid()
+ax1.errorbar(X_neg, Y_neg_log, yerr=erY_neg_log,
+             fmt=".", linewidth=0.5, capsize=1.5, markersize=2.5, label="data")
+plt.xlabel("t [$\mu s$]")
+plt.ylabel("ln(Events/Bin)")
+ax1.set_title("neg. range fit")
+ax1.plot(X_fit_neg, Y_fit_neg, label="fit")
+ax1.text(1.7, -2.5, 'a= (' + str(round(a_neg, 2)) + " $\pm$ " + str(round(ea_neg, 2)) + ") $\mu s^{-1}$ \nb= " + str(round(b_neg, 1)) + " $\pm$ " + str(round(eb_neg, 1)) + "\n $\chi ^2 / ndof=$" + str(round(chiNdof_neg, 2)), style='italic', fontsize="small",
+         bbox={'facecolor': 'grey', 'alpha': 0.3, 'pad': 5})
+ax1.fill_between(X_fit_neg, Y_fit_neg_up, Y_fit_neg_down,
+                 alpha=.25, label="$1\sigma$ fit")
+ax1.legend(loc="best")
+ax2 = fig_neg_fit.add_subplot(212)
+ax2.errorbar(X_neg, Y_fit_neg_res, yerr=erY_neg_log, fmt=".",
+             linewidth=0.5, capsize=1.5, markersize=2.5)
+plt.subplots_adjust(hspace=0.5, wspace=0.5)
+ax2.set_title("Residues")
+ax2.grid()
+ax2.set_ylim([-6., 6.])
+ax2.axhline(0., 0, 1, color="black", alpha=0.5)
+plt.xlabel("t [$\mu s$]")
+plt.ylabel("data-fit")
+fig_neg_fit.savefig("fit_neg.pdf")
+
+
+# plot region 1+2 with fit for region 2 to check cut
+Y_toPlotRes = linear(X_first, a_neg, b_neg)
+res_neg = Y_first_log - Y_toPlotRes
+er_Res_neg = erY_first_log
+
+fig_res_neg = plt.figure()
+ax1 = fig_res_neg.add_subplot(211)
+ax1.set_title("check neg. range cut")
+plt.xlabel("t [$\mu s$]")
+plt.ylabel("ln(Events/Bin)")
+# ax1.errorbar(X_first, Y_first_log, xerr=erX_first, yerr=erY_first_log,
+ax1.errorbar(X_first, Y_first_log, yerr=erY_first_log,
+             fmt=".", linewidth=0.5, capsize=1.5, markersize=2.5, label="data")
+ax1.grid()
+ax1.plot(X_first, Y_toPlotRes, linewidth=0.5, color="red", label="fit")
+ax1.legend(loc="best")
+plt.xticks(np.arange(0., max(X_first) + 1., 1.0))
+ax2 = fig_res_neg.add_subplot(212)
+ax2.grid()
+ax2.errorbar(X_first, res_neg, yerr=er_Res_neg, fmt=".",
+             linewidth=0.5, capsize=1.5, markersize=2.5)
+ax2.axhline(0., 0, 1, color='red', alpha=0.8, lw=0.5)
+ax2.set_ylim([-3., 3.])
+plt.xlabel("t [$\mu s$]")
+plt.ylabel("data-fit")
+ax2.axvline(thirdCut, color="black", alpha=0.5)
+ax2.set_title("Residues")
+plt.subplots_adjust(hspace=0.5, wspace=0.5)
+fig_res_neg.savefig("region1+2_fit_neg.pdf")
+
+# fit exponential in this region
+
+
+# def exponential_one(x, A, tau):
+#     return A * np.exp(x / tau)
+# def exponential_one(x, A, tau):
+#     return A * np.exp(x / tau)
+
+
+par_exp_neg, pcov_exp_neg = curve_fit(
+    exponential_one, X_neg, Y_neg, sigma=erY_neg, p0=[300., -2.])
+exp_neg_err = np.sqrt(np.diag(pcov_exp_neg))
+# print par_exp_pos[1], exp_pos_err[1]
+
+X_neg_exp_fit = np.linspace(X_neg[0], X_neg[-1], 1000)
+Y_neg_exp_fit = exponential_one(X_neg_exp_fit, par_exp_neg[0], par_exp_neg[1])
+
+Y_neg_exp_up = exponential_one(
+    X_neg_exp_fit, par_exp_neg[0] + 1. * exp_neg_err[0], par_exp_neg[1] + 2. * exp_neg_err[1])
+Y_neg_exp_down = exponential_one(
+    X_neg_exp_fit, par_exp_neg[0] - 1. * exp_neg_err[0], par_exp_neg[1] - 2. * exp_neg_err[1])
+Y_neg_exp_res = Y_neg - exponential_one(X_neg, par_exp_neg[0], par_exp_neg[1])
+
+Y_exp_neg_temp = exponential_one(X_neg, par_exp_neg[0], par_exp_neg[1])
+chi2_exp_neg = chi2(Y_exp_neg_temp, Y_neg, erY_neg) / (len(Y_neg) - 2.)
+
+fig_neg_exp = plt.figure()
+ax1 = fig_neg_exp.add_subplot(211)
+ax1.grid()
+ax1.set_title("exp. fit neg. range")
+plt.xlabel("t [$\mu s$]")
+plt.ylabel("Events/Bin")
+plt.errorbar(X_neg, Y_neg, yerr=erY_neg, fmt=".", linewidth=0.5,
+             capsize=1.5, markersize=2.5, label="data")
+plt.plot(X_neg_exp_fit, Y_neg_exp_fit, label="fit")
+ax1.fill_between(X_neg_exp_fit, Y_neg_exp_up, Y_neg_exp_down,
+                 alpha=.25, label="$2\sigma$ fit")
+ax1.text(2., 200., r'A= ' + str(round(par_exp_neg[0], 1)) + " $\pm$ " + str(round(exp_neg_err[0], 1)) + " \n" + r"($\lambda$= " + str(round(par_exp_neg[1], 3)) + " $\pm$ " + str(round(exp_neg_err[1], 3)) + ") $\mu s^{-1}$ \n $\chi ^2 / ndof=$" + str(round(chi2_exp_neg, 2)), style='italic', fontsize="small",
+         bbox={'facecolor': 'grey', 'alpha': 0.3, 'pad': 5})
+plt.legend(loc="best")
+ax2 = fig_neg_exp.add_subplot(212)
+ax2.set_title("Residues")
+plt.xlabel("t [$\mu s$]")
+plt.ylabel("data-fit")
+ax2.grid()
+ax2.axhline(0., 0, 1, color='red', alpha=0.8, lw=0.5)
+ax2.errorbar(X_neg, Y_neg_exp_res, yerr=erY_neg, fmt=".",
+             linewidth=0.5, capsize=1.5, markersize=2.5)
+plt.subplots_adjust(hspace=0.5, wspace=0.5)
+fig_neg_exp.savefig("expFit_neg.pdf")
+
+
+"""
+LAST REGION
+"""
+# extrapolate linear from first region and subtract in log
+# in ln. represenation subtract exp. fit
+
+cov_neg_linreg = corr_neg * (ea_neg * eb_neg)
+Amplitude_neg = np.exp(b_neg)
+lambda_neg = -1. * a_neg
+# print lambda_neg
+erAmplitude_neg = Amplitude_neg * eb_neg
+erLambda_neg = ea_neg
+X_Z = X_first[:cutBin_third]
+Y_Z = Y_first - (Amplitude_neg * np.exp(-1. * X_first * lambda_neg))
+Y_Z = Y_Z[:cutBin_third]
+
+ar_ToDelete = []
+for i in range(len(X_Z)):
+    if (Y_Z[i] < 0.):
+        Y_Z[i] = 1.
+        ar_ToDelete.append(i)
+
+
+erY_Z = erY_first[:cutBin_third]
+erY_Z = np.sqrt(erY_Z**2. + (erAmplitude_neg * np.exp(-1. * X_Z * lambda_neg))**2. + (erLambda_neg * X_Z * Amplitude_neg *
+                                                                                      np.exp(-1. * X_Z * lambda_neg))**2. + 2. * X_Z * Amplitude_neg * (np.exp(-1. * X_Z * lambda_neg))**2. * cov_neg_linreg)
+
+
+Y_Z = np.delete(Y_Z, ar_ToDelete)
+X_Z = np.delete(X_Z, ar_ToDelete)
+erY_Z = np.delete(erY_Z, ar_ToDelete)
+Y_Z_log = np.log(Y_Z)
+erY_Z_log = erY_Z / Y_Z
+
+
+# X_neg = X_first[cutBin_third:cutBin_new]
+# Y_neg = Y_first[cutBin_third:cutBin_new]
+# Y_neg_log = Y_first_log[cutBin_third:cutBin_new]
+# erY_neg_log = erY_first_log[cutBin_third:cutBin_new]
+# erY_neg = erY_first[cutBin_third:cutBin_new]
