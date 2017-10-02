@@ -670,3 +670,42 @@ ax2.errorbar(X_Z, Y_Z_exp_res, yerr=erY_Z, fmt=".",
              linewidth=0.5, capsize=1.5, markersize=2.5)
 plt.subplots_adjust(hspace=0.5, wspace=0.5)
 fig_Z_exp.savefig("expFit_Z.pdf")
+
+
+"""
+DO FAT GLOBAL FIT
+"""
+
+cov_Z_linreg = corr_Z * (ea_Z * eb_Z)
+Amplitude_Z = np.exp(b_Z)
+lambda_Z = -1. * a_Z
+# print lambda_neg
+erAmplitude_Z = Amplitude_Z * eb_Z
+erLambda_Z = ea_Z
+
+
+def exponential_four(x, c1, c2, c3, c0, l1, l2, l3):
+    return (c0 + c1 * np.exp(-1. * l1 * x) + c2 * np.exp(-1. * l2 * x) + c3 * np.exp(-1. * l3 * x))
+
+
+X_toFit_global = calX
+Y_toFit_global = Y
+erX_toFit_global = erCalX
+erY_toFit_global = erY
+pStart = [
+    Amplitude_pos, Amplitude_neg, Amplitude_Z, bkgMean, lambda_pos, lambda_neg, lambda_Z]
+print pStart
+par_glob, cov_glob = curve_fit(
+    exponential_four, calX, Y, p0=pStart)
+print "global", par_glob
+
+X_global = np.linspace(0., 20., 1000)
+Y_global = exponential_four(
+    X_global, par_glob[0], par_glob[1], par_glob[2], par_glob[3], par_glob[4], par_glob[5], par_glob[6])
+
+fig_globalFit = plt.figure()
+ax1 = fig_globalFit.add_subplot(211)
+ax1.errorbar(X_toFit_global, Y_toFit_global,
+             yerr=erY_toFit_global, xerr=erX_toFit_global, fmt=".")
+ax1.plot(X_global, Y_global)
+fig_globalFit.savefig("globalExp.pdf")
