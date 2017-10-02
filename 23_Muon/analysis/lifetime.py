@@ -242,7 +242,7 @@ ax1.text(6.5, -1., 'a= (' + str(round(a_pos, 2)) + " $\pm$ " + str(round(ea_pos,
 ax1.fill_between(X_fit_pos, Y_fit_pos_up, Y_fit_pos_down,
                  alpha=.25, label="$1\sigma$ fit")
 ax1.legend(loc="best")
-ax2 = fig_pos_fit.add_subplot(212)
+ax2 = fig_pos_fit.add_subplot(212, sharex=ax1)
 ax2.errorbar(X_pos, Y_fit_pos_res, yerr=erY_pos_log, fmt=".",
              linewidth=0.5, capsize=1.5, markersize=2.5)
 plt.subplots_adjust(hspace=0.5, wspace=0.5)
@@ -271,7 +271,7 @@ ax1.grid()
 ax1.plot(X_new, Y_toPlotRes, linewidth=0.5, color="red", label="fit")
 ax1.legend(loc="best")
 plt.xticks(np.arange(0., max(X_new) + 1., 1.0))
-ax2 = fig_res.add_subplot(212)
+ax2 = fig_res.add_subplot(212, sharex=ax1)
 ax2.grid()
 ax2.errorbar(X_new, res_pos, yerr=er_Res_pos, fmt=".",
              linewidth=0.5, capsize=1.5, markersize=2.5)
@@ -324,7 +324,7 @@ ax1.fill_between(X_pos_exp_fit, Y_pos_exp_up, Y_pos_exp_down,
 ax1.text(7.5, 150., r'A= ' + str(round(par_exp_pos[0], 1)) + " $\pm$ " + str(round(exp_pos_err[0], 1)) + " \n" + r"($\lambda$= " + str(round(par_exp_pos[1], 3)) + " $\pm$ " + str(round(exp_pos_err[1], 3)) + ") $\mu s^{-1}$ \n $\chi ^2 / ndof=$" + str(round(chi2_exp_pos, 2)), style='italic', fontsize="small",
          bbox={'facecolor': 'grey', 'alpha': 0.3, 'pad': 5})
 plt.legend(loc="best")
-ax2 = fig_pos_exp.add_subplot(212)
+ax2 = fig_pos_exp.add_subplot(212, sharex=ax1)
 ax2.set_title("Residues")
 plt.xlabel("t [$\mu s$]")
 plt.ylabel("data-fit")
@@ -433,7 +433,7 @@ ax1.text(1.7, -2.5, 'a= (' + str(round(a_neg, 2)) + " $\pm$ " + str(round(ea_neg
 ax1.fill_between(X_fit_neg, Y_fit_neg_up, Y_fit_neg_down,
                  alpha=.25, label="$1\sigma$ fit")
 ax1.legend(loc="best")
-ax2 = fig_neg_fit.add_subplot(212)
+ax2 = fig_neg_fit.add_subplot(212, sharex=ax1)
 ax2.errorbar(X_neg, Y_fit_neg_res, yerr=erY_neg_log, fmt=".",
              linewidth=0.5, capsize=1.5, markersize=2.5)
 plt.subplots_adjust(hspace=0.5, wspace=0.5)
@@ -463,7 +463,7 @@ ax1.grid()
 ax1.plot(X_first, Y_toPlotRes, linewidth=0.5, color="red", label="fit")
 ax1.legend(loc="best")
 plt.xticks(np.arange(0., max(X_first) + 1., 1.0))
-ax2 = fig_res_neg.add_subplot(212)
+ax2 = fig_res_neg.add_subplot(212, sharex=ax1)
 ax2.grid()
 ax2.errorbar(X_first, res_neg, yerr=er_Res_neg, fmt=".",
              linewidth=0.5, capsize=1.5, markersize=2.5)
@@ -516,7 +516,7 @@ ax1.fill_between(X_neg_exp_fit, Y_neg_exp_up, Y_neg_exp_down,
 ax1.text(2., 200., r'A= ' + str(round(par_exp_neg[0], 1)) + " $\pm$ " + str(round(exp_neg_err[0], 1)) + " \n" + r"($\lambda$= " + str(round(par_exp_neg[1], 3)) + " $\pm$ " + str(round(exp_neg_err[1], 3)) + ") $\mu s^{-1}$ \n $\chi ^2 / ndof=$" + str(round(chi2_exp_neg, 2)), style='italic', fontsize="small",
          bbox={'facecolor': 'grey', 'alpha': 0.3, 'pad': 5})
 plt.legend(loc="best")
-ax2 = fig_neg_exp.add_subplot(212)
+ax2 = fig_neg_exp.add_subplot(212, sharex=ax1)
 ax2.set_title("Residues")
 plt.xlabel("t [$\mu s$]")
 plt.ylabel("data-fit")
@@ -540,31 +540,133 @@ lambda_neg = -1. * a_neg
 # print lambda_neg
 erAmplitude_neg = Amplitude_neg * eb_neg
 erLambda_neg = ea_neg
-X_Z = X_first[:cutBin_third]
-Y_Z = Y_first - (Amplitude_neg * np.exp(-1. * X_first * lambda_neg))
-Y_Z = Y_Z[:cutBin_third]
+X_last = X_first[:cutBin_third]
+Y_last = Y_first - (Amplitude_neg * np.exp(-1. * X_first * lambda_neg))
+Y_last = Y_last[:cutBin_third]
 
 ar_ToDelete = []
-for i in range(len(X_Z)):
-    if (Y_Z[i] < 0.):
-        Y_Z[i] = 1.
+for i in range(len(X_last)):
+    if (Y_last[i] < 0.):
+        Y_last[i] = 1.
         ar_ToDelete.append(i)
 
 
-erY_Z = erY_first[:cutBin_third]
-erY_Z = np.sqrt(erY_Z**2. + (erAmplitude_neg * np.exp(-1. * X_Z * lambda_neg))**2. + (erLambda_neg * X_Z * Amplitude_neg *
-                                                                                      np.exp(-1. * X_Z * lambda_neg))**2. + 2. * X_Z * Amplitude_neg * (np.exp(-1. * X_Z * lambda_neg))**2. * cov_neg_linreg)
+erY_last = erY_first[:cutBin_third]
+erY_last = np.sqrt(erY_last**2. + (erAmplitude_neg * np.exp(-1. * X_last * lambda_neg))**2. + (erLambda_neg * X_last * Amplitude_neg *
+                                                                                               np.exp(-1. * X_last * lambda_neg))**2. + 2. * X_last * Amplitude_neg * (np.exp(-1. * X_last * lambda_neg))**2. * cov_neg_linreg)
 
 
-Y_Z = np.delete(Y_Z, ar_ToDelete)
-X_Z = np.delete(X_Z, ar_ToDelete)
-erY_Z = np.delete(erY_Z, ar_ToDelete)
-Y_Z_log = np.log(Y_Z)
-erY_Z_log = erY_Z / Y_Z
+Y_last = np.delete(Y_last, ar_ToDelete)
+X_last = np.delete(X_last, ar_ToDelete)
+erY_last = np.delete(erY_last, ar_ToDelete)
+Y_last_log = np.log(Y_last)
+erY_last_log = erY_last / Y_last
 
 
-# X_neg = X_first[cutBin_third:cutBin_new]
-# Y_neg = Y_first[cutBin_third:cutBin_new]
-# Y_neg_log = Y_first_log[cutBin_third:cutBin_new]
-# erY_neg_log = erY_first_log[cutBin_third:cutBin_new]
-# erY_neg = erY_first[cutBin_third:cutBin_new]
+X_Z = X_last[:cutBin_third]
+Y_Z = Y_last[:cutBin_third]
+Y_Z_log = Y_last_log[:cutBin_third]
+erY_Z_log = erY_last_log[:cutBin_third]
+erY_Z = erY_last_log[:cutBin_third]
+
+
+# FIT
+Z_fit, Z_cov = curve_fit(linear, X_Z, Y_Z_log, sigma=erY_Z_log)
+chiq_Z = chi2(linear(X_Z, Z_fit[0], Z_fit[1]), Y_Z_log, erY_Z_log)
+chiNdof_Z = chiq_Z / (len(X_Z) - 2.)
+X_fit_Z = np.linspace(0, thirdCut, 1000)
+
+# print "------"
+# print a_pos, a_Z, a_pos - b_Z
+a_Z = Z_fit[0]
+b_Z = Z_fit[1]
+ea_Z = np.sqrt(Z_cov[0][0])
+eb_Z = np.sqrt(Z_cov[1][1])
+corr_Z = Z_cov[0][1] * (ea_Z * eb_Z)
+# print "------"
+# print a_pos, a_Z, a_pos - a_Z
+# print 1. / a_pos, 1. / a_Z, 1. / (a_pos - a_Z)
+Y_fit_Z = linear(X_fit_Z, a_Z, b_Z)
+Y_fit_Z_up = linear(X_fit_Z, a_Z + 1. * ea_Z, b_Z + 1. * eb_Z)
+Y_fit_Z_down = linear(X_fit_Z, a_Z - 1. * ea_Z, b_Z - 1. * eb_Z)
+Y_fit_Z_res = Y_Z_log - linear(X_Z, a_Z, b_Z)
+
+
+# plot fit with residues
+fig_Z_fit = plt.figure()
+ax1 = fig_Z_fit.add_subplot(211)
+ax1.grid()
+ax1.errorbar(X_Z, Y_Z_log, yerr=erY_Z_log,
+             fmt=".", linewidth=0.5, capsize=1.5, markersize=2.5, label="data")
+plt.xlabel("t [$\mu s$]")
+plt.ylabel("ln(Events/Bin)")
+ax1.set_title("Z range fit")
+ax1.plot(X_fit_Z, Y_fit_Z, label="fit")
+ax1.text(0.1, 4.3, 'a= (' + str(round(a_Z, 2)) + " $\pm$ " + str(round(ea_Z, 2)) + ") $\mu s^{-1}$ \nb= " + str(round(b_Z, 1)) + " $\pm$ " + str(round(eb_Z, 1)) + "\n $\chi ^2 / ndof=$" + str(round(chiNdof_Z, 2)), style='italic', fontsize="small",
+         bbox={'facecolor': 'grey', 'alpha': 0.3, 'pad': 5})
+ax1.fill_between(X_fit_Z, Y_fit_Z_up, Y_fit_Z_down,
+                 alpha=.25, label="$1\sigma$ fit")
+ax1.legend(loc="best")
+ax2 = fig_Z_fit.add_subplot(212, sharex=ax1)
+ax2.errorbar(X_Z, Y_fit_Z_res, yerr=erY_Z_log, fmt=".",
+             linewidth=0.5, capsize=1.5, markersize=2.5)
+plt.subplots_adjust(hspace=0.5, wspace=0.5)
+ax2.set_title("Residues")
+ax2.grid()
+ax2.set_ylim([-1.5, 1.5])
+ax2.axhline(0., 0, 1, color="black", alpha=0.5)
+plt.xlabel("t [$\mu s$]")
+plt.ylabel("data-fit")
+fig_Z_fit.savefig("fit_Z.pdf")
+
+
+# plot region 1+2 with fit for region 2 to check cut
+Y_toPlotRes = linear(X_last, a_Z, b_Z)
+res_Z = Y_last_log - Y_toPlotRes
+er_Res_Z = erY_last_log
+
+
+# fit exponential in this region
+
+
+par_exp_Z, pcov_exp_Z = curve_fit(
+    exponential_one, X_Z, Y_Z, sigma=erY_Z, p0=[300., -2.])
+exp_Z_err = np.sqrt(np.diag(pcov_exp_Z))
+# print par_exp_pos[1], exp_pos_err[1]
+
+X_Z_exp_fit = np.linspace(X_Z[0], X_Z[-1], 1000)
+Y_Z_exp_fit = exponential_one(X_Z_exp_fit, par_exp_Z[0], par_exp_Z[1])
+
+Y_Z_exp_up = exponential_one(
+    X_Z_exp_fit, par_exp_Z[0] + 2. * exp_Z_err[0], par_exp_Z[1] + 2. * exp_Z_err[1])
+Y_Z_exp_down = exponential_one(
+    X_Z_exp_fit, par_exp_Z[0] - 2. * exp_Z_err[0], par_exp_Z[1] - 2. * exp_Z_err[1])
+Y_Z_exp_res = Y_Z - exponential_one(X_Z, par_exp_Z[0], par_exp_Z[1])
+
+Y_exp_Z_temp = exponential_one(X_Z, par_exp_Z[0], par_exp_Z[1])
+chi2_exp_Z = chi2(Y_exp_Z_temp, Y_Z, erY_Z) / (len(Y_Z) - 2.)
+
+fig_Z_exp = plt.figure()
+ax1 = fig_Z_exp.add_subplot(211)
+ax1.grid()
+ax1.set_title("exp. fit Z range")
+plt.xlabel("t [$\mu s$]")
+plt.ylabel("Events/Bin")
+plt.errorbar(X_Z, Y_Z, yerr=erY_Z, fmt=".", linewidth=0.5,
+             capsize=1.5, markersize=2.5, label="data")
+plt.plot(X_Z_exp_fit, Y_Z_exp_fit, label="fit")
+ax1.fill_between(X_Z_exp_fit, Y_Z_exp_up, Y_Z_exp_down,
+                 alpha=.25, label="$2\sigma$ fit")
+ax1.text(0.35, 2000., r'A= ' + str(round(par_exp_Z[0], 1)) + " $\pm$ " + str(round(exp_Z_err[0], 1)) + " \n" + r"($\lambda$= " + str(round(par_exp_Z[1], 3)) + " $\pm$ " + str(round(exp_Z_err[1], 3)) + ") $\mu s^{-1}$ \n $\chi ^2 / ndof=$" + str(round(chi2_exp_Z, 2)), style='italic', fontsize="small",
+         bbox={'facecolor': 'grey', 'alpha': 0.3, 'pad': 5})
+plt.legend(loc="best")
+ax2 = fig_Z_exp.add_subplot(212, sharex=ax1)
+ax2.set_title("Residues")
+plt.xlabel("t [$\mu s$]")
+plt.ylabel("data-fit")
+ax2.grid()
+ax2.axhline(0., 0, 1, color='red', alpha=0.8, lw=0.5)
+ax2.errorbar(X_Z, Y_Z_exp_res, yerr=erY_Z, fmt=".",
+             linewidth=0.5, capsize=1.5, markersize=2.5)
+plt.subplots_adjust(hspace=0.5, wspace=0.5)
+fig_Z_exp.savefig("expFit_Z.pdf")
