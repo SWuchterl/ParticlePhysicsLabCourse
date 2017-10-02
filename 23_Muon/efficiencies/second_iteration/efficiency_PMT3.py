@@ -31,18 +31,27 @@ interpolation = interp1d(x_data, y_purity, kind='cubic')
 params, extras = curve_fit(
     erfunc, x_data, y_data, sigma=y_err, p0=[1., 1850., 5.])
 
-fig = plt.figure()
-plt.plot(x_fit, erfunc(x_fit, *params), label='Errorfunction fit')
-plt.errorbar(x_data, y_data, yerr=y_err, fmt='.',
+fig, ax1 = plt.subplots()
+ax1.plot(x_fit, erfunc(x_fit, *params), label='Errorfunction fit')
+ax1.errorbar(x_data, y_data, yerr=y_err, fmt='.',
              label='Efficiency data points')
-plt.plot(x_data, interpolation(x_data), '--',
-         label='Spline interpolation (purity)')
-plt.errorbar(x_data, y_purity, yerr=y_err_purity,
-             fmt='.', label='Purity data points')
-plt.plot([params[1] + 2. * params[2]], [erfunc(params[1] + 2. *
+ax2 = ax1.twinx()
+ax2.plot(x_data, interpolation(x_data), '--',
+         label='Spline interpolation (purity)', color='green')
+ax2.errorbar(x_data, y_purity, yerr=y_err_purity,
+             fmt='.', label='Purity data points', color='r')
+ax1.plot([params[1] + 2. * params[2]], [erfunc(params[1] + 2. *
                                                params[2], *params)], marker='*', markersize=10, color="red", label='Working point')
-plt.legend()
+
+lines, labels = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax2.legend(lines + lines2, labels + labels2, loc=7)
+
+ax1.set_xlabel('Voltage [V]')
+ax1.set_ylabel('Efficiency')
+ax2.set_ylabel('Purity')
 plt.title('Efficiency and Purity')
+fig.tight_layout()
 plt.savefig('efficiency_fitPMT_3_second.pdf', format='pdf')
 
 print "mean: ", params[1]
