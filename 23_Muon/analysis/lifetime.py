@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.special import erf
 from scipy.optimize import curve_fit
-from scipy.interpolate import interp1d
+# from scipy.interpolate import interp1d
 from scipy import stats
 import matplotlib.pyplot as plt
 from numpy import sqrt, sin, cos, log, exp
