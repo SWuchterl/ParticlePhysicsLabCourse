@@ -37,6 +37,8 @@ def chi2(y_exp, y_obs, y_err):
 # Read in data
 data = np.loadtxt('../data/mittwoch.TKA', skiprows=2)
 # data = np.loadtxt('../data/dienstag.TKA', skiprows=2)
+# data = np.loadtxt('../data/Weekend.TKA', skiprows=2)
+# data = np.loadtxt('../data/david.TKA', skiprows=2)
 channel = np.linspace(0., len(data), len(data))
 
 # plot raw data
@@ -51,8 +53,8 @@ plt.savefig("raw_log.pdf")
 
 # REBINNING
 length = len(channel)
+# nBins = 80
 nBins = 80
-# nBins = 90
 binLength = length / nBins
 binnedX = []
 binnedY = []
@@ -97,6 +99,10 @@ A = temp[0]
 B = temp[2]
 erA = np.sqrt(temp[1])
 erB = np.sqrt(temp[3])
+# A = temp[4]
+# B = temp[6]
+# erA = np.sqrt(temp[5])
+# erB = np.sqrt(temp[7])
 A = round(A, 6)
 erA = round(erA, 6)
 
@@ -675,6 +681,40 @@ fig_Z_exp.savefig("expFit_Z.pdf")
 """
 DO FAT GLOBAL FIT
 """
+# # REBINNING
+# length = len(channel)
+# nBins = 180
+# # nBins = 90
+# binLength = length / nBins
+# binnedX = []
+# binnedY = []
+#
+# for i in range(nBins):
+#     tempSumY = sum(data[i * binLength:(i + 1) * binLength])
+#     tempSumX = sum(channel[i * binLength:(i + 1) * binLength])
+#     meanX = tempSumX / binLength
+#     binnedX.append(meanX)
+#     binnedY.append(tempSumY)
+#
+#
+# temp = np.loadtxt("../calibration/values/cali" + str(100) + ".txt", skiprows=0)
+# A = temp[0]
+# B = temp[2]
+# erA = np.sqrt(temp[1])
+# erB = np.sqrt(temp[3])
+# A = round(A, 6)
+# erA = round(erA, 6)
+#
+# # transform
+# X = np.array(binnedX)
+# Y = np.array(binnedY)
+# erX = np.zeros(len(binnedX))
+# erY = np.sqrt(binnedY)
+# logY = np.log(Y)
+# erLogY = erY / Y
+# calX = A * X
+# erCalX = X * erA
+
 
 cov_Z_linreg = corr_Z * (ea_Z * eb_Z)
 Amplitude_Z = np.exp(b_Z)
@@ -685,6 +725,9 @@ erLambda_Z = ea_Z
 
 
 def exponential_four(x, c1, c2, c3, c0, l1, l2, l3):
+    # part1 = c1 * np.exp(l1 * x)
+    # part2 = c2 * np.exp(l2 * x)
+    # part3 = c3 * np.exp(l3 * x)
     return (c0 + c1 * np.exp(-1. * l1 * x) + c2 * np.exp(-1. * l2 * x) + c3 * np.exp(-1. * l3 * x))
 
 
@@ -694,18 +737,70 @@ erX_toFit_global = erCalX
 erY_toFit_global = erY
 pStart = [
     Amplitude_pos, Amplitude_neg, Amplitude_Z, bkgMean, lambda_pos, lambda_neg, lambda_Z]
-print pStart
-par_glob, cov_glob = curve_fit(
-    exponential_four, calX, Y, p0=pStart)
-print "global", par_glob
+# print"start", pStart
 
-X_global = np.linspace(0., 20., 1000)
+# par_glob, cov_glob = curve_fit(
+#     exponential_four, X_toFit_global, Y_toFit_global, p0=pStart, maxfev=10000)
+par_glob, cov_glob = curve_fit(
+    exponential_four, X_toFit_global, Y_toFit_global, sigma=erY, p0=pStart, maxfev=10000)
+print "global"
+print par_glob
+
+
+# # try gmodel fit
+from lmfit import Model
+from lmfit.models import ExponentialModel, ConstantModel
+exp1 = ExponentialModel(prefix='exp1')
+exp2 = ExponentialModel(prefix='exp2')
+exp3 = ExponentialModel(prefix='exp3')
+const = ConstantModel(prefix='const')
+gmod = exp1 + exp2 + exp3 + const
+result = gmod.fit(Y, x=calX)
+print "result"
+print(result.fit_report())
+
+
+X_global = np.linspace(calX[0], calX[-1], 500)
 Y_global = exponential_four(
     X_global, par_glob[0], par_glob[1], par_glob[2], par_glob[3], par_glob[4], par_glob[5], par_glob[6])
+# Y_global = exponential_four(
+#     X_global, Amplitude_pos, Amplitude_neg, Amplitude_Z, bkgMean, lambda_pos, lambda_neg, lambda_Z)
+
+chiq_global = chi2(exponential_four(
+    calX, par_glob[0], par_glob[1], par_glob[2], par_glob[3], par_glob[4], par_glob[5], par_glob[6]), Y_toFit_global, erY_toFit_global)
+chiNdof_global = chiq_global / (len(X_toFit_global) - 7.)
+
+err_glob = np.sqrt(np.diag(cov_glob))
+print err_glob
+glob_res = Y_toFit_global - exponential_four(
+    calX, par_glob[0], par_glob[1], par_glob[2], par_glob[3], par_glob[4], par_glob[5], par_glob[6])
+# glob_res = Y_toFit_global - exponential_four(
+#     calX, Amplitude_pos, Amplitude_neg, Amplitude_Z, bkgMean, lambda_pos, lambda_neg, lambda_Z)
+
+# glob_up = exponential_four(
+#     X_global, par_glob[0] + 1. * err_glob[0], par_glob[1] + 1. * err_glob[1], par_glob[2] + 1. * err_glob[2], par_glob[3] + 1. * err_glob[3], par_glob[4] + 1. * err_glob[4], par_glob[5] + 1. * err_glob[5], par_glob[6] + 1. * err_glob[6])
+# glob_down = exponential_four(
+#     X_global, par_glob[0] - 1. * err_glob[0], par_glob[1] - 1. * err_glob[1], par_glob[2] - 1. * err_glob[2], par_glob[3] - 1. * err_glob[3], par_glob[4] - 1. * err_glob[4], par_glob[5] - 1. * err_glob[5], par_glob[6] - 1. * err_glob[6])
 
 fig_globalFit = plt.figure()
 ax1 = fig_globalFit.add_subplot(211)
+ax1.set_title("global fit")
+plt.xlabel("t [$\mu s$]")
+plt.ylabel("Events/Bin")
 ax1.errorbar(X_toFit_global, Y_toFit_global,
              yerr=erY_toFit_global, xerr=erX_toFit_global, fmt=".")
-ax1.plot(X_global, Y_global)
+# ax1.plot(X_global, Y_global)
+plt.plot(calX, result.best_fit, 'r-')
+# ax1.fill_between(X_global, Y_global, glob_up,
+#                  alpha=.25, label="$1\sigma$ fit")
+ax2 = fig_globalFit.add_subplot(212, sharex=ax1)
+ax2.errorbar(calX, glob_res, yerr=erY_toFit_global, fmt=".",
+             linewidth=0.5, capsize=1.5, markersize=2.5)
+plt.subplots_adjust(hspace=0.5, wspace=0.5)
+ax2.set_title("Residues")
+ax2.grid()
+ax2.set_ylim([-70., 70.])
+ax2.axhline(0., 0, 1, color="black", alpha=0.5)
+plt.xlabel("t [$\mu s$]")
+plt.ylabel("data-fit")
 fig_globalFit.savefig("globalExp.pdf")
