@@ -15,3 +15,4 @@ trial.py
 23_Muon/data/david*.TKA
 23_Muon/data/Weekend.TKA
 23_Muon/efficiencies/PMT*.txt
+23_Muon/efficiencies/*/PMT*.txt
