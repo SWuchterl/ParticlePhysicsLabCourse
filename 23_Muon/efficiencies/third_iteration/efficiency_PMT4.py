@@ -61,7 +61,7 @@ print "mean+2*sigma: ", params[1] + 2. * params[2]
 print "mean+2*sigma unc.: ", np.sqrt(extras[1, 1] + 2 * extras[2, 2])
 print "purity: ", interpolation(params[1] + 2. * params[2])
 
-with open('PMT1_third.txt', 'wb') as f:
+with open('PMT4_third.txt', 'wb') as f:
     f.write('mean: ' + str(params[1]) + '\n')
     f.write('mean unc.: ' + str(np.sqrt(extras[1, 1])) + '\n')
     f.write('sigma: ' + str(params[2]) + '\n')

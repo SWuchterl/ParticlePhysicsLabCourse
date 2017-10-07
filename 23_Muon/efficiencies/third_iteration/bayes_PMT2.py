@@ -13,7 +13,7 @@ y_data3 = [2321., 2272., 2257., 2158.,
            2215., 2173., 2230., 2226., 2180., 2244., 2180.]
 
 
-hist4 = TH1F("hist", "4er", 100, x_data[0], x_data[-1])
+hist4 = TH1F("hist", "efficiency PMT2", 100, x_data[0], x_data[-1])
 hist3 = TH1F("hist", "3er", 100, x_data[0], x_data[-1])
 
 for i in range(len(x_data)):
@@ -23,6 +23,8 @@ for i in range(len(x_data)):
         hist3.Fill(x_data[i])
 
 eff = TGraphAsymmErrors(hist4, hist3, "cl=0.683 b(1,1) mode")
+
+eff.GetYaxis().SetRangeUser(0., 1.5)
 
 
 def erfunc(x, par):
@@ -45,9 +47,9 @@ print "mean+2*sigma unc.: ", np.sqrt(Errfunc.GetParError(0)**2. + 2 * Errfunc.Ge
 c1 = TCanvas('c1', 'Example', 1000, 1000)
 ROOT.gStyle.SetOptFit(1)
 eff.Draw()
-c1.SaveAs("bayes2.pdf")
+c1.SaveAs("bayes_fitPMT_2_third.pdf")
 
-with open('PMT2_first_bayes.txt', 'wb') as f:
+with open('PMT2_third_bayes.txt', 'wb') as f:
     f.write('mean: ' + str(Errfunc.GetParameter(0)) + '\n')
     f.write('mean unc.: ' + str(Errfunc.GetParError(0)) + '\n')
     f.write('sigma: ' + str(Errfunc.GetParameter(1)) + '\n')
