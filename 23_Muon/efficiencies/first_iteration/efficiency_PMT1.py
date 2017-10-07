@@ -9,7 +9,7 @@ def erfunc(x, a, b, c):
     return a / 2. * (erf((x - b) / (np.sqrt(2.) * c)) + 1.)
 
 
-x_fit = np.linspace(1750, 2289, num=539)
+x_fit = np.linspace(1750, 2285, num=535)
 x_data = [1750., 1800., 1851., 1901., 1951., 2004.,
           2048., 2100., 2151., 2202., 2253., 2285.]
 y_data4 = [61., 317., 896., 1434., 1760., 1943.,
@@ -29,7 +29,7 @@ y_err = [np.sqrt((np.sqrt(y_data4[i]) / y_data4[i])**2. +
 interpolation = interp1d(x_data, y_purity, kind='cubic')
 
 params, extras = curve_fit(
-    erfunc, x_data, y_data, sigma=y_err,  p0=[1., 1850., 1.])
+    erfunc, x_data, y_data, sigma=y_err,  p0=[1., 1850., 60.])
 
 fig, ax1 = plt.subplots()
 ax1.plot(x_fit, erfunc(x_fit, *params), label='Errorfunction fit')

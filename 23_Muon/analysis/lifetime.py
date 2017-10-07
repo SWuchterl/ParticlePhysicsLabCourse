@@ -116,8 +116,10 @@ def analysis():
     erY = np.sqrt(binnedY)
     logY = np.log(Y)
     erLogY = erY / Y
-    calX = A * X
-    erCalX = X * erA
+    calX = A * X + B
+    erCalX = np.sqrt((X * erA)**2. + erB**2.)
+
+    print erCalX / calX * 100.
 
     calLength = len(calX)
     """
@@ -325,7 +327,7 @@ def analysis():
     ax1.set_title("exp. fit pos. range")
     plt.xlabel("t [$\mu s$]")
     plt.ylabel("Events/Bin")
-    plt.errorbar(X_pos, Y_pos, yerr=erY_pos, fmt=".", linewidth=0.5,
+    plt.errorbar(X_pos, Y_pos, xerr=erX_pos, yerr=erY_pos, fmt=".", linewidth=0.5,
                  capsize=1.5, markersize=2.5, label="data")
     plt.plot(X_pos_exp_fit, Y_pos_exp_fit, label="fit")
     ax1.fill_between(X_pos_exp_fit, Y_pos_exp_up, Y_pos_exp_down,
@@ -355,7 +357,7 @@ def analysis():
     Amplitude_pos = np.exp(b_pos)
     # tau_pos = 1. / a_pos
     lambda_pos = -1. * a_pos
-    print lambda_pos
+    # print lambda_pos
     erAmplitude_pos = Amplitude_pos * eb_pos
     # erTau_pos = ea_pos / (a_pos)**2.
     erLambda_pos = ea_pos
@@ -414,9 +416,9 @@ def analysis():
     ea_neg = np.sqrt(neg_cov[0][0])
     eb_neg = np.sqrt(neg_cov[1][1])
     corr_neg = neg_cov[0][1] * (ea_neg * eb_neg)
-    print "------"
-    print a_pos, a_neg, a_pos - a_neg
-    print 1. / a_pos, 1. / a_neg, 1. / (a_pos - a_neg)
+    # print "------"
+    # print a_pos, a_neg, a_pos - a_neg
+    # print 1. / a_pos, 1. / a_neg, 1. / (a_pos - a_neg)
     Y_fit_neg = linear(X_fit_neg, a_neg, b_neg)
     Y_fit_neg_up = linear(X_fit_neg, a_neg + 1. * ea_neg, b_neg + 1. * eb_neg)
     Y_fit_neg_down = linear(X_fit_neg, a_neg - 1. *
@@ -682,6 +684,7 @@ def analysis():
         # part2 = c2 * np.exp(l2 * x)
         # part3 = c3 * np.exp(l3 * x)
         return (c0 + c1 * np.exp(-1. * l1 * x) + c2 * np.exp(-1. * l2 * x) + c3 * np.exp(-1. * l3 * x))
+        # return (part1 + part2 + part3 + bkgMean)
 
     X_toFit_global = calX
     Y_toFit_global = Y
@@ -695,22 +698,22 @@ def analysis():
     #     exponential_four, X_toFit_global, Y_toFit_global, p0=pStart, maxfev=10000)
     par_glob, cov_glob = curve_fit(
         exponential_four, X_toFit_global, Y_toFit_global, sigma=erY, p0=pStart, maxfev=10000)
-    print "global"
-    print par_glob
+    # print "global"
+    # print par_glob, np.sqrt(np.diag(cov_glob))
 
     # # try gmodel fit
-    from lmfit import Model
-    from lmfit.models import ExponentialModel, ConstantModel
-    exp1 = ExponentialModel(prefix='exp1')
-    exp2 = ExponentialModel(prefix='exp2')
-    exp3 = ExponentialModel(prefix='exp3')
-    const = ConstantModel(prefix='const')
-    gmod = exp1 + exp2 + exp3 + const
-    pars = gmod.make_params(exp1amplitude=Amplitude_pos, exp1decay=1. / lambda_pos, exp2amplitude=Amplitude_neg,
-                            exp2decay=1. / lambda_neg, exp3amplitude=Amplitude_Z, exp3decay=1. / lambda_Z, constc=bkgMean)
-    result = gmod.fit(Y, x=calX, params=pars, weights=1. /
-                      erY, method='lbfgsb')
-    print(result.fit_report())
+    # from lmfit import Model
+    # from lmfit.models import ExponentialModel, ConstantModel
+    # exp1 = ExponentialModel(prefix='exp1')
+    # exp2 = ExponentialModel(prefix='exp2')
+    # exp3 = ExponentialModel(prefix='exp3')
+    # const = ConstantModel(prefix='const')
+    # gmod = exp1 + exp2 + exp3 + const
+    # pars = gmod.make_params(exp1amplitude=Amplitude_pos, exp1decay=1. / lambda_pos, exp2amplitude=Amplitude_neg,
+    #                         exp2decay=1. / lambda_neg, exp3amplitude=Amplitude_Z, exp3decay=1. / lambda_Z, constc=bkgMean)
+    # result = gmod.fit(Y, x=calX, params=pars, weights=1. /
+    #                   erY, method='slsqp')
+    # print(result.fit_report())
 
     X_global = np.linspace(calX[0], calX[-1], 500)
     Y_global = exponential_four(
@@ -741,8 +744,8 @@ def analysis():
     plt.ylabel("Events/Bin")
     ax1.errorbar(X_toFit_global, Y_toFit_global,
                  yerr=erY_toFit_global, xerr=erX_toFit_global, fmt=".")
-    # ax1.plot(X_global, Y_global)
-    plt.plot(calX, result.best_fit, 'r-')
+    ax1.plot(X_global, Y_global)
+    # plt.plot(calX, result.best_fit, 'r-')
     # ax1.fill_between(X_global, Y_global, glob_up,
     #                  alpha=.25, label="$1\sigma$ fit")
     ax2 = fig_globalFit.add_subplot(212, sharex=ax1)
@@ -757,13 +760,66 @@ def analysis():
     plt.ylabel("data-fit")
     fig_globalFit.savefig("globalExp.pdf")
 
-    return True
+    # collect final values for everything
+    ret_pos_lin = [a_pos, ea_pos, b_pos, eb_pos]
+    ret_neg_lin = [a_neg, ea_neg, b_neg, eb_neg]
+    ret_Z_lin = [a_Z, ea_Z, b_Z, eb_Z]
+
+    ret_pos_exp = [par_exp_pos[0], np.sqrt(np.diag(pcov_exp_pos))[
+        0], par_exp_pos[1], np.sqrt(np.diag(pcov_exp_pos))[1]]
+    ret_neg_exp = [par_exp_neg[0], np.sqrt(np.diag(pcov_exp_neg))[
+        0], par_exp_neg[1], np.sqrt(np.diag(pcov_exp_neg))[1]]
+    ret_Z_exp = [par_exp_Z[0], np.sqrt(np.diag(pcov_exp_Z))[
+        0], par_exp_Z[1], np.sqrt(np.diag(pcov_exp_Z))[1]]
+
+    ret_global = [par_glob, np.sqrt(np.diag(cov_glob))]
+    # ret_global = np.array(ret_global).flatten()
+    # print ret_global
+    return ret_pos_lin, ret_neg_lin, ret_Z_lin, ret_pos_exp, ret_neg_exp, ret_Z_exp, ret_global, bkgMean, bkgErr
 
 
 def main():
-    print "do"
-    dings = analysis()
-    print "done"
+    # print "do analysis"
+    returns = analysis()
+    # print "done"
+    print "-------------------"
+    print "Final results are:"
+    print "-------------------"
+    print "Background:"
+    print "bkg = ", returns[7], " +- ", returns[8]
+    print "-------------------"
+    print "Positive region"
+    print "linear:"
+    print "lambda = ", returns[0][0], " +- ", returns[0][1]
+    print "b = ", returns[0][2], " +- ", returns[0][3]
+    print "exponential:"
+    print "lambda = ", returns[3][2], " +- ", returns[3][3]
+    print "A = ", returns[3][0], " +- ", returns[3][1]
+    print "-------------------"
+    print "Negative region"
+    print "linear:"
+    print "lambda = ", returns[1][0], " +- ", returns[1][1]
+    print "b = ", returns[1][2], " +- ", returns[1][3]
+    print "exponential:"
+    print "lambda = ", returns[4][2], " +- ", returns[4][3]
+    print "A = ", returns[4][0], " +- ", returns[4][1]
+    print "-------------------"
+    print "Heavy Nuclei region"
+    print "linear:"
+    print "lambda = ", returns[2][0], " +- ", returns[2][1]
+    print "b = ", returns[2][2], " +- ", returns[2][3]
+    print "exponential:"
+    print "lambda = ", returns[5][2], " +- ", returns[5][3]
+    print "A = ", returns[5][0], " +- ", returns[5][1]
+    print "-------------------"
+    print "Global Exp. Fit:"
+    print "A1 = ", returns[6][0][0], " +- ", returns[6][1][0]
+    print "A2 = ", returns[6][0][1], " +- ", returns[6][1][1]
+    print "A3 = ", returns[6][0][2], " +- ", returns[6][1][2]
+    print "bkg = ", returns[6][0][3], " +- ", returns[6][1][3]
+    print "lambda 1 = ", returns[6][0][4], " +- ", returns[6][1][4]
+    print "lambda 2 = ", returns[6][0][5], " +- ", returns[6][1][5]
+    print "lambda 3 = ", returns[6][0][6], " +- ", returns[6][1][6]
 
 
 main()
