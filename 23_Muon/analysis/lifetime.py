@@ -5,9 +5,10 @@ from scipy.optimize import curve_fit
 from scipy import stats
 import matplotlib.pyplot as plt
 from numpy import sqrt, sin, cos, log, exp
+import argparse
+
 
 # useful functions
-
 
 def lineare_regression(x, y, ey):
     s = sum(1. / ey**2)
@@ -34,6 +35,24 @@ def chi2(y_exp, y_obs, y_err):
     return sum(((y_obs - y_exp)**2.) / (y_err**2.))
 
 
+parser = argparse.ArgumentParser(
+    description='Analize data with given calibration.')
+parser.add_argument(
+    '--bins', help='Number of Bins. default = 80', type=int, default=80)
+parser.add_argument(
+    '--cut1', help='First Cut for background determinaton. default = 12', type=float, default=12.)
+parser.add_argument(
+    '--cut2', help='Second Cut for pos range. default = 3.5', type=float, default=3.5)
+parser.add_argument(
+    '--cut3', help='Second Cut for neg range. default = 0.7', type=float, default=0.7)
+args = parser.parse_args()
+print "Variables set to:"
+print "NBins = ", args.bins
+print "Cut1 = ", args.cut1
+print "Cut2 = ", args.cut2
+print "Cut3 = ", args.cut3
+
+
 def analysis():
 
     # Read in data
@@ -56,7 +75,7 @@ def analysis():
     # REBINNING
     length = len(channel)
     # nBins = 80
-    nBins = 80
+    nBins = args.bins
     binLength = length / nBins
     binnedX = []
     binnedY = []
@@ -117,16 +136,17 @@ def analysis():
     logY = np.log(Y)
     erLogY = erY / Y
     calX = A * X + B
-    erCalX = np.sqrt((X * erA)**2. + erB**2.)
+    erCalX = np.sqrt((X * erA)**2. + erB**2.) + 9000.
 
-    print erCalX / calX * 100.
+    # print erCalX / calX * 100.
 
     calLength = len(calX)
     """
     BACKGROUND ESTIMATION
     """
-    # cut = 11.5
-    cut = 12.
+    # #cut = 11.5
+    # cut = 12.
+    cut = args.cut1
     # find bin
     cutBin = 0
     for i in range(calLength):
@@ -144,7 +164,8 @@ def analysis():
     fig = plt.figure()
     fig.suptitle("Background Estimation")
     ax1 = fig.add_subplot(211)
-    ax1.errorbar(calX, Y, xerr=erCalX, yerr=erY, fmt='.')
+    ax1.errorbar(calX, Y, yerr=erY, fmt='.')
+    # ax1.errorbar(calX, Y, xerr=erCalX, yerr=erY, fmt='.')
     # plt.hlines(logY,A*bin_edges[:-1],A*bin_edges[1:],color="green")
     ax1.axvline(detCut, 0., 10.)
     ax1.axhline(bkgMean, 0, 1, color="orange")
@@ -191,7 +212,8 @@ def analysis():
 
     # plot both regions to find cut
     plt.figure(5)
-    plt.errorbar(X_new, Y_new_log, xerr=erX_new, yerr=erY_new_log, fmt=".")
+    plt.errorbar(X_new, Y_new_log, yerr=erY_new_log, fmt=".")
+    # plt.errorbar(X_new, Y_new_log, xerr=erX_new, yerr=erY_new_log, fmt=".")
     plt.grid()
     plt.xlabel("t [$\mu s$]")
     plt.ylabel("ln(Events/Bin)")
@@ -199,9 +221,10 @@ def analysis():
     plt.title("Finding pos. range")
     plt.savefig("region1+2.pdf")
 
-    # secondCut = 4.5
-    # secondCut = 5.
-    secondCut = 3.5
+    # ##secondCut = 4.5
+    # #secondCut = 5.
+    # secondCut = 3.5
+    secondCut = args.cut2
     cutBin_new = 0
     for i in range(len(X_new)):
         if((X_new[i] < secondCut)and(X_new[i + 1] > secondCut)):
@@ -215,13 +238,13 @@ def analysis():
     erY_pos = erY_new[cutBin_new:cutBin]
 
     # FIT
-    pos_fit, pos_cov = curve_fit(linear, X_pos, Y_pos_log, sigma=erY_pos_log)
+    # pos_fit, pos_cov = curve_fit(linear, X_pos, Y_pos_log, sigma=erY_pos_log)
     # pos_fit, pos_cov = np.polyfit(
     # X_pos, Y_pos_log, 1, w=1. / (erY_pos_log), cov=True)
     a_pos, ea_pos, b_pos, eb_pos, chiq_pos, corr_pos = lineare_regression(
         X_pos, Y_pos_log, erY_pos_log)
-    chiq_pos = chi2(
-        linear(X_pos, pos_fit[0], pos_fit[1]), Y_pos_log, erY_pos_log)
+    # chiq_pos = chi2(
+    #     linear(X_pos, pos_fit[0], pos_fit[1]), Y_pos_log, erY_pos_log)
     chiNdof_pos = chiq_pos / (len(X_pos) - 2.)
     X_fit_pos = np.linspace(secondCut, cut, 1000)
 
@@ -243,8 +266,10 @@ def analysis():
     fig_pos_fit = plt.figure()
     ax1 = fig_pos_fit.add_subplot(211)
     ax1.grid()
-    ax1.errorbar(X_pos, Y_pos_log, xerr=erX_pos, yerr=erY_pos_log,
+    ax1.errorbar(X_pos, Y_pos_log, yerr=erY_pos_log,
                  fmt=".", linewidth=0.5, capsize=1.5, markersize=2.5, label="data")
+    # ax1.errorbar(X_pos, Y_pos_log, xerr=erX_pos, yerr=erY_pos_log,
+    #              fmt=".", linewidth=0.5, capsize=1.5, markersize=2.5, label="data")
     plt.xlabel("t [$\mu s$]")
     plt.ylabel("ln(Events/Bin)")
     ax1.set_title("pos. range fit")
@@ -276,8 +301,10 @@ def analysis():
     ax1.set_title("check pos. range cut")
     plt.xlabel("t [$\mu s$]")
     plt.ylabel("ln(Events/Bin)")
-    ax1.errorbar(X_new, Y_new_log, xerr=erX_new, yerr=erY_new_log,
+    ax1.errorbar(X_new, Y_new_log, yerr=erY_new_log,
                  fmt=".", linewidth=0.5, capsize=1.5, markersize=2.5, label="data")
+    # ax1.errorbar(X_new, Y_new_log, xerr=erX_new, yerr=erY_new_log,
+    #              fmt=".", linewidth=0.5, capsize=1.5, markersize=2.5, label="data")
     ax1.grid()
     ax1.plot(X_new, Y_toPlotRes, linewidth=0.5, color="red", label="fit")
     ax1.legend(loc="best")
@@ -327,8 +354,10 @@ def analysis():
     ax1.set_title("exp. fit pos. range")
     plt.xlabel("t [$\mu s$]")
     plt.ylabel("Events/Bin")
-    plt.errorbar(X_pos, Y_pos, xerr=erX_pos, yerr=erY_pos, fmt=".", linewidth=0.5,
+    plt.errorbar(X_pos, Y_pos,  yerr=erY_pos, fmt=".", linewidth=0.5,
                  capsize=1.5, markersize=2.5, label="data")
+    # plt.errorbar(X_pos, Y_pos, xerr=erX_pos, yerr=erY_pos, fmt=".", linewidth=0.5,
+    #              capsize=1.5, markersize=2.5, label="data")
     plt.plot(X_pos_exp_fit, Y_pos_exp_fit, label="fit")
     ax1.fill_between(X_pos_exp_fit, Y_pos_exp_up, Y_pos_exp_down,
                      alpha=.25, label="$2\sigma$ fit")
@@ -388,8 +417,9 @@ def analysis():
     Y_first_log = np.log(Y_first)
     erY_first_log = erY_first / Y_first
 
-    # thirdCut = 1.5
-    thirdCut = 0.7
+    # #thirdCut = 1.5
+    # thirdCut = 0.7
+    thirdCut = args.cut3
     cutBin_third = 0
     for i in range(len(X_first)):
         if((X_first[i] < thirdCut)and(X_first[i + 1] > thirdCut)):
@@ -743,7 +773,9 @@ def analysis():
     plt.xlabel("t [$\mu s$]")
     plt.ylabel("Events/Bin")
     ax1.errorbar(X_toFit_global, Y_toFit_global,
-                 yerr=erY_toFit_global, xerr=erX_toFit_global, fmt=".")
+                 yerr=erY_toFit_global, fmt=".")
+    # ax1.errorbar(X_toFit_global, Y_toFit_global,
+    #              yerr=erY_toFit_global, xerr=erX_toFit_global, fmt=".")
     ax1.plot(X_global, Y_global)
     # plt.plot(calX, result.best_fit, 'r-')
     # ax1.fill_between(X_global, Y_global, glob_up,
@@ -791,6 +823,7 @@ def main():
     print "Positive region"
     print "linear:"
     print "lambda = ", returns[0][0], " +- ", returns[0][1]
+    print "tau = ", 1. / returns[0][0], " +- ", returns[0][1] / returns[0][0]**2.
     print "b = ", returns[0][2], " +- ", returns[0][3]
     print "exponential:"
     print "lambda = ", returns[3][2], " +- ", returns[3][3]
@@ -799,6 +832,7 @@ def main():
     print "Negative region"
     print "linear:"
     print "lambda = ", returns[1][0], " +- ", returns[1][1]
+    print "tau = ", 1. / returns[1][0], " +- ", returns[1][1] / returns[1][0]**2.
     print "b = ", returns[1][2], " +- ", returns[1][3]
     print "exponential:"
     print "lambda = ", returns[4][2], " +- ", returns[4][3]
