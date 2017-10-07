@@ -36,12 +36,12 @@ Errfunc = TF1("errFunc", erfunc, x_data[0], x_data[-1], 3)
 Errfunc.SetParameters(1., 1950., 70.)
 eff.Fit("errFunc", "", "", x_data[0], x_data[-1])
 
-print "mean: ", Errfunc.GetParameter(0)
-print "mean unc.: ", Errfunc.GetParError(0)
-print "sigma: ", Errfunc.GetParameter(1)
-print "sigma unc.: ", Errfunc.GetParError(1)
-print "mean+2*sigma: ", Errfunc.GetParameter(0) + 2. * Errfunc.GetParameter(1)
-print "mean+2*sigma unc.: ", np.sqrt(Errfunc.GetParError(0)**2. + 2 * Errfunc.GetParError(1)**2.)
+print "mean: ", Errfunc.GetParameter(1)
+print "mean unc.: ", Errfunc.GetParError(1)
+print "sigma: ", Errfunc.GetParameter(2)
+print "sigma unc.: ", Errfunc.GetParError(2)
+print "mean+2*sigma: ", Errfunc.GetParameter(1) + 2. * Errfunc.GetParameter(2)
+print "mean+2*sigma unc.: ", np.sqrt(Errfunc.GetParError(1)**2. + 2 * Errfunc.GetParError(2)**2.)
 
 
 c1 = TCanvas('c1', 'Example', 1000, 1000)
@@ -50,12 +50,12 @@ eff.Draw()
 c1.SaveAs("bayes_fitPMT_1_second.pdf")
 
 with open('PMT1_second_bayes.txt', 'wb') as f:
-    f.write('mean: ' + str(Errfunc.GetParameter(0)) + '\n')
-    f.write('mean unc.: ' + str(Errfunc.GetParError(0)) + '\n')
-    f.write('sigma: ' + str(Errfunc.GetParameter(1)) + '\n')
-    f.write('sigma unc.: ' + str(Errfunc.GetParError(1)) + '\n')
-    f.write('mean+2*sigma: ' + str(Errfunc.GetParameter(0) +
-                                   2. * Errfunc.GetParameter(1)) + '\n')
+    f.write('mean: ' + str(Errfunc.GetParameter(1)) + '\n')
+    f.write('mean unc.: ' + str(Errfunc.GetParError(1)) + '\n')
+    f.write('sigma: ' + str(Errfunc.GetParameter(2)) + '\n')
+    f.write('sigma unc.: ' + str(Errfunc.GetParError(2)) + '\n')
+    f.write('mean+2*sigma: ' + str(Errfunc.GetParameter(1) +
+                                   2. * Errfunc.GetParameter(2)) + '\n')
     f.write('mean+2*sigma unc.: ' +
-            str(np.sqrt(Errfunc.GetParError(0)**2. + 2 * Errfunc.GetParError(1)**2.)) + '\n')
+            str(np.sqrt(Errfunc.GetParError(1)**2. + 2 * Errfunc.GetParError(2)**2.)) + '\n')
     f.close()
