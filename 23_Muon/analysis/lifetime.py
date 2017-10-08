@@ -136,9 +136,9 @@ def analysis():
     logY = np.log(Y)
     erLogY = erY / Y
     calX = A * X + B
-    erCalX = np.sqrt((X * erA)**2. + erB**2.) + 9000.
+    erCalX = np.sqrt((X * erA)**2. + erB**2.)
 
-    # print erCalX / calX * 100.
+    print erCalX / calX * 100.
 
     calLength = len(calX)
     """
@@ -170,14 +170,15 @@ def analysis():
     ax1.axvline(detCut, 0., 10.)
     ax1.axhline(bkgMean, 0, 1, color="orange")
     ax1.grid()
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("Events/Bin")
     ax2 = fig.add_subplot(212, sharex=ax1)
     ax2.set_title("ratio")
     ax2.errorbar(calX[8:], ratio_bkg[8:], yerr=er_ratio_bkg[8:], fmt=".")
     ax2.axhline(1., 0, 1, color="black", alpha=0.7)
     ax2.grid()
-    plt.xlabel("t [$\mu s$]")
+    ax1.axvline(detCut, 1., 5.)
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel(r"$ \frac{Events}{Events_{Bkg}}$ / Bin")
     plt.subplots_adjust(hspace=0.5, wspace=0.5)
     fig.savefig("background.pdf")
@@ -215,7 +216,7 @@ def analysis():
     plt.errorbar(X_new, Y_new_log, yerr=erY_new_log, fmt=".")
     # plt.errorbar(X_new, Y_new_log, xerr=erX_new, yerr=erY_new_log, fmt=".")
     plt.grid()
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("ln(Events/Bin)")
     plt.xticks(np.arange(0., max(X_new) + 1., 1.0))
     plt.title("Finding pos. range")
@@ -270,7 +271,7 @@ def analysis():
                  fmt=".", linewidth=0.5, capsize=1.5, markersize=2.5, label="data")
     # ax1.errorbar(X_pos, Y_pos_log, xerr=erX_pos, yerr=erY_pos_log,
     #              fmt=".", linewidth=0.5, capsize=1.5, markersize=2.5, label="data")
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("ln(Events/Bin)")
     ax1.set_title("pos. range fit")
     ax1.plot(X_fit_pos, Y_fit_pos, label="fit")
@@ -285,9 +286,9 @@ def analysis():
     plt.subplots_adjust(hspace=0.5, wspace=0.5)
     ax2.set_title("Residues")
     ax2.grid()
-    ax2.set_ylim([-6., 6.])
+    ax2.set_ylim([-2.5, 2.5])
     ax2.axhline(0., 0, 1, color="black", alpha=0.5)
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("data-fit")
     fig_pos_fit.savefig("fit_pos.pdf")
 
@@ -299,7 +300,7 @@ def analysis():
     fig_res = plt.figure()
     ax1 = fig_res.add_subplot(211)
     ax1.set_title("check pos. range cut")
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("ln(Events/Bin)")
     ax1.errorbar(X_new, Y_new_log, yerr=erY_new_log,
                  fmt=".", linewidth=0.5, capsize=1.5, markersize=2.5, label="data")
@@ -315,7 +316,7 @@ def analysis():
                  linewidth=0.5, capsize=1.5, markersize=2.5)
     ax2.axhline(0., 0, 1, color='red', alpha=0.8, lw=0.5)
     ax2.set_ylim([-1.5, 1.5])
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("data-fit")
     ax2.axvline(secondCut, color="black", alpha=0.5)
     ax2.set_title("Residues")
@@ -352,7 +353,7 @@ def analysis():
     ax1 = fig_pos_exp.add_subplot(211)
     ax1.grid()
     ax1.set_title("exp. fit pos. range")
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("Events/Bin")
     plt.errorbar(X_pos, Y_pos,  yerr=erY_pos, fmt=".", linewidth=0.5,
                  capsize=1.5, markersize=2.5, label="data")
@@ -366,7 +367,7 @@ def analysis():
     plt.legend(loc="best")
     ax2 = fig_pos_exp.add_subplot(212, sharex=ax1)
     ax2.set_title("Residues")
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("data-fit")
     ax2.grid()
     ax2.axhline(0., 0, 1, color='red', alpha=0.8, lw=0.5)
@@ -461,7 +462,7 @@ def analysis():
     ax1.grid()
     ax1.errorbar(X_neg, Y_neg_log, yerr=erY_neg_log,
                  fmt=".", linewidth=0.5, capsize=1.5, markersize=2.5, label="data")
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("ln(Events/Bin)")
     ax1.set_title("neg. range fit")
     ax1.plot(X_fit_neg, Y_fit_neg, label="fit")
@@ -478,7 +479,7 @@ def analysis():
     ax2.grid()
     ax2.set_ylim([-6., 6.])
     ax2.axhline(0., 0, 1, color="black", alpha=0.5)
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("data-fit")
     fig_neg_fit.savefig("fit_neg.pdf")
 
@@ -490,7 +491,7 @@ def analysis():
     fig_res_neg = plt.figure()
     ax1 = fig_res_neg.add_subplot(211)
     ax1.set_title("check neg. range cut")
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("ln(Events/Bin)")
     # ax1.errorbar(X_first, Y_first_log, xerr=erX_first, yerr=erY_first_log,
     ax1.errorbar(X_first, Y_first_log, yerr=erY_first_log,
@@ -504,8 +505,8 @@ def analysis():
     ax2.errorbar(X_first, res_neg, yerr=er_Res_neg, fmt=".",
                  linewidth=0.5, capsize=1.5, markersize=2.5)
     ax2.axhline(0., 0, 1, color='red', alpha=0.8, lw=0.5)
-    ax2.set_ylim([-3., 3.])
-    plt.xlabel("t [$\mu s$]")
+    ax2.set_ylim([-5., 5.])
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("data-fit")
     ax2.axvline(thirdCut, color="black", alpha=0.5)
     ax2.set_title("Residues")
@@ -542,7 +543,7 @@ def analysis():
     ax1 = fig_neg_exp.add_subplot(211)
     ax1.grid()
     ax1.set_title("exp. fit neg. range")
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("Events/Bin")
     plt.errorbar(X_neg, Y_neg, yerr=erY_neg, fmt=".", linewidth=0.5,
                  capsize=1.5, markersize=2.5, label="data")
@@ -554,7 +555,7 @@ def analysis():
     plt.legend(loc="best")
     ax2 = fig_neg_exp.add_subplot(212, sharex=ax1)
     ax2.set_title("Residues")
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("data-fit")
     ax2.grid()
     ax2.axhline(0., 0, 1, color='red', alpha=0.8, lw=0.5)
@@ -628,7 +629,7 @@ def analysis():
     ax1.grid()
     ax1.errorbar(X_Z, Y_Z_log, yerr=erY_Z_log,
                  fmt=".", linewidth=0.5, capsize=1.5, markersize=2.5, label="data")
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("ln(Events/Bin)")
     ax1.set_title("Z range fit")
     ax1.plot(X_fit_Z, Y_fit_Z, label="fit")
@@ -645,7 +646,7 @@ def analysis():
     ax2.grid()
     ax2.set_ylim([-1.5, 1.5])
     ax2.axhline(0., 0, 1, color="black", alpha=0.5)
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("data-fit")
     fig_Z_fit.savefig("fit_Z.pdf")
 
@@ -677,7 +678,7 @@ def analysis():
     ax1 = fig_Z_exp.add_subplot(211)
     ax1.grid()
     ax1.set_title("exp. fit Z range")
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("Events/Bin")
     plt.errorbar(X_Z, Y_Z, yerr=erY_Z, fmt=".", linewidth=0.5,
                  capsize=1.5, markersize=2.5, label="data")
@@ -689,7 +690,7 @@ def analysis():
     plt.legend(loc="best")
     ax2 = fig_Z_exp.add_subplot(212, sharex=ax1)
     ax2.set_title("Residues")
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("data-fit")
     ax2.grid()
     ax2.axhline(0., 0, 1, color='red', alpha=0.8, lw=0.5)
@@ -770,7 +771,7 @@ def analysis():
     fig_globalFit = plt.figure()
     ax1 = fig_globalFit.add_subplot(211)
     ax1.set_title("global fit")
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("Events/Bin")
     ax1.errorbar(X_toFit_global, Y_toFit_global,
                  yerr=erY_toFit_global, fmt=".")
@@ -788,7 +789,7 @@ def analysis():
     ax2.grid()
     ax2.set_ylim([-70., 70.])
     ax2.axhline(0., 0, 1, color="black", alpha=0.5)
-    plt.xlabel("t [$\mu s$]")
+    plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel("data-fit")
     fig_globalFit.savefig("globalExp.pdf")
 
