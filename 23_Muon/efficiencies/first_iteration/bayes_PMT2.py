@@ -46,7 +46,8 @@ print "mean+2*sigma unc.: ", np.sqrt(Errfunc.GetParError(1)**2. + 2 * Errfunc.Ge
 
 c1 = TCanvas('c1', 'Example', 1000, 1000)
 ROOT.gStyle.SetOptFit(1)
-eff.Draw()
+eff.Draw("AP")
+eff.SetTitle("Efficiency PMT2; Voltage [V]; efficiency")
 c1.SaveAs("bayes_fitPMT_2_first.pdf")
 
 with open('PMT2_first_bayes.txt', 'wb') as f:
