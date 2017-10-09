@@ -711,11 +711,10 @@ def analysis():
     erLambda_Z = ea_Z
 
     def exponential_four(x, c1, c2, c3, c0, l1, l2, l3):
-        # part1 = c1 * np.exp(l1 * x)
-        # part2 = c2 * np.exp(l2 * x)
-        # part3 = c3 * np.exp(l3 * x)
         return (c0 + c1 * np.exp(-1. * l1 * x) + c2 * np.exp(-1. * l2 * x) + c3 * np.exp(-1. * l3 * x))
-        # return (part1 + part2 + part3 + bkgMean)
+
+    def exponential_three(x, c1, c2, c0, l1, l2):
+        return (c0 + c1 * np.exp(-1. * l1 * x) + c2 * np.exp(-1. * l2 * x))
 
     X_toFit_global = calX
     Y_toFit_global = Y
@@ -723,14 +722,18 @@ def analysis():
     erY_toFit_global = erY
     pStart = [
         Amplitude_pos, Amplitude_neg, Amplitude_Z, bkgMean, lambda_pos, lambda_neg, lambda_Z]
+    pStart_3 = [
+        Amplitude_pos, Amplitude_neg, bkgMean, lambda_pos, lambda_neg]
     # print"start", pStart
 
     # par_glob, cov_glob = curve_fit(
     #     exponential_four, X_toFit_global, Y_toFit_global, p0=pStart, maxfev=10000)
     par_glob, cov_glob = curve_fit(
         exponential_four, X_toFit_global, Y_toFit_global, sigma=erY, p0=pStart, maxfev=10000)
+    # par_glob_3, cov_glob_3 = curve_fit(
+    #     exponential_three, X_toFit_global, Y_toFit_global, sigma=erY, p0=pStart_3, maxfev=10000)
     # print "global"
-    # print par_glob, np.sqrt(np.diag(cov_glob))
+    # print "3er --->\n", par_glob_3, np.sqrt(np.diag(cov_glob_3))
 
     # # try gmodel fit
     # from lmfit import Model
