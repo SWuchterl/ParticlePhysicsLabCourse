@@ -177,7 +177,7 @@ def analysis():
     ax2.errorbar(calX[8:], ratio_bkg[8:], yerr=er_ratio_bkg[8:], fmt=".")
     ax2.axhline(1., 0, 1, color="black", alpha=0.7)
     ax2.grid()
-    ax1.axvline(detCut, 1., 5.)
+    ax2.axvline(detCut, 0., 1.)
     plt.xlabel("$\Delta $t [$\mu s$]")
     plt.ylabel(r"$ \frac{Events}{Events_{Bkg}}$ / Bin")
     plt.subplots_adjust(hspace=0.5, wspace=0.5)
@@ -362,7 +362,7 @@ def analysis():
     plt.plot(X_pos_exp_fit, Y_pos_exp_fit, label="fit")
     ax1.fill_between(X_pos_exp_fit, Y_pos_exp_up, Y_pos_exp_down,
                      alpha=.25, label="$2\sigma$ fit")
-    ax1.text(7.5, 150., r'A= ' + str(round(par_exp_pos[0], 1)) + " $\pm$ " + str(round(exp_pos_err[0], 1)) + " \n" + r"($\lambda$= " + str(round(par_exp_pos[1], 3)) + " $\pm$ " + str(round(exp_pos_err[1], 3)) + ") $\mu s^{-1}$ \n $\chi ^2 / ndof=$" + str(round(chi2_exp_pos, 2)), style='italic', fontsize="small",
+    ax1.text(7.5, 150., r'A= ' + str(round(par_exp_pos[0], 1)) + " $\pm$ " + str(round(exp_pos_err[0], 1)) + " \n" + r"($\lambda$= " + str(round(par_exp_pos[1], 2)) + " $\pm$ " + str(round(exp_pos_err[1], 2)) + ") $\mu s^{-1}$ \n $\chi ^2 / ndof=$" + str(round(chi2_exp_pos, 2)), style='italic', fontsize="small",
              bbox={'facecolor': 'grey', 'alpha': 0.3, 'pad': 5})
     plt.legend(loc="best")
     ax2 = fig_pos_exp.add_subplot(212, sharex=ax1)
@@ -685,7 +685,7 @@ def analysis():
     plt.plot(X_Z_exp_fit, Y_Z_exp_fit, label="fit")
     ax1.fill_between(X_Z_exp_fit, Y_Z_exp_up, Y_Z_exp_down,
                      alpha=.25, label="$2\sigma$ fit")
-    ax1.text(0.35, 2000., r'A= ' + str(round(par_exp_Z[0], 1)) + " $\pm$ " + str(round(exp_Z_err[0], 1)) + " \n" + r"($\lambda$= " + str(round(par_exp_Z[1], 3)) + " $\pm$ " + str(round(exp_Z_err[1], 3)) + ") $\mu s^{-1}$ \n $\chi ^2 / ndof=$" + str(round(chi2_exp_Z, 2)), style='italic', fontsize="small",
+    ax1.text(0.35, 2000., r'A= ' + str(round(par_exp_Z[0], 1)) + " $\pm$ " + str(round(exp_Z_err[0], 1)) + " \n" + r"($\lambda$= " + str(round(par_exp_Z[1], 2)) + " $\pm$ " + str(round(exp_Z_err[1], 2)) + ") $\mu s^{-1}$ \n $\chi ^2 / ndof=$" + str(round(chi2_exp_Z, 2)), style='italic', fontsize="small",
              bbox={'facecolor': 'grey', 'alpha': 0.3, 'pad': 5})
     plt.legend(loc="best")
     ax2 = fig_Z_exp.add_subplot(212, sharex=ax1)
@@ -735,7 +735,7 @@ def analysis():
     # print "global"
     # print "3er --->\n", par_glob_3, np.sqrt(np.diag(cov_glob_3))
 
-    # # try gmodel fit
+    # try gmodel fit
     # from lmfit import Model
     # from lmfit.models import ExponentialModel, ConstantModel
     # exp1 = ExponentialModel(prefix='exp1')
@@ -746,7 +746,7 @@ def analysis():
     # pars = gmod.make_params(exp1amplitude=Amplitude_pos, exp1decay=1. / lambda_pos, exp2amplitude=Amplitude_neg,
     #                         exp2decay=1. / lambda_neg, exp3amplitude=Amplitude_Z, exp3decay=1. / lambda_Z, constc=bkgMean)
     # result = gmod.fit(Y, x=calX, params=pars, weights=1. /
-    #                   erY, method='slsqp')
+    #                   erY, method='L-BFGS-B')
     # print(result.fit_report())
 
     X_global = np.linspace(calX[0], calX[-1], 500)
