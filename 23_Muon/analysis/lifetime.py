@@ -829,6 +829,7 @@ def main():
     print "lambda = ", returns[0][0], " +- ", returns[0][1]
     print "tau = ", 1. / returns[0][0], " +- ", returns[0][1] / returns[0][0]**2.
     print "b = ", returns[0][2], " +- ", returns[0][3]
+    print "N+= ", np.exp(returns[0][2]), " + ", np.exp(returns[0][2] + returns[0][3]) - np.exp(returns[0][2]), " - ", np.exp(returns[0][2] - returns[0][3]) - np.exp(returns[0][2])
     print "exponential:"
     print "lambda = ", returns[3][2], " +- ", returns[3][3]
     print "A = ", returns[3][0], " +- ", returns[3][1]
@@ -838,14 +839,31 @@ def main():
     print "lambda = ", returns[1][0], " +- ", returns[1][1]
     print "tau = ", 1. / returns[1][0], " +- ", returns[1][1] / returns[1][0]**2.
     print "b = ", returns[1][2], " +- ", returns[1][3]
+    print "N-= ", np.exp(returns[1][2]), " + ", np.exp(returns[1][2] + returns[1][3]) - np.exp(returns[1][2]), " - ", np.exp(returns[1][2] - returns[1][3]) - np.exp(returns[1][2])
     print "exponential:"
     print "lambda = ", returns[4][2], " +- ", returns[4][3]
     print "A = ", returns[4][0], " +- ", returns[4][1]
+    print "-------------------"
+    print "charge ratio:"
+    nplus = np.exp(returns[0][2])
+    nminus = np.exp(returns[1][2])
+    eNplus_up = np.exp(returns[0][2] + returns[0][3]) - np.exp(returns[0][2])
+    eNplus_down = np.exp(returns[0][2] - returns[0][3]) - np.exp(returns[0][2])
+    eNminus_up = np.exp(returns[1][2] + returns[1][3]) - np.exp(returns[1][2])
+    eNminus_down = np.exp(returns[1][2] - returns[1]
+                          [3]) - np.exp(returns[1][2])
+    ratio = nplus / nminus
+    eRatioUp = np.sqrt((eNplus_up / nminus)**2. +
+                       (nplus / nminus**2. * eNminus_up)**2.)
+    eRatioDown = np.sqrt((eNplus_down / nminus)**2. +
+                         (nplus / nminus**2. * eNminus_down)**2.)
+    print "N+/N-= ", ratio, " + ", eRatioUp, " - ", eRatioDown
     print "-------------------"
     print "Heavy Nuclei region"
     print "linear:"
     print "lambda = ", returns[2][0], " +- ", returns[2][1]
     print "b = ", returns[2][2], " +- ", returns[2][3]
+    print "NZ= ", np.exp(returns[2][2]), " + ", np.exp(returns[2][2] + returns[2][3]) - np.exp(returns[2][2]), " - ", np.exp(returns[2][2] - returns[2][3]) - np.exp(returns[2][2])
     print "exponential:"
     print "lambda = ", returns[5][2], " +- ", returns[5][3]
     print "A = ", returns[5][0], " +- ", returns[5][1]
