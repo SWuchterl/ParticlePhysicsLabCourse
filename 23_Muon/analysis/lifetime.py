@@ -857,7 +857,9 @@ def main():
                        (nplus / nminus**2. * eNminus_up)**2.)
     eRatioDown = np.sqrt((eNplus_down / nminus)**2. +
                          (nplus / nminus**2. * eNminus_down)**2.)
-    print "N+/N-= ", ratio, " + ", eRatioUp, " - ", eRatioDown
+    print "linear N+/N-= ", ratio, " + ", eRatioUp, " - ", eRatioDown
+    print "exp N+/N-= ", returns[3][0] / returns[4][0], " +- ", np.sqrt((returns[3][1] / returns[4][0])**2. + (returns[3][0] / returns[4][0]**2. * returns[4][1])**2.)
+    print "global N+/N-= ", returns[6][0][0] / returns[6][0][1], " +- ", np.sqrt((returns[6][0][1] / returns[6][0][1])**2. + (returns[6][0][0] / returns[6][0][1]**2. * returns[6][1][1])**2.)
     print "-------------------"
     print "Heavy Nuclei region"
     print "linear:"
