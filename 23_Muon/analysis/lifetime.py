@@ -138,7 +138,7 @@ def analysis():
     calX = A * X + B
     erCalX = np.sqrt((X * erA)**2. + erB**2.)
 
-    print erCalX / calX * 100.
+    # print erCalX / calX * 100.
 
     calLength = len(calX)
     """
